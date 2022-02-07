@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:localiza_favoritos/componentes/botao_mapa_zoom-in.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 
 class formularioDashboard extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,7 +14,14 @@ class formularioDashboard extends StatelessWidget {
   }
 }
 
-class dashboard extends StatelessWidget {
+class dashboard extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return dashboardState();
+  }
+}
+
+class dashboardState extends State<dashboard> {
   static const String titulo = 'Dashboard';
   @override
   Widget build(BuildContext context) {
@@ -22,7 +29,8 @@ class dashboard extends StatelessWidget {
       appBar: AppBar(
         title: Text(titulo),
       ),
-      body:  Mapas(),
+      body: Mapas(),
+     
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -39,4 +47,3 @@ class dashboard extends StatelessWidget {
     );
   }
 }
-
