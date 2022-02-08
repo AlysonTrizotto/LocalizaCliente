@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
-import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
-import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 
 class lista_favoritos extends StatelessWidget {
   final favoritosDao _dao = favoritosDao();
   final _form = GlobalKey<FormState>();
 
-  // Classe que apresenta os dados
+   // Classe que apresenta os dados
   @override
   Widget build(BuildContext context) {
     // Construtor dos Icones
@@ -33,7 +31,7 @@ class lista_favoritos extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CircularProgressIndicator(),
-                    Text('Carregando favoritoss'),
+                    Text('Carregando favoritos'),
                   ],
                 ),
               );

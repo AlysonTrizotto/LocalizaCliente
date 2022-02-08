@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
+import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 
 class FormularioCadastro extends StatefulWidget {
   @override
@@ -15,21 +16,35 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   // ignore: non_constant_identifier_names
   final double tamanhp_fonte = 16.0;
 
-  final TextEditingController controladorCampoNome = TextEditingController();
-  final TextEditingController controladorCampoTelefone =
-      TextEditingController();
-  final TextEditingController controladorCampoEstado = TextEditingController();
-  final TextEditingController controladorCampoCidade = TextEditingController();
-  final TextEditingController controladorCampoRua = TextEditingController();
-  final TextEditingController controladorCampoNum = TextEditingController();
+  late TextEditingController controladorCampoNome = TextEditingController();
+  late TextEditingController controladorCampoTelefone = TextEditingController();
+  late TextEditingController controladorCampoEstado = TextEditingController();
+  late TextEditingController controladorCampoCidade = TextEditingController();
+  late TextEditingController controladorCampoRua = TextEditingController();
+  late TextEditingController controladorCampoNum = TextEditingController();
 
-  // const FormularioCadastro({Key? key, this._controladorCampoNome, this._controladorCampoTelefone, this._controladorCampoEstado, this._controladorCampoCidade, this._controladorCampoRua, this._controladorCampoNum}) : super(key: key);
+  // const Formula
+  //rioCadastro({Key? key, this._controladorCampoNome, this._controladorCampoTelefone, this._controladorCampoEstado, this._controladorCampoCidade, this._controladorCampoRua, this._controladorCampoNum}) : super(key: key);
+  void initState() {
+    super.initState();
+
+    controladorCampoNome = new TextEditingController(text: '');
+    controladorCampoTelefone = new TextEditingController(text: '');
+    controladorCampoEstado = new TextEditingController(text: '');
+    controladorCampoRua = new TextEditingController(text: '');
+    controladorCampoCidade = new TextEditingController(text: '');
+    controladorCampoNum = new TextEditingController(text: '');
+  }
+
+  void disponse() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro de favoritoss'),
+        title: Text('Cadastro'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -75,17 +90,27 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                  // ignore: prefer_const_constructors
-                  child: Text('Confirmar'),
-                  onPressed: () => _criaCadastro(
-                      controladorCampoNome.text,
-                      controladorCampoTelefone.text,
-                      controladorCampoEstado.text,
-                      controladorCampoRua.text,
-                      controladorCampoCidade.text,
-                      int.parse(controladorCampoNum.text),
-                      context),
-                ),
+                    // ignore: prefer_const_constructors
+                    child: Text('Confirmar'),
+                    onPressed: () {
+                      _criaCadastro(
+                          controladorCampoNome.text,
+                          controladorCampoTelefone.text,
+                          controladorCampoEstado.text,
+                          controladorCampoRua.text,
+                          controladorCampoCidade.text,
+                          int.parse(controladorCampoNum.text),
+                          context);
+                      //initState();
+                      /*
+                      controladorCampoTelefone = new TextEditingController(text: '');
+                      controladorCampoEstado = new TextEditingController(text: '');
+                      controladorCampoRua = new TextEditingController(text: '');
+                      controladorCampoCidade = new TextEditingController(text: '');
+                      controladorCampoNome = new TextEditingController(text: '');
+                      controladorCampoNum = new TextEditingController(text: '');
+*/
+                    }),
               ),
             ],
           ),
@@ -101,5 +126,13 @@ void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
 
   final CadastroCriado =
       redistro_favoritos(Nome, Telefone, Estado, Cidade, Rua, numParse);
-  _dao.save_favoritos(CadastroCriado).then((id) => Navigator.pop(context));
+  _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
+  ;
 }
+/*
+void reset() {
+  for (final FormFieldState<dynamic> field in _fields)
+    field.reset();
+  _hasInteractedByUser = false;
+  _fieldDidChange();
+}*/

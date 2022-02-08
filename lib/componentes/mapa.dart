@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 
 //Declarando o MapCOntroler
 class Mapas extends StatelessWidget with OSMMixinObserver {
@@ -18,6 +19,10 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
   );
   late GlobalKey<ScaffoldState> scaffoldKey;
   ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
+  late GeoPoint lastMarkPosition =
+      GeoPoint(latitude: 47.4358055, longitude: 8.4737384);
+  ValueNotifier<bool> rastreio = ValueNotifier(false);
+  ValueNotifier<IconData> IconeRastreio = ValueNotifier(Icons.my_location);
   Timer? timer;
 
   @override
@@ -86,12 +91,14 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController controladorCampoPesquisa =
+        TextEditingController();
     return Scaffold(
       floatingActionButton:
           Column(mainAxisAlignment: MainAxisAlignment.end, children: [
         FloatingActionButton(
           child: Icon(Icons.add),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Color(0xFF101427),
           onPressed: () async {
             mapController.zoomIn();
           },
@@ -99,24 +106,37 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
         ),
         FloatingActionButton(
           child: Icon(Icons.remove),
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Color(0xFF101427),
           onPressed: () async {
             mapController.zoomOut();
           },
           mini: true,
         ),
         FloatingActionButton(
-            child: Icon(Icons.location_searching_rounded),
-            backgroundColor: Colors.blueAccent,
-            onPressed: () async {
-              atualyPosition();
-            }),
+          backgroundColor: Color(0xFF101427),
+          onPressed: () async {
+            atualyPosition();
+          },
+          child: ValueListenableBuilder<bool>(
+            valueListenable: rastreio,
+            builder: (ctx, isTracking, _) {
+              if (isTracking) {
+                return Icon(Icons.my_location, color: Colors.white,);
+                
+              }
+              return Icon(Icons.gps_off_sharp, color: Colors.deepOrangeAccent);
+            },
+          ),
+        ),
       ]),
+      appBar: AppBar(
+          title: Text('Mapa'),
+        ),
       body: Container(
         child: Stack(children: [
           OSMFlutter(
             controller: mapController,
-            trackMyPosition: false,
+            trackMyPosition: rastreio.value,
             androidHotReloadSupport: true,
             mapIsLoading: Center(
               child: Column(
@@ -149,7 +169,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
               ),
               directionArrowMarker: MarkerIcon(
                 icon: Icon(
-                  Icons.double_arrow,
+                  Icons.send,
                   size: 48,
                 ),
               ),
@@ -174,6 +194,39 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
               ),
             ),
           ),
+          /*edit_text_geral(controladorCampoPesquisa, 'Rua XV', 'Endereço',
+                  Icons.search_rounded),     */
+          Column(children: <Widget>[
+            Card(
+              color: Colors.blueGrey[50],
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.white70, width: 1),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              margin: EdgeInsets.all(10.0),
+              child: SizedBox(
+                width: double.maxFinite,
+                child: TextField(
+                  controller: controladorCampoPesquisa,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Endereço',
+                    hintText: 'Rua XV',
+                    prefixIcon: Icon(Icons.search_rounded),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Color(0xFF101427)),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  keyboardType: TextInputType.text,
+                ),
+              ),
+            ),
+          ]),
         ]),
       ),
     );
@@ -189,30 +242,18 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
   }
 
   Future<void> atualyPosition() async {
-    GeoPoint geoPoint = await mapController.myLocation();
-    await mapController.goToLocation((geoPoint));
-    await mapController.setZoom(zoomLevel: 13);
-    await mapController.addMarker(
-      geoPoint,
-      markerIcon: MarkerIcon(
-        icon: Icon(
-          Icons.location_on_rounded,
-          color: Colors.deepPurpleAccent,
-          size: 48,
-        ),
-      ),
-    );
+    if (!rastreio.value) {
+      await mapController.currentLocation();
+      await mapController.enableTracking();
+      await mapController.setZoom(zoomLevel: 18);
+      IconeRastreio.value = Icons.gps_off_sharp;
+    } else {
+      await mapController.disabledTracking();
+      await mapController.setZoom(zoomLevel: 17.8);
+      IconeRastreio.value = Icons.my_location_rounded;
+    }
+    rastreio.value = !rastreio.value;
   }
 
-  Future<void> geoPoint() async {
-    GeoPoint geoPoint = await mapController.selectPosition(
-      icon: MarkerIcon(
-        icon: Icon(
-          Icons.earbuds_battery,
-          color: Colors.amber,
-          size: 48,
-        ),
-      ),
-    );
-  }
+  Future<void> geoPoint() async {}
 }
