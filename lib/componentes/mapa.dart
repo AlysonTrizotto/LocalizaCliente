@@ -91,8 +91,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController controladorCampoPesquisa =
-        TextEditingController();
+   
     return Scaffold(
       floatingActionButton:
           Column(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -196,37 +195,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
           ),
           /*edit_text_geral(controladorCampoPesquisa, 'Rua XV', 'Endereço',
                   Icons.search_rounded),     */
-          Column(children: <Widget>[
-            Card(
-              color: Colors.blueGrey[50],
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.white70, width: 1),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              margin: EdgeInsets.all(10.0),
-              child: SizedBox(
-                width: double.maxFinite,
-                child: TextField(
-                  controller: controladorCampoPesquisa,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: 'Endereço',
-                    hintText: 'Rua XV',
-                    prefixIcon: Icon(Icons.search_rounded),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(width: 3, color: Color(0xFF101427)),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    border: InputBorder.none,
-                  ),
-                  keyboardType: TextInputType.text,
-                ),
-              ),
-            ),
-          ]),
+         
         ]),
       ),
     );

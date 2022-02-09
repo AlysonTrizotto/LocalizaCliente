@@ -2,16 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 
-class lista_favoritos extends StatelessWidget {
+class lista_pesquisa extends StatelessWidget {
   final favoritosDao _dao = favoritosDao();
   final _form = GlobalKey<FormState>();
 
    // Classe que apresenta os dados
   @override
   Widget build(BuildContext context) {
+     final TextEditingController controladorCampoPesquisa =
+        TextEditingController();
     // Construtor dos Icones
     return Scaffold(
-      body: FutureBuilder(
+      body:   Stack(children: <Widget>[
+            Card(
+              color: Colors.blueGrey[50],
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.white70, width: 1),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              margin: EdgeInsets.all(10.0),
+              child: SizedBox(
+                width: double.maxFinite,
+                child: TextField(
+                  controller: controladorCampoPesquisa,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Endereço',
+                    hintText: 'Rua XV',
+                    prefixIcon: Icon(Icons.search_rounded),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          const BorderSide(width: 3, color: Color(0xFF101427)),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  keyboardType: TextInputType.text,
+                ),
+              ),
+            ),
+      /*
+         FutureBuilder(
           future: Future.delayed(Duration(seconds: 1))
               .then((value) => _dao.findAll_favoritos()),
           builder: (context, AsyncSnapshot snapshot) {
@@ -37,7 +70,8 @@ class lista_favoritos extends StatelessWidget {
               );
             }
           }),
-      
+         */
+      ]),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 import 'package:localiza_favoritos/screens/listas/lista_empresa.dart';
+import 'package:localiza_favoritos/screens/listas/lista_pesquisa.dart';
 
 class chama_paginas_pesquisa extends StatefulWidget {
   @override
@@ -34,9 +36,9 @@ class chama_paginas_pesquisaState extends State<chama_paginas_pesquisa> {
       ),
       body: TabBarView(
         children: [
-          lista_favoritos(),
-          lista_favoritos(),
-          lista_favoritos(),
+          lista_categoria(),         
+          lista_pesquisa(),
+          lista_favoritos(), 
         ],
       ),
     ),

@@ -101,15 +101,13 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                           controladorCampoCidade.text,
                           int.parse(controladorCampoNum.text),
                           context);
-                      //initState();
-                      /*
-                      controladorCampoTelefone = new TextEditingController(text: '');
-                      controladorCampoEstado = new TextEditingController(text: '');
-                      controladorCampoRua = new TextEditingController(text: '');
-                      controladorCampoCidade = new TextEditingController(text: '');
-                      controladorCampoNome = new TextEditingController(text: '');
-                      controladorCampoNum = new TextEditingController(text: '');
-*/
+
+                      controladorCampoNome.clear();
+                      controladorCampoTelefone.clear();
+                      controladorCampoEstado.clear();
+                      controladorCampoCidade.clear();
+                      controladorCampoRua.clear();
+                      controladorCampoNum.clear();
                     }),
               ),
             ],
@@ -129,10 +127,3 @@ void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
   _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
   ;
 }
-/*
-void reset() {
-  for (final FormFieldState<dynamic> field in _fields)
-    field.reset();
-  _hasInteractedByUser = false;
-  _fieldDidChange();
-}*/
