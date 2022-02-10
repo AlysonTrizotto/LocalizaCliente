@@ -4,6 +4,7 @@ import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
+import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
 class FormularioCadastro extends StatefulWidget {
   @override
@@ -22,6 +23,9 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   late TextEditingController controladorCampoCidade = TextEditingController();
   late TextEditingController controladorCampoRua = TextEditingController();
   late TextEditingController controladorCampoNum = TextEditingController();
+  late TextEditingController controladorCampoCategoria =
+      TextEditingController();
+  String _itemSelecionado = 'Cliente';
 
   // const Formula
   //rioCadastro({Key? key, this._controladorCampoNome, this._controladorCampoTelefone, this._controladorCampoEstado, this._controladorCampoCidade, this._controladorCampoRua, this._controladorCampoNum}) : super(key: key);
@@ -34,14 +38,26 @@ class FormularioCadastroState extends State<FormularioCadastro> {
     controladorCampoRua = new TextEditingController(text: '');
     controladorCampoCidade = new TextEditingController(text: '');
     controladorCampoNum = new TextEditingController(text: '');
+    controladorCampoCategoria = new TextEditingController(text: '');
   }
 
   void disponse() {
     super.dispose();
   }
 
+  List<String> categoriaLista = [
+    'Cliente',
+    'Hotel',
+    'Posto de combustível',
+    'Restaurante',
+    'Mercado',
+    'Hospital',
+    'Farmácia',
+  ];
+
   @override
   Widget build(BuildContext context) {
+    String itemInicial = "Cliente";
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro'),
@@ -87,6 +103,18 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                 ),
                 keyboardType: TextInputType.number,
               ),
+              DropdownButtonFormField(
+                onChanged: (value) {
+                  itemInicial = value as String;
+                  setState(() {
+                    
+                  });
+                },
+                value: itemInicial,
+                items: categoriaLista.map((items) {
+                  return DropdownMenuItem(value: items, child: Text(items));
+                }).toList(),
+              ),
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
@@ -99,6 +127,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                           controladorCampoEstado.text,
                           controladorCampoRua.text,
                           controladorCampoCidade.text,
+                          controladorCampoCategoria.text,
                           int.parse(controladorCampoNum.text),
                           context);
 
@@ -108,6 +137,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                       controladorCampoCidade.clear();
                       controladorCampoRua.clear();
                       controladorCampoNum.clear();
+                      controladorCampoCategoria.clear();
                     }),
               ),
             ],
@@ -119,11 +149,11 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 }
 
 void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
-    String Rua, int numParse, BuildContext context) {
+    String Rua, String Categoria, int numParse, BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
-  final CadastroCriado =
-      redistro_favoritos(Nome, Telefone, Estado, Cidade, Rua, numParse);
+  final CadastroCriado = redistro_favoritos(
+      Nome, Telefone, Estado, Cidade, Rua, numParse, Categoria);
   _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
   ;
 }

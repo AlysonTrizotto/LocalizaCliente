@@ -12,8 +12,9 @@ class redistro_favoritos {
   final String Estado;
   // ignore: non_constant_identifier_names
   final int NumeroEnd;
+  final String Categoria;
 
   //Construtor da classe
   redistro_favoritos(this.Nome, this.Telefone, this.Endereco, this.Cidade,
-      this.Estado, this.NumeroEnd);
+      this.Estado, this.NumeroEnd, this.Categoria);
 }

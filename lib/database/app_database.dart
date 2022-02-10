@@ -13,7 +13,7 @@ Future<Database> BancoDeDados() async {
       db.execute(favoritosDao.TabelaSqlFavoritos
        + hotelDao.TabelaSqlhotel);
     },
-    version: 2,
-    onDowngrade: onDatabaseDowngradeDelete,
+    version: 1,
+   // onDowngrade: onDatabaseDowngradeDelete,
   );
 }

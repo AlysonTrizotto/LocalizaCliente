@@ -23,7 +23,7 @@ class favoritosDao {
       ' $_favoritos_estado     text NOT NULL,'
       ' $_favoritos_cidade     text NOT NULL,'
       ' $_favoritos_rua        text NOT NULL,'
-      ' $_favoritos_num     INTEGER NOT NULL'
+      ' $_categoria     text NOT NULL'
       ' ); ';
 
   Future<int> save_favoritos(redistro_favoritos favoritos) async {
@@ -40,12 +40,20 @@ class favoritosDao {
     favoritosMap[_favoritos_cidade] = favoritos.Cidade;
     favoritosMap[_favoritos_rua] = favoritos.Endereco;
     favoritosMap[_favoritos_num] = favoritos.NumeroEnd.toInt();
+    favoritosMap[_categoria] = favoritos.Categoria;
     return favoritosMap;
   }
 
   Future<List<redistro_favoritos>> findAll_favoritos() async {
     final Database db = await BancoDeDados();
     final List<Map<String, dynamic>> result = await db.query(_tabelaNome);
+    List<redistro_favoritos> favoritoss = _toList(result);
+    return favoritoss;
+  }
+
+  Future<List<redistro_favoritos>> find_favoritos(String _pesquisa) async {
+    final Database db = await BancoDeDados();
+    final List<Map<String, dynamic>> result = await db.rawQuery('SELECT ${_pesquisa} FROM ${_tabelaNome}');
     List<redistro_favoritos> favoritoss = _toList(result);
     return favoritoss;
   }
@@ -60,6 +68,7 @@ class favoritosDao {
         row[_favoritos_cidade],
         row[_favoritos_rua],
         row[_favoritos_num],
+        row[_categoria],
       );
       favoritoss.add(favoritos);
     }
