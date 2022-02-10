@@ -127,6 +127,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
             },
           ),
         ),
+        
       ]),
       appBar: AppBar(
           title: Text('Mapa'),
@@ -193,13 +194,16 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
               ),
             ),
           ),
-          /*edit_text_geral(controladorCampoPesquisa, 'Rua XV', 'Endereço',
-                  Icons.search_rounded),     */
-         
-        ]),
+         ]),
       ),
     );
   }
+
+  Future<List> Address()async{
+    List<SearchInfo> suggestions = await addressSuggestion("address");
+    return suggestions.toList();
+  }
+ 
 
   Future<void> locationChabge() async {
     await mapController

@@ -23,6 +23,7 @@ class favoritosDao {
       ' $_favoritos_estado     text NOT NULL,'
       ' $_favoritos_cidade     text NOT NULL,'
       ' $_favoritos_rua        text NOT NULL,'
+      ' $_favoritos_num        int NOT NULL,'
       ' $_categoria     text NOT NULL'
       ' ); ';
 

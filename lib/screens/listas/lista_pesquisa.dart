@@ -5,15 +5,11 @@ import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 class lista_pesquisa extends StatelessWidget {
   final favoritosDao _dao = favoritosDao();
   final _form = GlobalKey<FormState>();
-
-  // Classe que apresenta os dados
   @override
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
-
-    // Construtor dos Icones
-    return Scaffold( body: 
+   return Scaffold( body: 
     SingleChildScrollView(child: Column(
       children: <Widget>[
         SizedBox(
@@ -55,34 +51,25 @@ class lista_pesquisa extends StatelessWidget {
       
       ]),)
     );
-/*    Scaffold(
-      body:
-        
-        
-    );*/
+
   }
 }
 
 class ListaPesquisa extends StatelessWidget {
   final redistro_favoritos
-      _pesquisa; // Cria uma instâcia da lista de pesqusia para apresentar, armazena os dados em uma única classe
-
-  // ignore: prefer_const_constructors_in_immutables, use_key_in_widget_constructors
+      _pesquisa; 
   ListaPesquisa(
-      this._pesquisa); // construtor da classe que armazena os dados da pesquisa
-
+      this._pesquisa); 
   @override
   Widget build(BuildContext context) {
     return Card(
-      // Retorna os ícones construídos em card
       child: ListTile(
-        //Lista apresentação interna do card
-        leading: Icon(Icons.people), // ícone
+        leading: Icon(Icons.people),
         trailing: GestureDetector(
           child: Icon(Icons.edit),
           onTap: () => print('Deletar'),),
-        title: Text('Nome : ' + _pesquisa.Nome), // Título
-        subtitle: Text('Telefone : ' + // Subtitulo fracionado
+        title: Text('Nome : ' + _pesquisa.Nome),
+        subtitle: Text('Telefone : ' + 
             _pesquisa.Telefone +
             '\nEstado : ' +
             _pesquisa.Estado +

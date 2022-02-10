@@ -14,6 +14,6 @@ Future<Database> BancoDeDados() async {
        + hotelDao.TabelaSqlhotel);
     },
     version: 1,
-   // onDowngrade: onDatabaseDowngradeDelete,
+    onDowngrade: onDatabaseDowngradeDelete,
   );
 }

@@ -57,6 +57,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 
   @override
   Widget build(BuildContext context) {
+    String campoVazio = '';
     String itemInicial = "Cliente";
     return Scaffold(
       appBar: AppBar(
@@ -106,9 +107,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               DropdownButtonFormField(
                 onChanged: (value) {
                   itemInicial = value as String;
-                  setState(() {
-                    
-                  });
+                  setState(() {});
                 },
                 value: itemInicial,
                 items: categoriaLista.map((items) {
@@ -118,28 +117,80 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                    // ignore: prefer_const_constructors
                     child: Text('Confirmar'),
                     onPressed: () {
-                      _criaCadastro(
-                          controladorCampoNome.text,
-                          controladorCampoTelefone.text,
-                          controladorCampoEstado.text,
-                          controladorCampoRua.text,
-                          controladorCampoCidade.text,
-                          controladorCampoCategoria.text,
-                          int.parse(controladorCampoNum.text),
-                          context);
+                      if ((controladorCampoNome.text != '') &&
+                          (controladorCampoTelefone.text != '') &&
+                          (controladorCampoEstado.text != '') &&
+                          (controladorCampoRua.text != '') &&
+                          (controladorCampoCidade.text != '') &&
+                          (controladorCampoNum.text != '') &&
+                          (itemInicial != '')) {
+                        _criaCadastro(
+                            controladorCampoNome.text,
+                            controladorCampoTelefone.text,
+                            controladorCampoEstado.text,
+                            controladorCampoRua.text,
+                            controladorCampoNum.text,
+                            int.parse(controladorCampoNum.text),
+                            itemInicial,
+                            context);
 
-                      controladorCampoNome.clear();
-                      controladorCampoTelefone.clear();
-                      controladorCampoEstado.clear();
-                      controladorCampoCidade.clear();
-                      controladorCampoRua.clear();
-                      controladorCampoNum.clear();
-                      controladorCampoCategoria.clear();
-                    }),
-              ),
+                        controladorCampoNome.clear();
+                        controladorCampoTelefone.clear();
+                        controladorCampoEstado.clear();
+                        controladorCampoCidade.clear();
+                        controladorCampoRua.clear();
+                        controladorCampoNum.clear();
+                        controladorCampoCategoria.clear();
+                      } else { 
+                        campoVazio = '';
+                        if (controladorCampoNome.text != null) {
+                          campoVazio =  ' Nome\n';
+                        } 
+                        if (controladorCampoTelefone.text != null) {
+                          campoVazio = campoVazio + ' Telefone\n';
+                        } 
+                        if (controladorCampoEstado.text != null) {
+                          campoVazio = campoVazio + ' Estado\n';
+                        } 
+                        if (controladorCampoRua.text != null) {
+                          campoVazio = campoVazio + ' Rua\n';
+                        } 
+                        if (controladorCampoCidade.text != null) {
+                          campoVazio = campoVazio + ' Cidade\n';
+                        } 
+                        if (controladorCampoNum.text != null) {
+                          campoVazio = campoVazio + ' Número\n';
+                        } 
+                        if (itemInicial != null) {
+                               campoVazio = campoVazio + ' Categoria\n';
+                        }
+                      
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // retorna um objeto do tipo Dialog
+                            return AlertDialog(
+                              title: new Text("Não é permitido campos vazios"),
+                              content:
+                                  new Text("Preencha os campos: \n" + campoVazio),
+                              actions: <Widget>[
+                                // define os botões na base do dialogo
+                                new FlatButton(
+                                  child: new Text("Fechar"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ); 
+                      }
+                    },
+                  ),
+                ),
             ],
           ),
         ),
@@ -149,11 +200,10 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 }
 
 void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
-    String Rua, String Categoria, int numParse, BuildContext context) {
+    String Rua, int numParse, String Categoria, BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
   final CadastroCriado = redistro_favoritos(
       Nome, Telefone, Estado, Cidade, Rua, numParse, Categoria);
   _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
-  ;
 }

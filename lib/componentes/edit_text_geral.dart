@@ -23,6 +23,7 @@ class edit_text_geral extends StatelessWidget {
           icon: _icone != null ? Icon(_icone) : null,
         ),
         keyboardType: TextInputType.text,
+        
       ),
     ]);
   }
