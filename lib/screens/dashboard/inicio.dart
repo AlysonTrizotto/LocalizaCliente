@@ -5,6 +5,7 @@ import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart
 import 'package:localiza_favoritos/screens/listas/lista_empresa.dart';
 
 class formularioDashboard extends StatelessWidget {
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,6 +18,7 @@ class formularioDashboard extends StatelessWidget {
 }
 
 class dashboard extends StatefulWidget {
+  static String tag = 'Dashboard';
   @override
   State<StatefulWidget> createState() {
     return dashboardState();
@@ -44,11 +46,10 @@ class dashboardState extends State<dashboard> {
       _selectedIndex = index;
     });
   }
-  
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(        
+    return Scaffold(
         body: _telas[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -92,7 +93,6 @@ class NewPageScreenMapas extends StatelessWidget {
 class NewPageScreenPesquisa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
     return chama_paginas_pesquisa();
   }
 }

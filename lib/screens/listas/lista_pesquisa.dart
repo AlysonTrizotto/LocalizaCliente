@@ -4,9 +4,12 @@ import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/cadastro/editar_favoritos.dart';
+import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
+import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 import 'package:path/path.dart';
 
 class lista_pesquisa extends StatefulWidget {
+  static String tag = 'ListaPesquisa';
   @override
   State<StatefulWidget> createState() {
     return lista_pesquisaState();
@@ -112,7 +115,7 @@ class ListaPesquisa extends StatelessWidget {
   ListaPesquisa(this._pesquisa);
   @override
   Widget build(BuildContext context) {
-   // cod = id[0].toInt();
+    // cod = id[0].toInt();
     return Slidable(
       startActionPane: ActionPane(
         motion: const DrawerMotion(),
@@ -123,6 +126,12 @@ class ListaPesquisa extends StatelessWidget {
             backgroundColor: Colors.red,
             icon: Icons.delete,
             onPressed: (context) {
+               ScaffoldMessenger.of(context).showSnackBar(
+                         SnackBar( 
+                          content: const Text('Cadastro excluído com sucesso!'),
+                          duration: const Duration(milliseconds: 1500),
+                          behavior: SnackBarBehavior.floating,
+                        ),);
               _dao.delete_favoritos(_pesquisa.id);
             },
           ),
@@ -133,20 +142,29 @@ class ListaPesquisa extends StatelessWidget {
         extentRatio: 0.25,
         children: [
           SlidableAction(
-            label: 'Editar',
-            backgroundColor: Colors.blue,
-            icon: Icons.archive,
-            onPressed: (context) {
-              //editaFavoritosState().id_ = cod;
-            },
-          ),
+              label: 'Editar',
+              backgroundColor: Colors.blue,
+              icon: Icons.archive,
+              onPressed: (context) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return editaFavoritos(
+                      _pesquisa.id,
+                      _pesquisa.Nome,
+                      _pesquisa.Telefone,
+                      _pesquisa.Estado,
+                      _pesquisa.Cidade,
+                      _pesquisa.Endereco,
+                      _pesquisa.NumeroEnd,
+                      _pesquisa.Categoria);
+                }));
+                //Navigator.pushReplacementNamed(context, dashboard.tag);
+              }),
         ],
       ),
       closeOnScroll: true,
       child: Column(children: [
         ListTile(
           leading: Icon(Icons.people),
-          
           title: Text('Nome : ' + _pesquisa.Nome),
           subtitle: Text('Telefone : ' +
               _pesquisa.Telefone +

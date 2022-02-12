@@ -3,7 +3,6 @@
 //Apresentando Layout -
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
-import 'package:localiza_favoritos/componentes/teste.dart';
 
 import 'screens/dashboard/inicio.dart';
 

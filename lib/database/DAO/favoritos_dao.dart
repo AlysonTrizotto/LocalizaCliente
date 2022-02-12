@@ -65,12 +65,10 @@ class favoritosDao {
      await db.delete(_tabelaNome, where: '$_favoritos_id = ?', whereArgs: [id]);
   }
   
-  Future editar_favoritos(int id, String nome, String telefone, String Estado, String Cidad, String rua, int num, String categ) async {
+  Future editar_favoritos(redistro_favoritos favoritos) async {
     final Database db = await BancoDeDados();
-     await db.rawUpdate(
-    'UPDATE ${_tabelaNome} SET  ${_favoritos_nome} = ?, ${_favoritos_telefone} = ?, ${_favoritos_estado} = ?, ' +
-   ' ${_favoritos_cidade} = ?,${_favoritos_rua} = ?,${_categoria} = ? where: ${_favoritos_id} = ?',
-    ['updateded $nome', '$telefone', '$Estado', '$Cidad', '$rua', '$num', '$categ', 'some $id']);
+    Map<String, dynamic> favoritosMap = _toMap(favoritos);
+     await db.update(_tabelaNome, favoritosMap, where: '${_favoritos_id} = ?', whereArgs: [favoritos.id]);
   }
 
   List<redistro_favoritos> _toList(List<Map<String, dynamic>> result) {

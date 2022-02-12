@@ -141,6 +141,14 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                         controladorCampoRua.clear();
                         controladorCampoNum.clear();
                         controladorCampoCategoria.clear();
+
+                         ScaffoldMessenger.of(context).showSnackBar(
+                         SnackBar( 
+                          content: const Text('Cadastro realizado com sucesso!'),
+                          duration: const Duration(milliseconds: 1500),
+                          behavior: SnackBarBehavior.floating,
+                        ),);
+
                       } else { 
                         campoVazio = '';
                         if (controladorCampoNome.text != null) {
