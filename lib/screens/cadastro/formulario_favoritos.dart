@@ -27,8 +27,6 @@ class FormularioCadastroState extends State<FormularioCadastro> {
       TextEditingController();
   String _itemSelecionado = 'Cliente';
 
-  // const Formula
-  //rioCadastro({Key? key, this._controladorCampoNome, this._controladorCampoTelefone, this._controladorCampoEstado, this._controladorCampoCidade, this._controladorCampoRua, this._controladorCampoNum}) : super(key: key);
   void initState() {
     super.initState();
 

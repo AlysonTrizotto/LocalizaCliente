@@ -56,14 +56,21 @@ class favoritosDao {
     final List<Map<String, dynamic>> result = await db.rawQuery(
         'SELECT * FROM ${_tabelaNome} WHERE ${_favoritos_nome} LIKE "%${_pesquisa}%" ;');
     List<redistro_favoritos> favoritoss = _toList(result);
-    //print('Dentro do find' + _pesquisa);
-    //print(favoritoss.toList());
+   
     return favoritoss;
   }
   
   Future delete_favoritos(int id) async {
     final Database db = await BancoDeDados();
      await db.delete(_tabelaNome, where: '$_favoritos_id = ?', whereArgs: [id]);
+  }
+  
+  Future editar_favoritos(int id, String nome, String telefone, String Estado, String Cidad, String rua, int num, String categ) async {
+    final Database db = await BancoDeDados();
+     await db.rawUpdate(
+    'UPDATE ${_tabelaNome} SET  ${_favoritos_nome} = ?, ${_favoritos_telefone} = ?, ${_favoritos_estado} = ?, ' +
+   ' ${_favoritos_cidade} = ?,${_favoritos_rua} = ?,${_categoria} = ? where: ${_favoritos_id} = ?',
+    ['updateded $nome', '$telefone', '$Estado', '$Cidad', '$rua', '$num', '$categ', 'some $id']);
   }
 
   List<redistro_favoritos> _toList(List<Map<String, dynamic>> result) {
