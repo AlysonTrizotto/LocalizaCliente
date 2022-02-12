@@ -54,21 +54,30 @@ class ListaPesquisa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      // Retorna os ícones construídos em card
-      child: ListTile(
-        //Lista apresentação interna do card
-        leading: Icon(Icons.people), // ícone
-        title: Text('Nome : ' + _pesquisa.Nome), // Título
-        subtitle: Text('Telefone : ' + // Subtitulo fracionado
-            _pesquisa.Telefone +
-            '\nEstado : ' +
-            _pesquisa.Estado +
-            '\nCidade : ' +
-            _pesquisa.Cidade +
-            '\nEndereco : ' +
-            _pesquisa.NumeroEnd.toString()),
+    return Column(
+      children: [
+        Card(
+        // Retorna os ícones construídos em card
+        child: ListTile(
+          //Lista apresentação interna do card
+          leading: Icon(Icons.people), // ícone
+          title: Text('Nome : ' + _pesquisa.Nome), // Título
+          subtitle: Text('Telefone : ' + // Subtitulo fracionado
+              _pesquisa.Telefone +
+              '\nEstado : ' +
+              _pesquisa.Estado +
+              '\nCidade : ' +
+              _pesquisa.Cidade +
+              '\nEndereco : ' +
+              _pesquisa.NumeroEnd.toString()),
+        ),
       ),
-    );
+      Opacity(opacity: 0.0, child: new Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+              ),
+              child: new Text(_pesquisa.id.toString()),
+            ),),
+    ]);
   }
 }

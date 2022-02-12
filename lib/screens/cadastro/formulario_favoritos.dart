@@ -203,7 +203,7 @@ void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
     String Rua, int numParse, String Categoria, BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
-  final CadastroCriado = redistro_favoritos(
+  final CadastroCriado = redistro_favoritos(0,
       Nome, Telefone, Estado, Cidade, Rua, numParse, Categoria);
   _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
 }

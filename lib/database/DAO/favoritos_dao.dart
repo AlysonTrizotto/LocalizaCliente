@@ -1,4 +1,3 @@
-
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -54,15 +53,24 @@ class favoritosDao {
 
   Future<List<redistro_favoritos>> find_favoritos(String _pesquisa) async {
     final Database db = await BancoDeDados();
-    final List<Map<String, dynamic>> result = await db.rawQuery('SELECT ${_pesquisa} FROM ${_tabelaNome}');
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+        'SELECT * FROM ${_tabelaNome} WHERE ${_favoritos_nome} LIKE "%${_pesquisa}%" ;');
     List<redistro_favoritos> favoritoss = _toList(result);
+    //print('Dentro do find' + _pesquisa);
+    //print(favoritoss.toList());
     return favoritoss;
+  }
+  
+  Future delete_favoritos(int id) async {
+    final Database db = await BancoDeDados();
+     await db.delete(_tabelaNome, where: '$_favoritos_id = ?', whereArgs: [id]);
   }
 
   List<redistro_favoritos> _toList(List<Map<String, dynamic>> result) {
     final List<redistro_favoritos> favoritoss = [];
     for (Map<String, dynamic> row in result) {
       final redistro_favoritos favoritos = redistro_favoritos(
+        row[_favoritos_id],
         row[_favoritos_nome],
         row[_favoritos_telefone],
         row[_favoritos_estado],
