@@ -86,7 +86,7 @@ class dashboardState extends State<dashboard> {
 class NewPageScreenMapas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Mapas();
+    return Mapas( 47.4358055, 8.4737324);
   }
 }
 

@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 
 //Declarando o MapCOntroler
 class Mapas extends StatelessWidget with OSMMixinObserver {
+  final double lat;
+  final double long;
+  Mapas(this.lat, this.long);
   final MapController mapController = MapController(
     initMapWithUserPosition: true,
     initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
@@ -31,6 +34,10 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     mapController.addObserver(this);
     scaffoldKey = GlobalKey<ScaffoldState>();
     mapController.listenerMapLongTapping.addListener(() async {
+      if((lat != null) && (long != null)){
+        await mapController.setMarkerIcon(GeoPoint(latitude: lat, longitude: long),
+              MarkerIcon(icon: Icon(Icons.add_a_photo_sharp)));
+      }
       if (mapController.listenerMapLongTapping.value != null) {
         print(mapController.listenerMapLongTapping.value);
         await mapController.addMarker(
@@ -91,7 +98,6 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
 
   @override
   Widget build(BuildContext context) {
-   
     return Scaffold(
       floatingActionButton:
           Column(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -120,18 +126,19 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
             valueListenable: rastreio,
             builder: (ctx, isTracking, _) {
               if (isTracking) {
-                return Icon(Icons.my_location, color: Colors.white,);
-                
+                return Icon(
+                  Icons.my_location,
+                  color: Colors.white,
+                );
               }
               return Icon(Icons.gps_off_sharp, color: Colors.deepOrangeAccent);
             },
           ),
         ),
-        
       ]),
       appBar: AppBar(
-          title: Text('Mapa'),
-        ),
+        title: Text('Mapa'),
+      ),
       body: Container(
         child: Stack(children: [
           OSMFlutter(
@@ -194,13 +201,12 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
               ),
             ),
           ),
-         ]),
+        ]),
       ),
     );
   }
 
- 
-  Future<List> Address(String endereco)async{
+  Future<List> Address(String endereco) async {
     List<SearchInfo> suggestions = await addressSuggestion(endereco);
     return suggestions.toList();
   }
@@ -228,5 +234,5 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     rastreio.value = !rastreio.value;
   }
 
-  Future<void> geoPoint() async {}
+
 }
