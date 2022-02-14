@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
-import 'package:localiza_favoritos/screens/listas/lista_empresa.dart';
+import 'package:localiza_favoritos/screens/listas/lista_endereco.dart';
 
 class formularioDashboard extends StatelessWidget {
   

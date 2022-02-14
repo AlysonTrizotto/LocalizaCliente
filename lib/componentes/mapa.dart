@@ -199,11 +199,11 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     );
   }
 
-  Future<List> Address()async{
-    List<SearchInfo> suggestions = await addressSuggestion("address");
+ 
+  Future<List> Address(String endereco)async{
+    List<SearchInfo> suggestions = await addressSuggestion(endereco);
     return suggestions.toList();
   }
- 
 
   Future<void> locationChabge() async {
     await mapController

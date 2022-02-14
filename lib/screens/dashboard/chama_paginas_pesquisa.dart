@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
-import 'package:localiza_favoritos/screens/listas/lista_empresa.dart';
+import 'package:localiza_favoritos/screens/listas/lista_endereco.dart';
 import 'package:localiza_favoritos/screens/listas/lista_pesquisa.dart';
 
 class chama_paginas_pesquisa extends StatefulWidget {

@@ -109,10 +109,12 @@ class ListaVazia extends StatelessWidget {
 
 class ListaPesquisa extends StatelessWidget {
   final redistro_favoritos _pesquisa;
+  ListaPesquisa(this._pesquisa);
+  
   final favoritosDao _dao = favoritosDao();
   List<int> id = [];
   // int cod = 0;
-  ListaPesquisa(this._pesquisa);
+  
   @override
   Widget build(BuildContext context) {
     // cod = id[0].toInt();
