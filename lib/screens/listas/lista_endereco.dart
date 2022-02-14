@@ -33,17 +33,68 @@ class lista_favoritosState extends State<lista_favoritos> {
               onChanged: (String value) {
                 setState(() {
                   pesquisa = value;
-                  pesquisaEndereco(pesquisa);
+                  //pesquisaEndereco(pesquisa);
                 });
               }),
         ),
-        Container(),
+        Container(
+          height: MediaQuery.of(context).size.height - 263,
+          child: FutureBuilder(
+              future: Future.delayed(Duration(seconds: 1))
+                  .then((value) => pesquisaEndereco(pesquisa)),
+              builder: (context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  final List<SearchInfo> _retorno = snapshot.data;
+                  return ListView.builder(
+                    itemCount: _retorno.length,
+                    itemBuilder: (context, indice) {
+                      final String _endereco = _retorno[indice].address.toString();
+                      return CardEndereco(_endereco);
+                    },
+                  );
+                } else {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          Text('Carregando favoritos'),
+                        ],
+                      ),
+                    );
+                  }
+              }
+              ),
+        ),
       ]),
     );
   }
 }
 
 Future pesquisaEndereco(String endereco) async {
+  int i = 0;
   List<SearchInfo> suggestions = await addressSuggestion(endereco);
+  i = suggestions.length;
+
   print(suggestions.toList());
+  return suggestions.toList();
+}
+
+class CardEndereco extends StatelessWidget {
+  final String? end;
+  CardEndereco(this.end);
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Card(
+            child: ListTile(
+              leading: Icon(Icons.people),
+              title: Text(end!),
+            ),
+          ),
+        ]);
+  }
 }
