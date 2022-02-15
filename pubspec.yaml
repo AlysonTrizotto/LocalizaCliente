@@ -37,8 +37,6 @@ dependencies:
   flutter_map: any
   flutter_map_marker_cluster: any
   flutter_slidable: ^1.0.0
-  sliding_up_panel: ^2.0.0+1
-  #nominatim: ^3.0.1
 
  
 

@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Mapa extends StatefulWidget {
   static String tag = 'ListaPesquisa';
@@ -234,9 +232,10 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                       }),
                 ),
               ),
-              SlidingUpPanel(
-                panel: Center(
-                  child: FutureBuilder(
+              Container(
+              height: MediaQuery.of(context).size.height - 263,
+              child: 
+               FutureBuilder(
                       future: Future.delayed(Duration())
                           .then((value) => pesquisaEndereco(pesquisa)),
                       builder: (context, AsyncSnapshot snapshot) {
@@ -287,9 +286,9 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                           );
                         }
                       }),
-                ),
-              )
-            ]),
+              
+            ),]),
+         
           ),
         ]),
       ),
