@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
-import 'package:localiza_favoritos/screens/listas/lista_endereco.dart';
 
 class formularioDashboard extends StatelessWidget {
   
@@ -86,7 +85,7 @@ class dashboardState extends State<dashboard> {
 class NewPageScreenMapas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Mapas( 47.4358055, 8.4737324);
+    return Mapa();
   }
 }
 

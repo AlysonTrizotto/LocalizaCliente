@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
-import 'package:localiza_favoritos/screens/listas/lista_endereco.dart';
 import 'package:localiza_favoritos/screens/listas/lista_pesquisa.dart';
 
 class chama_paginas_pesquisa extends StatefulWidget {
@@ -14,7 +13,7 @@ class chama_paginas_pesquisaState extends State<chama_paginas_pesquisa> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-  length: 3,
+  length: 2,
   child: Scaffold(
     appBar: AppBar(
         bottom: TabBar(
@@ -25,9 +24,6 @@ class chama_paginas_pesquisaState extends State<chama_paginas_pesquisa> {
                 text: 'Categoria',
               ),
               Tab(
-              text: 'Pesquisar',
-              ),
-              Tab(
                 text: 'Favoritos',
               )
             ],
@@ -36,8 +32,7 @@ class chama_paginas_pesquisaState extends State<chama_paginas_pesquisa> {
       ),
       body: TabBarView(
         children: [
-          lista_categoria(),      
-          lista_favoritos(), 
+          lista_categoria(),   
           lista_pesquisa(),
         ],
       ),

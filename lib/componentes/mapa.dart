@@ -4,12 +4,23 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+class Mapa extends StatefulWidget {
+  static String tag = 'ListaPesquisa';
+  @override
+  State<StatefulWidget> createState() {
+    return MapaState();
+  }
+}
 
 //Declarando o MapCOntroler
-class Mapas extends StatelessWidget with OSMMixinObserver {
-  final double lat;
-  final double long;
-  Mapas(this.lat, this.long);
+class MapaState extends State<Mapa> with OSMMixinObserver {
+  final _form = GlobalKey<FormState>();
+
+  late final ValueChanged<String>? onChanged;
+  late String pesquisa = '';
+
   final MapController mapController = MapController(
     initMapWithUserPosition: true,
     initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
@@ -34,10 +45,6 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     mapController.addObserver(this);
     scaffoldKey = GlobalKey<ScaffoldState>();
     mapController.listenerMapLongTapping.addListener(() async {
-      if((lat != null) && (long != null)){
-        await mapController.setMarkerIcon(GeoPoint(latitude: lat, longitude: long),
-              MarkerIcon(icon: Icon(Icons.add_a_photo_sharp)));
-      }
       if (mapController.listenerMapLongTapping.value != null) {
         print(mapController.listenerMapLongTapping.value);
         await mapController.addMarker(
@@ -93,7 +100,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     }
 
     mapController.dispose();
-    ;
+    super.dispose();
   }
 
   @override
@@ -102,6 +109,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
       floatingActionButton:
           Column(mainAxisAlignment: MainAxisAlignment.end, children: [
         FloatingActionButton(
+          elevation: 50,
           child: Icon(Icons.add),
           backgroundColor: Color(0xFF101427),
           onPressed: () async {
@@ -110,6 +118,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
           mini: true,
         ),
         FloatingActionButton(
+          elevation: 50,
           child: Icon(Icons.remove),
           backgroundColor: Color(0xFF101427),
           onPressed: () async {
@@ -118,6 +127,7 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
           mini: true,
         ),
         FloatingActionButton(
+          elevation: 50,
           backgroundColor: Color(0xFF101427),
           onPressed: () async {
             atualyPosition();
@@ -201,14 +211,89 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
               ),
             ),
           ),
+          SingleChildScrollView(
+            child: Column(children: <Widget>[
+              SizedBox(
+                child: Card(
+                  elevation: 50,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  color: Colors.white,
+                  child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Pesquisa',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                        contentPadding: const EdgeInsets.all(15),
+                      ),
+                      onChanged: (String value) {
+                        setState(() {
+                          pesquisa = value;
+                        });
+                      }),
+                ),
+              ),
+              SlidingUpPanel(
+                panel: Center(
+                  child: FutureBuilder(
+                      future: Future.delayed(Duration())
+                          .then((value) => pesquisaEndereco(pesquisa)),
+                      builder: (context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          final List<SearchInfo> _retorno = snapshot.data;
+                          return ListView.builder(
+                            itemCount: _retorno.length,
+                            itemBuilder: (context, indice) {
+                              final String _endereco =
+                                  _retorno[indice].address.toString();
+                              final double lat =
+                                  _retorno[indice].point!.latitude;
+                              final double long =
+                                  _retorno[indice].point!.longitude;
+                              return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    GestureDetector(
+                                      onTap: () {
+                                        updatePosition(lat, long);
+                                      },
+                                      child: Card(
+                                        elevation: 50,
+                                        child: ListTile(
+                                          leading:
+                                              Icon(Icons.location_on_outlined),
+                                          title: Text(_endereco),
+                                          subtitle: Text('Latitude: ' +
+                                              lat.toString() +
+                                              '\nLongitude: ' +
+                                              long.toString()),
+                                        ),
+                                      ),
+                                    ),
+                                  ]);
+                            },
+                          );
+                        } else {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(),
+                                Text(''),
+                              ],
+                            ),
+                          );
+                        }
+                      }),
+                ),
+              )
+            ]),
+          ),
         ]),
       ),
     );
-  }
-
-  Future<List> Address(String endereco) async {
-    List<SearchInfo> suggestions = await addressSuggestion(endereco);
-    return suggestions.toList();
   }
 
   Future<void> locationChabge() async {
@@ -234,5 +319,15 @@ class Mapas extends StatelessWidget with OSMMixinObserver {
     rastreio.value = !rastreio.value;
   }
 
+  Future<void> updatePosition(double lat, double long) async {
+    await mapController.disabledTracking();
+    await mapController.goToLocation(GeoPoint(latitude: lat, longitude: long));
+    await mapController.setZoom(zoomLevel: 17);
+  }
 
+  Future pesquisaEndereco(String endereco) async {
+    List<SearchInfo> suggestions = await addressSuggestion(endereco);
+
+    return suggestions.toList();
+  }
 }
