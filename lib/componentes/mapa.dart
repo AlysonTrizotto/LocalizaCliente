@@ -69,7 +69,11 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         await mapController.addMarker(
           lastGeoPoint.value!,
           markerIcon: MarkerIcon(
-            image: AssetImage("asset/pin.png"),
+            icon: Icon(
+              Icons.location_on_outlined,
+              size: 68,
+            ),
+            //image: AssetImage("asset/pin.png"),
           ),
         );
       }
@@ -77,6 +81,23 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     mapController.listenerRegionIsChanging.addListener(() async {
       if (mapController.listenerRegionIsChanging.value != null) {
         print(mapController.listenerRegionIsChanging.value);
+      }
+    });
+
+    mapController.listenerMapLongTapping.addListener(() async {
+      if (mapController.listenerMapLongTapping.value != null) {
+        print(mapController.listenerMapLongTapping.value);
+        await mapController.addMarker(
+          mapController.listenerMapLongTapping.value!,
+          markerIcon: MarkerIcon(
+            icon: Icon(
+              Icons.location_on_sharp,
+              color: Color.fromARGB(255, 41, 37, 36),
+              size: 48,
+            ),
+          ),
+          angle: pi / 3,
+        );
       }
     });
   }
@@ -241,6 +262,10 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                             color: Colors.white,
                             child: TextField(
                                 decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Colors.black,
+                                  ),
                                   hintText: 'Pesquisa',
                                   border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(30)),
@@ -280,6 +305,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                                             GestureDetector(
                                               onTap: () {
                                                 updatePosition(lat, long);
+                                                adicionaMarcador(lat, long);
                                               },
                                               child: Card(
                                                 elevation: 50,
@@ -348,26 +374,28 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     rastreio.value = !rastreio.value;
   }
 
+  Future<void> adicionaMarcador(double lat, double long) async {
+    if (lastGeoPoint.value != null) {
+      mapController.removeMarker(lastGeoPoint.value!);
+    }
+
+    lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
+    await mapController.addMarker(
+      lastGeoPoint.value!,
+      markerIcon: MarkerIcon(
+        icon: Icon(
+          Icons.location_on_outlined,
+          size: 68,
+        ),
+      ),
+    );
+  }
+
   Future<void> updatePosition(double lat, double long) async {
     await mapController.disabledTracking();
-    
-    
 
     await mapController.goToLocation(GeoPoint(latitude: lat, longitude: long));
-    
-    await mapController.addMarker(
-      GeoPoint(
-        latitude: lat, 
-        longitude: long
-     ),
-      markerIcon:MarkerIcon(
-        icon: Icon(
-          Icons.location_on_outlined
-        )
-      ),
-      angle:pi/3
-    );
-   
+
     await mapController.setZoom(zoomLevel: 17);
   }
 
