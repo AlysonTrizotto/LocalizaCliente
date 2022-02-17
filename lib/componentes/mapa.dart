@@ -172,7 +172,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
               ),
               directionArrowMarker: MarkerIcon(
                 icon: Icon(
-                  Icons.send,
+                  Icons.personal_injury_rounded,
                   size: 48,
                 ),
               ),
@@ -195,6 +195,17 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                   size: 56,
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            bottom: 30.0,
+            left: 20.0,
+            child: FloatingActionButton(
+              elevation: 50,
+              child: Transform.rotate(angle: 150 * pi/100,
+                child: Icon(Icons.send_outlined),
+              ),
+              onPressed: () {},
             ),
           ),
           Positioned(
