@@ -15,11 +15,20 @@ class Mapa extends StatefulWidget {
 
 //Declarando o MapCOntroler
 class MapaState extends State<Mapa> with OSMMixinObserver {
+  //variaveis
   final _form = GlobalKey<FormState>();
-
   late final ValueChanged<String>? onChanged;
   late String pesquisa = '';
+  late GlobalKey<ScaffoldState> scaffoldKey;
+  ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
+  late GeoPoint lastMarkPosition =
+      GeoPoint(latitude: 47.4358055, longitude: 8.4737384);
+  ValueNotifier<bool> rastreio = ValueNotifier(false);
+  ValueNotifier<IconData> IconeRastreio = ValueNotifier(Icons.my_location);
+  Timer? timer;
+  //----------------------------
 
+  //controller
   final MapController mapController = MapController(
     initMapWithUserPosition: true,
     initPosition: GeoPoint(latitude: 47.4358055, longitude: 8.4737324),
@@ -30,13 +39,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
       west: 5.9559113,
     ),
   );
-  late GlobalKey<ScaffoldState> scaffoldKey;
-  ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
-  late GeoPoint lastMarkPosition =
-      GeoPoint(latitude: 47.4358055, longitude: 8.4737384);
-  ValueNotifier<bool> rastreio = ValueNotifier(false);
-  ValueNotifier<IconData> IconeRastreio = ValueNotifier(Icons.my_location);
-  Timer? timer;
+  //------------------------
 
   @override
   void initState() {
@@ -83,7 +86,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         print(mapController.listenerRegionIsChanging.value);
       }
     });
-
+/*
     mapController.listenerMapLongTapping.addListener(() async {
       if (mapController.listenerMapLongTapping.value != null) {
         print(mapController.listenerMapLongTapping.value);
@@ -100,6 +103,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         );
       }
     });
+    */
   }
 
   Future<void> mapIsInitialized() async {
@@ -125,6 +129,8 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController controladorCampoPesquisa =
+        TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Text('Mapa'),
@@ -261,21 +267,30 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                             ),
                             color: Colors.white,
                             child: TextField(
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
+                              controller: controladorCampoPesquisa,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.black,
+                                ),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      pesquisa = controladorCampoPesquisa.text;
+                                      print(pesquisa);
+                                    });
+                                  },
+                                  child: Icon(
                                     Icons.search,
                                     color: Colors.black,
                                   ),
-                                  hintText: 'Pesquisa',
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(30)),
-                                  contentPadding: const EdgeInsets.all(15),
                                 ),
-                                onChanged: (String value) {
-                                  setState(() {
-                                    pesquisa = value;
-                                  });
-                                }),
+                                hintText: 'Pesquisa',
+                                border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30)),
+                                contentPadding: const EdgeInsets.all(15),
+                              ),
+                            ),
                           ),
                         ),
                         Container(
@@ -361,6 +376,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   }
 
   Future<void> atualyPosition() async {
+    removerMarcador();
     if (!rastreio.value) {
       await mapController.currentLocation();
       await mapController.enableTracking();
@@ -374,21 +390,40 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     rastreio.value = !rastreio.value;
   }
 
-  Future<void> adicionaMarcador(double lat, double long) async {
+  Future<void> removerMarcador() async {
     if (lastGeoPoint.value != null) {
       mapController.removeMarker(lastGeoPoint.value!);
     }
+  }
 
-    lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
-    await mapController.addMarker(
-      lastGeoPoint.value!,
-      markerIcon: MarkerIcon(
-        icon: Icon(
-          Icons.location_on_outlined,
-          size: 68,
+  Future<void> adicionaMarcador(double lat, double long) async {
+    removerMarcador();
+    if (lastGeoPoint.value == null) {
+      lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
+      await mapController.addMarker(
+        lastGeoPoint.value!,
+        markerIcon: MarkerIcon(
+          icon: Icon(
+            Icons.location_on_outlined,
+            size: 68,
+          ),
         ),
-      ),
-    );
+      );
+    }
+    if (lastGeoPoint.value != null) {
+      mapController.removeMarker(lastGeoPoint.value!);
+      lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
+      await mapController.addMarker(
+        lastGeoPoint.value!,
+        markerIcon: MarkerIcon(
+          icon: Icon(
+            Icons.location_on_outlined,
+            size: 68,
+          ),
+        ),
+      );
+    }
+    await mapController.setZoom(zoomLevel: 17);
   }
 
   Future<void> updatePosition(double lat, double long) async {
@@ -401,7 +436,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
 
   Future pesquisaEndereco(String endereco) async {
     List<SearchInfo> suggestions = await addressSuggestion(endereco);
-
+    removerMarcador();
     return suggestions.toList();
   }
 }
