@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 
 class Mapa extends StatefulWidget {
@@ -25,13 +24,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   late GeoPoint lastMarkPosition =
       GeoPoint(latitude: 47.4358055, longitude: 8.4737384);
   ValueNotifier<bool> rastreio = ValueNotifier(false);
-  ValueNotifier<bool> rota = ValueNotifier(false);
   ValueNotifier<IconData> IconeRastreio = ValueNotifier(Icons.my_location);
-  double latDestino = 0.0;
-  double longDestino = 0.0;
-  double latPartida = 0.0;
-  double longPartida = 0.0;
-
   Timer? timer;
   //----------------------------
 
@@ -56,7 +49,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     mapController.listenerMapLongTapping.addListener(() async {
       if (mapController.listenerMapLongTapping.value != null) {
         print(mapController.listenerMapLongTapping.value);
-
         await mapController.addMarker(
           mapController.listenerMapLongTapping.value!,
           markerIcon: MarkerIcon(
@@ -94,24 +86,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         print(mapController.listenerRegionIsChanging.value);
       }
     });
-/*
-    mapController.listenerMapLongTapping.addListener(() async {
-      if (mapController.listenerMapLongTapping.value != null) {
-        print(mapController.listenerMapLongTapping.value);
-        await mapController.addMarker(
-          mapController.listenerMapLongTapping.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.location_on_sharp,
-              color: Color.fromARGB(255, 41, 37, 36),
-              size: 48,
-            ),
-          ),
-          angle: pi / 3,
-        );
-      }
-    });
-    */
   }
 
   Future<void> mapIsInitialized() async {
@@ -206,32 +180,19 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
             ),
           ),
           Positioned(
-            bottom: 30.0,
+            bottom: 50.0,
             left: 20.0,
             child: FloatingActionButton(
-                elevation: 50,
-                child: Transform.rotate(
-                  angle: 150 * pi / 100,
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: rota,
-                    builder: (ctx, isTracking, _) {
-                      if (isTracking) {
-                        return Icon(
-                          Icons.send_outlined,
-                          color: Colors.white,
-                        );
-                      }
-                      return Icon(Icons.cancel_schedule_send_outlined,
-                          color: Colors.deepOrangeAccent);
-                    },
-                  ),
-                ),
-                onPressed: () {
-                  desenhaRota(latDestino, longDestino);
-                }),
+              elevation: 50,
+              child: Transform.rotate(
+                angle: 150 * pi / 100,
+                child: Icon(Icons.send_outlined),
+              ),
+              onPressed: () {},
+            ),
           ),
           Positioned(
-            bottom: 30.0,
+            top: 100.0,
             right: 20.0,
             child:
                 //floatingActionButton:
@@ -254,10 +215,19 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 },
                 mini: true,
               ),
+            ]),
+          ),
+          Positioned(
+            bottom: 50.0,
+            right: 20.0,
+            child:
+                //floatingActionButton:
+                Column(mainAxisAlignment: MainAxisAlignment.end, children: [
               FloatingActionButton(
                 elevation: 50,
                 backgroundColor: Color(0xFF101427),
                 onPressed: () async {
+                  removerMarcador();
                   atualyPosition();
                 },
                 child: ValueListenableBuilder<bool>(
@@ -352,8 +322,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                                           children: <Widget>[
                                             GestureDetector(
                                               onTap: () {
-                                                latDestino = lat;
-                                                longDestino = long;
                                                 updatePosition(lat, long);
                                                 adicionaMarcador(lat, long);
                                               },
@@ -401,112 +369,121 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     );
   }
 
-  Future<void> desenhaRota(double latDestino, double longDestino) async {
-    if (!rota.value) {
-      rastreio.value = false;
-      //await atualyPosition();
-      GeoPoint geoPoint = await mapController.myLocation();
-      RoadInfo roadInfo = await mapController.drawRoad(
-        GeoPoint(latitude: latDestino, longitude: longDestino),
-        GeoPoint(latitude: geoPoint.latitude, longitude: geoPoint.longitude),
-        intersectPoint: [
-          GeoPoint(latitude: latDestino, longitude: longDestino),
-          GeoPoint(latitude: latPartida, longitude: longPartida)
-        ],
-        roadOption: RoadOption(
-          roadWidth: 13,
-          roadColor: Colors.blue,
-          showMarkerOfPOI: true,
-          zoomInto: true,
-        ),
-      );
-      
-      await mapController.myLocation();
-      await mapController.setZoom(zoomLevel: 18);
-      print("${roadInfo.distance}km");
-      print("${roadInfo.duration}sec");
-   
-    } else {
-      rastreio.value = true;
-      await mapController.removeLastRoad();
-     // await atualyPosition();
-      await mapController.currentLocation();
-      await mapController.setZoom(zoomLevel: 17.5);
-    }
-    rota.value = !rota.value;
-  }
-
   Future<void> locationChabge() async {
-    await mapController
-        .goToLocation(GeoPoint(latitude: 47.35387, longitude: 8.43609));
+    try {
+      await mapController
+          .goToLocation(GeoPoint(latitude: 47.35387, longitude: 8.43609));
+      removerMarcador();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
   }
 
   Future<void> getCenterMap() async {
-    GeoPoint centerMap = await mapController.centerMap;
+    try {
+      GeoPoint centerMap = await mapController.centerMap;
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
   }
 
   Future<void> atualyPosition() async {
-    removerMarcador();
-    if (!rastreio.value) {
-      await mapController.currentLocation();
-      await mapController.enableTracking();
-      await mapController.setZoom(zoomLevel: 18);
-      IconeRastreio.value = Icons.gps_off_sharp;
-    } else {
-      await mapController.disabledTracking();
-      await mapController.setZoom(zoomLevel: 17.8);
-      IconeRastreio.value = Icons.my_location_rounded;
+    try {
+      removerMarcador();
+      if (!rastreio.value) {
+        await mapController.currentLocation();
+        await mapController.enableTracking();
+        await mapController.setZoom(zoomLevel: 18);
+        IconeRastreio.value = Icons.gps_off_sharp;
+      } else {
+        await mapController.disabledTracking();
+        await mapController.setZoom(zoomLevel: 17.8);
+        IconeRastreio.value = Icons.my_location_rounded;
+      }
+      rastreio.value = !rastreio.value;
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
     }
-    rastreio.value = !rastreio.value;
   }
 
   Future<void> removerMarcador() async {
-    if (lastGeoPoint.value != null) {
-      mapController.removeMarker(lastGeoPoint.value!);
+    try {
+      if (lastGeoPoint.value != null) {
+        mapController.removeMarker(lastGeoPoint.value!);
+      }
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
     }
   }
 
   Future<void> adicionaMarcador(double lat, double long) async {
-    removerMarcador();
-    if (lastGeoPoint.value == null) {
-      lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
-      await mapController.addMarker(
-        lastGeoPoint.value!,
-        markerIcon: MarkerIcon(
-          icon: Icon(
-            Icons.location_on_outlined,
-            size: 68,
+    try {
+      removerMarcador();
+      if (lastGeoPoint.value == null) {
+        lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
+        await mapController.addMarker(
+          lastGeoPoint.value!,
+          markerIcon: MarkerIcon(
+            icon: Icon(
+              Icons.location_on_outlined,
+              size: 68,
+            ),
           ),
-        ),
-      );
-    }
-    if (lastGeoPoint.value != null) {
-      mapController.removeMarker(lastGeoPoint.value!);
-      lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
-      await mapController.addMarker(
-        lastGeoPoint.value!,
-        markerIcon: MarkerIcon(
-          icon: Icon(
-            Icons.location_on_outlined,
-            size: 68,
+        );
+      }
+      if (lastGeoPoint.value != null) {
+        mapController.removeMarker(lastGeoPoint.value!);
+        lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
+        await mapController.addMarker(
+          lastGeoPoint.value!,
+          markerIcon: MarkerIcon(
+            icon: Icon(
+              Icons.location_on_outlined,
+              size: 68,
+            ),
           ),
-        ),
-      );
+        );
+      }
+      await mapController.setZoom(zoomLevel: 17);
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
     }
-    await mapController.setZoom(zoomLevel: 17);
   }
 
   Future<void> updatePosition(double lat, double long) async {
-    await mapController.disabledTracking();
+    try {
+      await mapController.disabledTracking();
 
-    await mapController.goToLocation(GeoPoint(latitude: lat, longitude: long));
+      await mapController
+          .goToLocation(GeoPoint(latitude: lat, longitude: long));
 
-    await mapController.setZoom(zoomLevel: 17);
+      await mapController.setZoom(zoomLevel: 17);
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
   }
 
   Future pesquisaEndereco(String endereco) async {
-    List<SearchInfo> suggestions = await addressSuggestion(endereco);
-    removerMarcador();
-    return suggestions.toList();
+    try {
+      List<SearchInfo> suggestions = await addressSuggestion(endereco);
+      removerMarcador();
+      return suggestions.toList();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
   }
 }
