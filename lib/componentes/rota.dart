@@ -6,16 +6,16 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:sliding_sheet/sliding_sheet.dart';
 
-class Mapa extends StatefulWidget {
+class Rota extends StatefulWidget {
   static String tag = 'ListaPesquisa';
   @override
   State<StatefulWidget> createState() {
-    return MapaState();
+    return RotaState();
   }
 }
 
 //Declarando o MapCOntroler
-class MapaState extends State<Mapa> with OSMMixinObserver {
+class RotaState extends State<Rota> with OSMMixinObserver {
   //variaveis
   final _form = GlobalKey<FormState>();
   late final ValueChanged<String>? onChanged;
@@ -94,24 +94,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         print(mapController.listenerRegionIsChanging.value);
       }
     });
-/*
-    mapController.listenerMapLongTapping.addListener(() async {
-      if (mapController.listenerMapLongTapping.value != null) {
-        print(mapController.listenerMapLongTapping.value);
-        await mapController.addMarker(
-          mapController.listenerMapLongTapping.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.location_on_sharp,
-              color: Color.fromARGB(255, 41, 37, 36),
-              size: 48,
-            ),
-          ),
-          angle: pi / 3,
-        );
-      }
-    });
-    */
   }
 
   Future<void> mapIsInitialized() async {
@@ -139,9 +121,10 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
+    final SheetController sheet = SheetController();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa'),
+        title: Text('Navegação'),
       ),
       body: Container(
         child: Stack(children: [
@@ -231,7 +214,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 }),
           ),
           Positioned(
-            bottom: 30.0,
+            top: 160.0,
             right: 20.0,
             child:
                 //floatingActionButton:
@@ -254,29 +237,10 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 },
                 mini: true,
               ),
-              FloatingActionButton(
-                elevation: 50,
-                backgroundColor: Color(0xFF101427),
-                onPressed: () async {
-                  atualyPosition();
-                },
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: rastreio,
-                  builder: (ctx, isTracking, _) {
-                    if (isTracking) {
-                      return Icon(
-                        Icons.my_location,
-                        color: Colors.white,
-                      );
-                    }
-                    return Icon(Icons.gps_off_sharp,
-                        color: Colors.deepOrangeAccent);
-                  },
-                ),
-              ),
             ]),
           ),
           SlidingSheet(
+            controller: sheet,
             elevation: 20,
             cornerRadius: 16,
             snapSpec: const SnapSpec(
@@ -318,7 +282,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                                     color: Colors.black,
                                   ),
                                 ),
-                                hintText: 'Pesquisa',
+                                hintText: 'Destino',
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(30)),
                                 contentPadding: const EdgeInsets.all(15),
@@ -345,7 +309,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                                       final double lat =
                                           _retorno[indice].point!.latitude;
                                       final double long =
-                                          _retorno[indice].point!.longitude;
+                                          _retorno[indice].point!.longitude; 
                                       return Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -420,16 +384,15 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
           zoomInto: true,
         ),
       );
-      
+      await mapController.currentLocation();
       await mapController.myLocation();
       await mapController.setZoom(zoomLevel: 18);
       print("${roadInfo.distance}km");
       print("${roadInfo.duration}sec");
-   
     } else {
       rastreio.value = true;
       await mapController.removeLastRoad();
-     // await atualyPosition();
+      // await atualyPosition();
       await mapController.currentLocation();
       await mapController.setZoom(zoomLevel: 17.5);
     }
