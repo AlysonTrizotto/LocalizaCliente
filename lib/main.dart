@@ -22,7 +22,7 @@ class CLHApp extends StatelessWidget {
       backgroundColor: Color(0xFF101427), //use your hex code here
       ),
     ),
-     // home: Mapa(),
+      //home: Mapa(),
      home: dashboard(),
     );
   }

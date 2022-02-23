@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:sliding_sheet/sliding_sheet.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Mapa extends StatefulWidget {
   static String tag = 'ListaPesquisa';
@@ -76,7 +76,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
               Icons.location_on_outlined,
               size: 68,
             ),
-            //image: AssetImage("asset/pin.png"),
           ),
         );
       }
@@ -179,7 +178,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
               ),
             ),
           ),
-          Positioned(
+          /*Positioned(
             bottom: 30.0,
             left: 20.0,
             child: FloatingActionButton(
@@ -190,9 +189,9 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
               ),
               onPressed: () {},
             ),
-          ),
+          ),*/
           Positioned(
-            bottom: 30.0,
+            top: 130.0,
             right: 20.0,
             child:
                 //floatingActionButton:
@@ -215,40 +214,37 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 },
                 mini: true,
               ),
-                
-              FloatingActionButton(
-                elevation: 50,
-                backgroundColor: Color(0xFF101427),
-                onPressed: () async {
-                  removerMarcador();
-                  atualyPosition();
-                },
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: rastreio,
-                  builder: (ctx, isTracking, _) {
-                    if (isTracking) {
-                      return Icon(
-                        Icons.my_location,
-                        color: Colors.white,
-                      );
-                    }
-                    return Icon(Icons.gps_off_sharp,
-                        color: Colors.deepOrangeAccent);
-                  },
-                ),
-              ),
             ]),
           ),
-          SlidingSheet(
-            elevation: 20,
-            cornerRadius: 16,
-            snapSpec: const SnapSpec(
-              snap: true,
-              snappings: [20, 400, double.infinity],
-              positioning: SnapPositioning.pixelOffset,
+          Positioned(
+            bottom: 30.0,
+            right: 20.0,
+            child: FloatingActionButton(
+              elevation: 50,
+              backgroundColor: Color(0xFF101427),
+              onPressed: () async {
+                removerMarcador();
+                atualyPosition();
+              },
+              child: ValueListenableBuilder<bool>(
+                valueListenable: rastreio,
+                builder: (ctx, isTracking, _) {
+                  if (isTracking) {
+                    return Icon(
+                      Icons.my_location,
+                      color: Colors.white,
+                    );
+                  }
+                  return Icon(Icons.gps_off_sharp,
+                      color: Colors.deepOrangeAccent);
+                },
+              ),
             ),
-            builder: (context, state) {
-              return Padding(
+          ),
+          SlidingUpPanel(
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0)),
+            minHeight: 28.0,
+            panel: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 child: Stack(children: <Widget>[
                   Container(
@@ -354,8 +350,9 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                     ),
                   ),
                 ]),
-              );
-            },
+             
+         
+          ),
           ),
         ]),
       ),
@@ -366,7 +363,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     try {
       await mapController
           .goToLocation(GeoPoint(latitude: 47.35387, longitude: 8.43609));
-      removerMarcador();
+      
     } catch (e) {
       print("************************\n");
       print(e);
@@ -386,7 +383,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
 
   Future<void> atualyPosition() async {
     try {
-      removerMarcador();
+      
       if (!rastreio.value) {
         await mapController.currentLocation();
         await mapController.enableTracking();
@@ -433,7 +430,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
         );
       }
       if (lastGeoPoint.value != null) {
-        mapController.removeMarker(lastGeoPoint.value!);
         lastGeoPoint.value = GeoPoint(latitude: lat, longitude: long);
         await mapController.addMarker(
           lastGeoPoint.value!,
@@ -471,7 +467,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   Future pesquisaEndereco(String endereco) async {
     try {
       List<SearchInfo> suggestions = await addressSuggestion(endereco);
-      removerMarcador();
+      
       return suggestions.toList();
     } catch (e) {
       print("************************\n");
