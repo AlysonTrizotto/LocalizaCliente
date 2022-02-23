@@ -180,7 +180,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
             ),
           ),
           Positioned(
-            bottom: 50.0,
+            bottom: 30.0,
             left: 20.0,
             child: FloatingActionButton(
               elevation: 50,
@@ -192,7 +192,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
             ),
           ),
           Positioned(
-            top: 100.0,
+            bottom: 30.0,
             right: 20.0,
             child:
                 //floatingActionButton:
@@ -215,14 +215,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 },
                 mini: true,
               ),
-            ]),
-          ),
-          Positioned(
-            bottom: 50.0,
-            right: 20.0,
-            child:
-                //floatingActionButton:
-                Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                
               FloatingActionButton(
                 elevation: 50,
                 backgroundColor: Color(0xFF101427),
