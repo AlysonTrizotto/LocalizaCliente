@@ -45,6 +45,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   routing_client_dart: ^0.3.0+1
   sliding_up_panel: ^2.0.0+1
+  
 
 dev_dependencies:
   flutter_test:

@@ -159,7 +159,6 @@ class ListaPesquisa extends StatelessWidget {
                       _pesquisa.NumeroEnd,
                       _pesquisa.Categoria);
                 }));
-                //Navigator.pushReplacementNamed(context, dashboard.tag);
               }),
         ],
       ),

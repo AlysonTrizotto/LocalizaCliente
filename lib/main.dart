@@ -1,5 +1,3 @@
-
-
 //Apresentando Layout -
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
@@ -16,14 +14,19 @@ class CLHApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-      primaryColor: Colors.blueGrey[400],
-      appBarTheme: AppBarTheme(
-      backgroundColor: Color(0xFF101427), //use your hex code here
-      ),
-    ),
-      //home: Mapa(),
-     home: dashboard(),
-    );
+        theme: ThemeData(
+          primaryColor: Colors.blueGrey[400],
+          appBarTheme: AppBarTheme(
+            backgroundColor: Color(0xFF101427), //use your hex code here
+          ),
+        ),
+        //home: Rota(),
+        home: dashboard(),
+        initialRoute: 'dashboard',
+        routes: {
+          'dashboard' : (context) => dashboard(),
+          'mapa': (context) => const Mapa(),
+          'rota': (context) => const Rota(),
+        });
   }
 }

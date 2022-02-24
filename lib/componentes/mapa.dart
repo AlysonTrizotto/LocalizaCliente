@@ -6,6 +6,7 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class Mapa extends StatefulWidget {
+  const Mapa({Key? key}) : super(key: key);
   static String tag = 'ListaPesquisa';
   @override
   State<StatefulWidget> createState() {
@@ -16,6 +17,7 @@ class Mapa extends StatefulWidget {
 //Declarando o MapCOntroler
 class MapaState extends State<Mapa> with OSMMixinObserver {
   //variaveis
+
   final _form = GlobalKey<FormState>();
   late final ValueChanged<String>? onChanged;
   late String pesquisa = '';
@@ -112,6 +114,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Mapa'),
@@ -178,25 +181,29 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
               ),
             ),
           ),
-          /*Positioned(
+          Positioned(
             bottom: 30.0,
             left: 20.0,
             child: FloatingActionButton(
-              elevation: 50,
-              child: Transform.rotate(
-                angle: 150 * pi / 100,
-                child: Icon(Icons.send_outlined),
+                heroTag: 'rota',
+                elevation: 50,
+                child: Transform.rotate(
+                  angle: 150 * pi / 100,
+                  child: Icon(Icons.send_outlined),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed('rota') ;
+                }
+             
               ),
-              onPressed: () {},
-            ),
-          ),*/
+                
+          ),
           Positioned(
             top: 130.0,
             right: 20.0,
-            child:
-                //floatingActionButton:
-                Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+            child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
               FloatingActionButton(
+                heroTag: 'zoomIn',
                 elevation: 50,
                 child: Icon(Icons.add),
                 backgroundColor: Color(0xFF101427),
@@ -206,6 +213,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                 mini: true,
               ),
               FloatingActionButton(
+                heroTag: 'zoomOut',
                 elevation: 50,
                 child: Icon(Icons.remove),
                 backgroundColor: Color(0xFF101427),
@@ -220,6 +228,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
             bottom: 30.0,
             right: 20.0,
             child: FloatingActionButton(
+              heroTag: 'localizador',
               elevation: 50,
               backgroundColor: Color(0xFF101427),
               onPressed: () async {
@@ -232,7 +241,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                   if (isTracking) {
                     return Icon(
                       Icons.my_location,
-                      color: Colors.white,
+                      color: Color.fromARGB(255, 226, 215, 215),
                     );
                   }
                   return Icon(Icons.gps_off_sharp,
@@ -242,117 +251,115 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
             ),
           ),
           SlidingUpPanel(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0)),
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24.0),
+                topRight: Radius.circular(24.0)),
             minHeight: 28.0,
             panel: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                child: Stack(children: <Widget>[
-                  Container(
-                    height: 500,
-                    child: SingleChildScrollView(
-                      child: Column(children: <Widget>[
-                        SizedBox(
-                          child: Card(
-                            elevation: 50,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            color: Colors.white,
-                            child: TextField(
-                              controller: controladorCampoPesquisa,
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.location_on_outlined,
+              padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+              child: Stack(children: <Widget>[
+                Container(
+                  height: 500,
+                  child: SingleChildScrollView(
+                    child: Column(children: <Widget>[
+                      SizedBox(
+                        child: Card(
+                          elevation: 50,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          color: Colors.white,
+                          child: TextField(
+                            controller: controladorCampoPesquisa,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.location_on_outlined,
+                                color: Colors.black,
+                              ),
+                              suffixIcon: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    pesquisa = controladorCampoPesquisa.text;
+                                    print(pesquisa);
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.search,
                                   color: Colors.black,
                                 ),
-                                suffixIcon: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      pesquisa = controladorCampoPesquisa.text;
-                                      print(pesquisa);
-                                    });
-                                  },
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                hintText: 'Pesquisa',
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(30)),
-                                contentPadding: const EdgeInsets.all(15),
                               ),
+                              hintText: 'Pesquisa',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              contentPadding: const EdgeInsets.all(15),
                             ),
                           ),
                         ),
-                        Container(
-                          //height: MediaQuery.of(context).size.height - 263,
-                          child: FutureBuilder(
-                              future: Future.delayed(Duration())
-                                  .then((value) => pesquisaEndereco(pesquisa)),
-                              builder: (context, AsyncSnapshot snapshot) {
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  final List<SearchInfo> _retorno =
-                                      snapshot.data;
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    itemCount: _retorno.length,
-                                    itemBuilder: (context, indice) {
-                                      final String _endereco =
-                                          _retorno[indice].address.toString();
-                                      final double lat =
-                                          _retorno[indice].point!.latitude;
-                                      final double long =
-                                          _retorno[indice].point!.longitude;
-                                      return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            GestureDetector(
-                                              onTap: () {
-                                                updatePosition(lat, long);
-                                                adicionaMarcador(lat, long);
-                                              },
-                                              child: Card(
-                                                elevation: 50,
-                                                child: ListTile(
-                                                  leading: Icon(Icons
-                                                      .location_on_outlined),
-                                                  title: Text(_endereco),
-                                                  subtitle: Text('Latitude: ' +
-                                                      lat.toString() +
-                                                      '\nLongitude: ' +
-                                                      long.toString()),
-                                                ),
+                      ),
+                      Container(
+                        child: FutureBuilder(
+                            future: Future.delayed(Duration())
+                                .then((value) => pesquisaEndereco(pesquisa)),
+                            builder: (context, AsyncSnapshot snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                final List<SearchInfo> _retorno = snapshot.data;
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: _retorno.length,
+                                  itemBuilder: (context, indice) {
+                                    final String _endereco =
+                                        _retorno[indice].address.toString();
+                                    final double lat =
+                                        _retorno[indice].point!.latitude;
+                                    final double long =
+                                        _retorno[indice].point!.longitude;
+                                    return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          GestureDetector(
+                                            onTap: () {
+                                              updatePosition(lat, long);
+                                              adicionaMarcador(lat, long);
+                                            },
+                                            child: Card(
+                                              elevation: 50,
+                                              child: ListTile(
+                                                leading: Icon(
+                                                    Icons.location_on_outlined),
+                                                title: Text(_endereco),
+                                                subtitle: Text('Latitude: ' +
+                                                    lat.toString() +
+                                                    '\nLongitude: ' +
+                                                    long.toString()),
                                               ),
                                             ),
-                                          ]);
-                                    },
-                                  );
-                                } else {
-                                  return Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        CircularProgressIndicator(),
-                                        Text(''),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              }),
-                        ),
-                      ]),
-                    ),
+                                          ),
+                                        ]);
+                                  },
+                                );
+                              } else {
+                                return Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      Text(''),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }),
+                      ),
+                    ]),
                   ),
-                ]),
-             
-         
-          ),
+                ),
+              ]),
+            ),
           ),
         ]),
       ),
@@ -363,7 +370,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     try {
       await mapController
           .goToLocation(GeoPoint(latitude: 47.35387, longitude: 8.43609));
-      
     } catch (e) {
       print("************************\n");
       print(e);
@@ -383,7 +389,6 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
 
   Future<void> atualyPosition() async {
     try {
-      
       if (!rastreio.value) {
         await mapController.currentLocation();
         await mapController.enableTracking();
@@ -467,12 +472,35 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   Future pesquisaEndereco(String endereco) async {
     try {
       List<SearchInfo> suggestions = await addressSuggestion(endereco);
-      
+
       return suggestions.toList();
     } catch (e) {
       print("************************\n");
       print(e);
       print("\n************************");
     }
+  }
+}
+
+class Rota extends StatelessWidget {
+  const Rota({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Mapa'),
+        ),
+        body: Container(
+          child: Stack(
+            children: [
+              Text('Rota'),
+              FloatingActionButton(
+                heroTag: 'voltar',
+                onPressed: () {                
+                Navigator.pop(context);
+              })
+            ],
+          ),
+        ));
   }
 }
