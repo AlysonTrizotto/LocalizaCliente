@@ -25,8 +25,8 @@ class CLHApp extends StatelessWidget {
         initialRoute: 'dashboard',
         routes: {
           'dashboard' : (context) => dashboard(),
-          'mapa': (context) => const Mapa(),
-          'rota': (context) => const Rota(),
+          'mapa': (context) => mapa(),
+          'rota': (context) => Rota(),
         });
   }
 }

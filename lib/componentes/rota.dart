@@ -1,46 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:routing_client_dart/routing_client_dart.dart';
 
-class FirstRoute extends StatelessWidget {
-  const FirstRoute({Key? key}) : super(key: key);
+class Rota extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return RotaState();
+  }
+}
+
+class RotaState extends State<Rota> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('First Route'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          child: const Text('Open route'),
-          onPressed: () {
-            Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const SecondRoute()),
-  );
-          },
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Stack(children: [
+            FlutterMap(
+              options: MapOptions(
+                center: LatLng(45.5231, -122.6765),
+                zoom: 13.0,
+              ),
+              layers: [
+                TileLayerOptions(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c']),
+              ],
+            ),
+            FloatingActionButton(onPressed: () {
+              desenhaRota(-25.5114592, -49.1659281);
+            })
+          ]),
         ),
       ),
     );
   }
-}
 
-class SecondRoute extends StatelessWidget {
-  const SecondRoute({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Second Route'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-             Navigator.pop(context);
-          },
-          child: const Text('Go back!'),
-        ),
-      ),
+  Future<void> desenhaRota(double latDestino, double longDestino) async {
+    List<LngLat> waypoints = [
+      LngLat(lng: latDestino, lat: longDestino),
+      LngLat(lng: -25.5119413, lat: -49.1668627),
+    ];
+    final manager = OSRMManager();
+    final road = await manager.getRoad(
+      waypoints: waypoints,
+      geometrie: Geometries.polyline,
+      steps: true,
+      languageCode: "en",
     );
   }
 }

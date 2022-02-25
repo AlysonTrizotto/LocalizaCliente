@@ -1,3 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:routing_client_dart/routing_client_dart.dart';
+
+class mapa extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return MapaState();
+  }
+}
+
+class MapaState extends State<mapa> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Stack(children: [
+            FlutterMap(
+              options: MapOptions(
+                center: LatLng(45.5231, -122.6765),
+                zoom: 13.0,
+              ),
+              layers: [
+                TileLayerOptions(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c']),
+              ],
+            ),
+            FloatingActionButton(onPressed: () {
+              desenhaRota(-25.5114592, -49.1659281);
+            })
+          ]),
+        ),
+      ),
+    );
+  }
+
+  Future<void> desenhaRota(double latDestino, double longDestino) async {
+    List<LngLat> waypoints = [
+      LngLat(lng: latDestino, lat: longDestino),
+      LngLat(lng: -25.5119413, lat: -49.1668627),
+    ];
+    final manager = OSRMManager();
+    final road = await manager.getRoad(
+      waypoints: waypoints,
+      geometrie: Geometries.polyline,
+      steps: true,
+      languageCode: "en",
+    );
+  }
+}
+
+
+
+/************************************************************* */
+
+/*
 import 'dart:async';
 import 'dart:math';
 
@@ -114,7 +179,7 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Mapa'),
@@ -192,11 +257,9 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
                   child: Icon(Icons.send_outlined),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pushNamed('rota') ;
-                }
-             
-              ),
-                
+                  CalculaRota();
+                  //Navigator.of(context).pushNamed('rota');
+                }),
           ),
           Positioned(
             top: 130.0,
@@ -366,6 +429,33 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     );
   }
 
+  Future<void> CalculaRota() async {
+    try {
+      atualyPosition();
+      RoadInfo roadInfo = await mapController.drawRoad(
+        GeoPoint(latitude: -25.5121038, longitude: -49.1649872),
+        GeoPoint(latitude: -25.5119462, longitude: -49.1668627),
+        roadType: RoadType.car,
+        intersectPoint: [
+          GeoPoint(latitude: -25.5121038, longitude: -49.1649872),
+          GeoPoint(latitude: -25.5119462, longitude: -49.1668627),
+        ],
+        roadOption: RoadOption(
+          roadWidth: 10,
+          roadColor: Colors.blue,
+          showMarkerOfPOI: false,
+          zoomInto: true,
+        ),
+      );
+      print("${roadInfo.distance}km");
+      print("${roadInfo.duration}sec");
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    }
+  }
+
   Future<void> locationChabge() async {
     try {
       await mapController
@@ -481,26 +571,4 @@ class MapaState extends State<Mapa> with OSMMixinObserver {
     }
   }
 }
-
-class Rota extends StatelessWidget {
-  const Rota({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('Mapa'),
-        ),
-        body: Container(
-          child: Stack(
-            children: [
-              Text('Rota'),
-              FloatingActionButton(
-                heroTag: 'voltar',
-                onPressed: () {                
-                Navigator.pop(context);
-              })
-            ],
-          ),
-        ));
-  }
-}
+*/
