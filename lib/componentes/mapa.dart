@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
+import 'package:geocoder2/geocoder2.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
+import 'package:location/location.dart';
+import 'package:flutter/services.dart';
+
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+import 'package:localiza_favoritos/componentes/search.dart';
 
 class mapa extends StatefulWidget {
   @override
@@ -11,36 +20,275 @@ class mapa extends StatefulWidget {
 }
 
 class MapaState extends State<mapa> {
+  /********************variveis********************/
+  double long = 106.816666;
+  double lat = -6.200000;
+  double zoom = 15.0;
+  double rotation = 0.0;
+  late double zoomAtual = 5.0;
+  LatLng currentCenter = LatLng(51.5, -0.09);
+  LatLng point = LatLng(-6.200000, 106.816666);
+  final FitBoundsOptions options =
+      const FitBoundsOptions(padding: EdgeInsets.all(12.0));
+  late String pesquisa = '';
+  List<Marker> marcadores = [];
+ 
+  /**************************************************/
+
+  /*****************Notifier*************************/
+  ValueNotifier<bool> rastreio = ValueNotifier(false);
+  /**************************************************/
+
+  /*****************Controllers**********************/
+  MapController mapController = MapController();
+  final Location _locationService = Location();
+  LocationData? _currentLocation;
+  late final MapState map;
+  late bool _serviceEnabled;
+  /**************************************************/
+
   @override
   void initState() {
     super.initState();
+   initLocationService();
   }
 
+  void initLocationService() async {
+    await _locationService.changeSettings(
+      accuracy: LocationAccuracy.high,
+      interval: 1000,
+    );
+  }
   @override
   Widget build(BuildContext context) {
+    final TextEditingController controladorCampoPesquisa =
+        TextEditingController();
+/*
+    userLocationOptions = UserLocationOptions(
+      context: context, 
+      mapController: mapController,
+      markers: marcadores,
+      markerWidget: Icon(Icons.location_on_rounded),
+      updateMapLocationOnPositionChange: true,  //move mapa para posição atual do usuário.
+      locationUpdateIntervalMs: 100,            //intervalo de atualização de local em milissegundos.
+    );
+*/
     return MaterialApp(
       home: Scaffold(
         body: Center(
           child: Stack(children: [
             FlutterMap(
+              mapController: mapController,
               options: MapOptions(
-                center: LatLng(45.5231, -122.6765),
-                zoom: 13.0,
-              ),
+                  center: LatLng(45.5231, -122.6765),
+                  zoom: zoomAtual,
+                  plugins: [
+                    //UserLocationPlugin(),
+                  ]),
               layers: [
                 TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c']),
+                //userLocationOptions,
               ],
             ),
-            FloatingActionButton(onPressed: () {
-              desenhaRota(-25.5114592, -49.1659281);
-            })
+            Positioned(
+              bottom: 30.0,
+              left: 20.0,
+              child: FloatingActionButton(
+                  heroTag: 'rota',
+                  elevation: 50,
+                  child: Transform.rotate(
+                    angle: 150 * pi / 100,
+                    child: Icon(Icons.send_outlined),
+                  ),
+                  onPressed: () {
+                    CalculaRota();
+                    //Navigator.of(context).pushNamed('rota');
+                  }),
+            ),
+            Positioned(
+              top: 130.0,
+              right: 20.0,
+              child:
+                  Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                FloatingActionButton(
+                  heroTag: 'zoomIn',
+                  elevation: 50,
+                  child: Icon(Icons.add),
+                  backgroundColor: Color(0xFF101427),
+                  onPressed: () async => _zoomIn(),
+                  mini: true,
+                ),
+                FloatingActionButton(
+                  heroTag: 'zoomOut',
+                  elevation: 50,
+                  child: Icon(Icons.remove),
+                  backgroundColor: Color(0xFF101427),
+                  onPressed: () async => _zoomOut(),
+                  mini: true,
+                ),
+              ]),
+            ),
+            Positioned(
+              bottom: 30.0,
+              right: 20.0,
+              child: FloatingActionButton(
+                heroTag: 'localizador',
+                elevation: 50,
+                backgroundColor: Color(0xFF101427),
+                onPressed: () async {
+                  //removerMarcador();
+                  // atualyPosition();
+                },
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: rastreio,
+                  builder: (ctx, isTracking, _) {
+                    if (isTracking) {
+                      return Icon(
+                        Icons.my_location,
+                        color: Color.fromARGB(255, 226, 215, 215),
+                      );
+                    }
+                    return Icon(Icons.gps_off_sharp,
+                        color: Colors.deepOrangeAccent);
+                  },
+                ),
+              ),
+            ),
+            SlidingUpPanel(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24.0),
+                  topRight: Radius.circular(24.0)),
+              minHeight: 28.0,
+              panel: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                child: Stack(children: <Widget>[
+                  Container(
+                    height: 500,
+                    child: SingleChildScrollView(
+                      child: Column(children: <Widget>[
+                        SizedBox(
+                          child: Card(
+                            elevation: 50,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            color: Colors.white,
+                            child: TextField(
+                              controller: controladorCampoPesquisa,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.black,
+                                ),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      pesquisa = controladorCampoPesquisa.text;
+                                      print(pesquisa);
+                                    });
+                                  },
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                hintText: 'Pesquisa',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                contentPadding: const EdgeInsets.all(15),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          child: FutureBuilder(
+                              future: Future.delayed(Duration())
+                                  .then((value) => SugestionAdd(pesquisa)),
+                              builder: (context, AsyncSnapshot snapshot) {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  final List _retorno = snapshot.data;
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: _retorno.length,
+                                    itemBuilder: (context, indice) {
+                                      final String _endereco =
+                                          _retorno[indice].address.toString();
+                                      final double lat =
+                                          _retorno[indice].point!.latitude;
+                                      final double long =
+                                          _retorno[indice].point!.longitude;
+                                      return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            GestureDetector(
+                                              onTap: () {
+                                                //updatePosition(lat, long);
+                                                adicionaMarcador(lat, long);
+                                              },
+                                              child: Card(
+                                                elevation: 50,
+                                                child: ListTile(
+                                                  leading: Icon(Icons
+                                                      .location_on_outlined),
+                                                  title: Text(_endereco),
+                                                  subtitle: Text('Latitude: ' +
+                                                      lat.toString() +
+                                                      '\nLongitude: ' +
+                                                      long.toString()),
+                                                ),
+                                              ),
+                                            ),
+                                          ]);
+                                    },
+                                  );
+                                } else {
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        CircularProgressIndicator(),
+                                        Text(''),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
           ]),
         ),
       ),
     );
+  }
+
+  void _zoomOut() {
+    if (zoomAtual >= 4) {
+      --zoomAtual;
+      mapController.move(currentCenter, zoomAtual);
+      print(zoomAtual);
+    }
+  }
+
+  void _zoomIn() {
+    if (zoomAtual <= 17) {
+      ++zoomAtual;
+      mapController.move(currentCenter, zoomAtual);
+      print(zoomAtual);
+    }
   }
 
   Future<void> desenhaRota(double latDestino, double longDestino) async {
@@ -55,6 +303,70 @@ class MapaState extends State<mapa> {
       steps: true,
       languageCode: "en",
     );
+  }
+
+  Future<void> CalculaRota() async {
+    try {
+      atualyPosition();
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    }
+  }
+
+  Future<void> locationChabge() async {
+    try {} catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  Future<void> getCenterMap() async {
+    try {} catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  Future<void> atualyPosition() async {
+    try {
+      if (!rastreio.value) {
+      } else {}
+      rastreio.value = !rastreio.value;
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  Future<void> removerMarcador() async {
+    try {} catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  Future<void> adicionaMarcador(double lat, double long) async {
+    try {
+     mapController.move(LatLng(lat, long), 15);
+    } catch (e) {
+      print("*******Movendo mapa*******\n");
+      print(e);
+      print("\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
+    }
+  }
+
+  Future<void> updatePosition(double lat, double long) async {
+    try {} catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
   }
 }
 

@@ -37,15 +37,18 @@ dependencies:
   flutter_map: any
   flutter_map_marker_cluster: any
   flutter_slidable: ^1.0.0
-  sliding_sheet: ^0.5.2
   osm_nominatim: ^2.0.1
-  
+  routing_client_dart: ^0.3.0+1
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  routing_client_dart: ^0.3.0+1
-  sliding_up_panel: ^2.0.0+1
   
+  sliding_up_panel: ^2.0.0+1
+  #location: ^4.3.0
+  geocoder2: ^1.1.0
+  location: ^4.3.0
+
 
 dev_dependencies:
   flutter_test:
