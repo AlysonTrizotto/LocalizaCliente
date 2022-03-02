@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -5,8 +8,8 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
-import 'package:location/location.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -31,8 +34,8 @@ class MapaState extends State<mapa> {
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
   late String pesquisa = '';
-  List<Marker> marcadores = [];
- 
+  List<Marker> markers = [];
+  String? _error;
   /**************************************************/
 
   /*****************Notifier*************************/
@@ -41,58 +44,84 @@ class MapaState extends State<mapa> {
 
   /*****************Controllers**********************/
   MapController mapController = MapController();
-  final Location _locationService = Location();
-  LocationData? _currentLocation;
   late final MapState map;
   late bool _serviceEnabled;
+  late Location location = Location();
+  LocationData? _locationData;
+  StreamSubscription<LocationData>? _locationSubscription;
+
   /**************************************************/
 
   @override
   void initState() {
     super.initState();
-   initLocationService();
+    getCurrentLocation();
   }
 
-  void initLocationService() async {
-    await _locationService.changeSettings(
-      accuracy: LocationAccuracy.high,
-      interval: 1000,
-    );
+  getCurrentLocation() async {
+    Location getLocation = new Location();
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    LocationData? _locationData;
+
+    _serviceEnabled = await getLocation.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await getLocation.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await getLocation.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await getLocation.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await getLocation.getLocation();
+    setState(() {
+      print(LatLng(parseToDouble(_locationData?.latitude),
+          parseToDouble(_locationData?.longitude)));
+      mapController.move(
+          LatLng(parseToDouble(_locationData?.latitude),
+              parseToDouble(_locationData?.longitude)),
+          13.0);
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
-/*
-    userLocationOptions = UserLocationOptions(
-      context: context, 
-      mapController: mapController,
-      markers: marcadores,
-      markerWidget: Icon(Icons.location_on_rounded),
-      updateMapLocationOnPositionChange: true,  //move mapa para posição atual do usuário.
-      locationUpdateIntervalMs: 100,            //intervalo de atualização de local em milissegundos.
-    );
-*/
+
     return MaterialApp(
       home: Scaffold(
         body: Center(
           child: Stack(children: [
             FlutterMap(
-              mapController: mapController,
-              options: MapOptions(
-                  center: LatLng(45.5231, -122.6765),
-                  zoom: zoomAtual,
-                  plugins: [
-                    //UserLocationPlugin(),
+                mapController: mapController,
+                options: MapOptions(
+                    center: currentCenter,
+                    zoom: zoomAtual,
+                    onTap: (latlng) {
+                      removeMarker();
+                      setState(() {
+                        addMarker(latlng);
+                      });
+                    },
+                    plugins: []),
+                layers: [
+                  TileLayerOptions(
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: ['a', 'b', 'c']),
+                  MarkerLayerOptions(markers: [
+                    for (int i = 0; i < markers.length; i++) markers[i]
                   ]),
-              layers: [
-                TileLayerOptions(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
-                //userLocationOptions,
-              ],
-            ),
+                ]),
             Positioned(
               bottom: 30.0,
               left: 20.0,
@@ -104,7 +133,6 @@ class MapaState extends State<mapa> {
                     child: Icon(Icons.send_outlined),
                   ),
                   onPressed: () {
-                    CalculaRota();
                     //Navigator.of(context).pushNamed('rota');
                   }),
             ),
@@ -139,8 +167,7 @@ class MapaState extends State<mapa> {
                 elevation: 50,
                 backgroundColor: Color(0xFF101427),
                 onPressed: () async {
-                  //removerMarcador();
-                  // atualyPosition();
+                  atualyPosition();
                 },
                 child: ValueListenableBuilder<bool>(
                   valueListenable: rastreio,
@@ -228,8 +255,10 @@ class MapaState extends State<mapa> {
                                           children: <Widget>[
                                             GestureDetector(
                                               onTap: () {
-                                                //updatePosition(lat, long);
-                                                adicionaMarcador(lat, long);
+                                                setState(() {
+                                                  //updatePosition(lat, long);
+                                                  adicionaMarcador(lat, long);
+                                                });
                                               },
                                               child: Card(
                                                 elevation: 50,
@@ -275,20 +304,58 @@ class MapaState extends State<mapa> {
     );
   }
 
-  void _zoomOut() {
-    if (zoomAtual >= 4) {
-      --zoomAtual;
-      mapController.move(currentCenter, zoomAtual);
-      print(zoomAtual);
+  void removeMarker() {
+    try {
+      markers.clear();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
     }
   }
 
-  void _zoomIn() {
-    if (zoomAtual <= 17) {
-      ++zoomAtual;
-      mapController.move(currentCenter, zoomAtual);
-      print(zoomAtual);
+  void addMarker(LatLng latlng) {
+    try {
+      currentCenter = latlng;
+      markers.add(
+        Marker(
+          width: 150.0,
+          height: 150.0,
+          point: currentCenter,
+          builder: (ctx) => const Icon(
+            Icons.location_on,
+            color: Colors.red,
+            size: 35.0,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
     }
+  }
+
+  void _zoomOut() {
+    setState(() {
+      if (zoomAtual >= 4) {
+        --zoomAtual;
+        //mapController.move(currentLatLng, zoomAtual);
+        print(zoomAtual);
+      }
+    });
+  }
+
+  void _zoomIn() {
+    //currentLatLng = LatLng(lat, long);
+    setState(() {
+      if (zoomAtual <= 17) {
+        ++zoomAtual;
+
+        mapController.move(currentCenter, zoomAtual);
+        print(zoomAtual);
+      }
+    });
   }
 
   Future<void> desenhaRota(double latDestino, double longDestino) async {
@@ -305,36 +372,35 @@ class MapaState extends State<mapa> {
     );
   }
 
-  Future<void> CalculaRota() async {
-    try {
-      atualyPosition();
-    } catch (e) {
-      print('*******************');
-      print(e);
-      print('*******************');
-    }
-  }
-
-  Future<void> locationChabge() async {
-    try {} catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
-    }
-  }
-
-  Future<void> getCenterMap() async {
-    try {} catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
-    }
-  }
-
   Future<void> atualyPosition() async {
     try {
       if (!rastreio.value) {
-      } else {}
+        _locationSubscription =
+            location.onLocationChanged.handleError((dynamic err) {
+          if (err is PlatformException) {
+            setState(() {
+              _error = err.code;
+            });
+          }
+          _locationSubscription?.cancel();
+          setState(() {
+            _locationSubscription = null;
+          });
+        }).listen((LocationData currentLocation) {
+          setState(() {
+            _error = null;
+
+            _locationData = currentLocation;
+            print('${_locationData!.latitude}, ${_locationData!.latitude}');
+          });
+        });
+        setState(() {});
+      } else {
+        _locationSubscription?.cancel();
+        setState(() {
+          _locationSubscription = null;
+        });
+      }
       rastreio.value = !rastreio.value;
     } catch (e) {
       print("************************\n");
@@ -343,34 +409,20 @@ class MapaState extends State<mapa> {
     }
   }
 
-  Future<void> removerMarcador() async {
-    try {} catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
-    }
-  }
-
   Future<void> adicionaMarcador(double lat, double long) async {
     try {
-     mapController.move(LatLng(lat, long), 15);
+      currentCenter = LatLng(lat, long);
+      removeMarker();
+      addMarker(currentCenter);
+      mapController.move(currentCenter, 16);
     } catch (e) {
       print("*******Movendo mapa*******\n");
       print(e);
-      print("\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
-    }
-  }
-
-  Future<void> updatePosition(double lat, double long) async {
-    try {} catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
+      print(
+          "\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
     }
   }
 }
-
-
 
 /************************************************************* */
 

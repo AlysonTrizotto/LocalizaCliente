@@ -45,10 +45,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   
   sliding_up_panel: ^2.0.0+1
-  #location: ^4.3.0
-  geocoder2: ^1.1.0
   location: ^4.3.0
-
+  geocoder2: ^1.1.0
 
 dev_dependencies:
   flutter_test:
