@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
-import 'package:latlong/latlong.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
@@ -361,8 +360,8 @@ class MapaState extends State<mapa> {
           height: 150.0,
           point: currentCenter,
           builder: (ctx) => const Icon(
-            Icons.location_on,
-            color: Colors.red,
+            Icons.directions_car_outlined,
+            color: Colors.blueAccent,
             size: 35.0,
           ),
         ),
@@ -413,6 +412,7 @@ class MapaState extends State<mapa> {
   Future<void> atualyPosition() async {
     double? lat = 0.0;
     double? long = 0.0;
+    LatLng latlong = LatLng(lat, long);
     try {
       if (!rastreio.value) {
         _locationSubscription =
@@ -434,8 +434,8 @@ class MapaState extends State<mapa> {
             removeMarkerTracker();
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
-            currentCenter = LatLng(lat, long)
-            addMarkerTracker(_locationData);
+            currentCenter = latlong;
+            addMarkerTracker(currentCenter);
             print('${_locationData!.latitude}, ${_locationData!.latitude}');
           });
         });
