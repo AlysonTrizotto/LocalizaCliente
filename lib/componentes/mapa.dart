@@ -105,6 +105,8 @@ class MapaState extends State<mapa> {
             FlutterMap(
                 mapController: mapController,
                 options: MapOptions(
+                    maxZoom: 18,
+                    minZoom: 4,
                     center: currentCenter,
                     zoom: zoomAtual,
                     onTap: (latlng) {
@@ -124,7 +126,7 @@ class MapaState extends State<mapa> {
                   ]),
                   MarkerLayerOptions(markers: [
                     for (int i = 0; i < markersTracker.length; i++)
-                      markersTracker[i]
+                      markersTracker[i],
                   ]),
                 ]),
             Positioned(
@@ -353,6 +355,7 @@ class MapaState extends State<mapa> {
 
   void addMarkerTracker(LatLng latlng) {
     try {
+      // print('Entrou no addMarker');
       currentCenter = latlng;
       markersTracker.add(
         Marker(
@@ -360,9 +363,9 @@ class MapaState extends State<mapa> {
           height: 150.0,
           point: currentCenter,
           builder: (ctx) => const Icon(
-            Icons.directions_car_outlined,
+            Icons.circle,
             color: Colors.blueAccent,
-            size: 35.0,
+            size: 30.0,
           ),
         ),
       );
@@ -412,7 +415,7 @@ class MapaState extends State<mapa> {
   Future<void> atualyPosition() async {
     double? lat = 0.0;
     double? long = 0.0;
-    LatLng latlong = LatLng(lat, long);
+
     try {
       if (!rastreio.value) {
         _locationSubscription =
@@ -434,7 +437,9 @@ class MapaState extends State<mapa> {
             removeMarkerTracker();
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
+            LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
+            mapController.move(currentCenter, 15);
             addMarkerTracker(currentCenter);
             print('${_locationData!.latitude}, ${_locationData!.latitude}');
           });
@@ -443,6 +448,7 @@ class MapaState extends State<mapa> {
       } else {
         _locationSubscription?.cancel();
         setState(() {
+          removeMarkerTracker();
           _locationSubscription = null;
         });
       }
