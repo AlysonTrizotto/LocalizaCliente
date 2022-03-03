@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
+import 'package:latlong/latlong.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,7 @@ class MapaState extends State<mapa> {
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
   late String pesquisa = '';
   List<Marker> markers = [];
+  List<Marker> markersTracker = [];
   String? _error;
   /**************************************************/
 
@@ -120,6 +122,10 @@ class MapaState extends State<mapa> {
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: [
                     for (int i = 0; i < markers.length; i++) markers[i]
+                  ]),
+                  MarkerLayerOptions(markers: [
+                    for (int i = 0; i < markersTracker.length; i++)
+                      markersTracker[i]
                   ]),
                 ]),
             Positioned(
@@ -336,6 +342,38 @@ class MapaState extends State<mapa> {
     }
   }
 
+  void removeMarkerTracker() {
+    try {
+      markersTracker.clear();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  void addMarkerTracker(LatLng latlng) {
+    try {
+      currentCenter = latlng;
+      markersTracker.add(
+        Marker(
+          width: 150.0,
+          height: 150.0,
+          point: currentCenter,
+          builder: (ctx) => const Icon(
+            Icons.location_on,
+            color: Colors.red,
+            size: 35.0,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    }
+  }
+
   void _zoomOut() {
     setState(() {
       if (zoomAtual >= 4) {
@@ -373,6 +411,8 @@ class MapaState extends State<mapa> {
   }
 
   Future<void> atualyPosition() async {
+    double? lat = 0.0;
+    double? long = 0.0;
     try {
       if (!rastreio.value) {
         _locationSubscription =
@@ -391,6 +431,11 @@ class MapaState extends State<mapa> {
             _error = null;
 
             _locationData = currentLocation;
+            removeMarkerTracker();
+            lat = _locationData!.latitude;
+            long = _locationData!.longitude;
+            currentCenter = LatLng(lat, long)
+            addMarkerTracker(_locationData);
             print('${_locationData!.latitude}, ${_locationData!.latitude}');
           });
         });
