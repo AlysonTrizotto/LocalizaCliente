@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ffi';
+import 'package:http/http.dart';
 
 import 'package:flutter/material.dart';
 
@@ -45,7 +47,7 @@ class MapaState extends State<mapa> {
 
   /*****************Controllers**********************/
   MapController mapController = MapController();
-  late final MapState map;
+  late MapState map;
   late bool _serviceEnabled;
   late Location location = Location();
   LocationData? _locationData;
@@ -86,6 +88,9 @@ class MapaState extends State<mapa> {
     setState(() {
       print(LatLng(parseToDouble(_locationData?.latitude),
           parseToDouble(_locationData?.longitude)));
+
+      currentCenter = LatLng(parseToDouble(_locationData?.latitude),
+          parseToDouble(_locationData?.longitude));
       mapController.move(
           LatLng(parseToDouble(_locationData?.latitude),
               parseToDouble(_locationData?.longitude)),
@@ -311,6 +316,10 @@ class MapaState extends State<mapa> {
     );
   }
 
+  void erroServidor(String err) {
+    print('Servidor temporáriamente indisponível');
+  }
+
   void removeMarker() {
     try {
       markers.clear();
@@ -377,25 +386,40 @@ class MapaState extends State<mapa> {
   }
 
   void _zoomOut() {
-    setState(() {
+    /*setState(() {
       if (zoomAtual >= 4) {
         --zoomAtual;
-        //mapController.move(currentLatLng, zoomAtual);
+        mapController.move(getCurrentLocation(), zoomAtual);
         print(zoomAtual);
       }
-    });
+    });*/
+
+    var bounds = mapController.bounds;
+    var centerZoom = mapController.center;
+    var zoom = mapController.zoom - 1;
+    if (zoom < 3) {
+      zoom = 3;
+    }
+    mapController.move(centerZoom, zoom);
   }
 
   void _zoomIn() {
-    //currentLatLng = LatLng(lat, long);
-    setState(() {
+    /*setState(() {
       if (zoomAtual <= 17) {
         ++zoomAtual;
 
         mapController.move(currentCenter, zoomAtual);
         print(zoomAtual);
       }
-    });
+    });*/
+
+     var bounds = mapController.bounds;
+    var centerZoom = mapController.center;
+    var zoom = mapController.zoom + 1;
+    if (zoom < 3) {
+      zoom = 3;
+    }
+    mapController.move(centerZoom, zoom);
   }
 
   Future<void> desenhaRota(double latDestino, double longDestino) async {
@@ -432,14 +456,14 @@ class MapaState extends State<mapa> {
         }).listen((LocationData currentLocation) {
           setState(() {
             _error = null;
+            removeMarkerTracker();
 
             _locationData = currentLocation;
-            removeMarkerTracker();
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.move(currentCenter, 15);
+            mapController.move(currentCenter, 16);
             addMarkerTracker(currentCenter);
             print('${_locationData!.latitude}, ${_locationData!.latitude}');
           });
