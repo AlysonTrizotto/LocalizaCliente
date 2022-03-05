@@ -14,19 +14,20 @@ class CLHApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(
-          primaryColor: Colors.blueGrey[400],
-          appBarTheme: AppBarTheme(
-            backgroundColor: Color(0xFF101427), //use your hex code here
-          ),
+      theme: ThemeData(
+        primaryColor: Colors.blueGrey[400],
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF101427), //use your hex code here
         ),
-        //home: Rota(),
-        home: dashboard(),
-        initialRoute: 'dashboard',
+      ),
+      //home: Rota(),
+      home: dashboard(),
+      /*initialRoute: 'dashboard',
         routes: {
           'dashboard' : (context) => dashboard(),
           'mapa': (context) => mapa(),
-          'rota': (context) => Rota(),
-        });
+          'rota': (context) => rota(0.0,0.0),
+        }*/
+    );
   }
 }

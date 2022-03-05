@@ -9,6 +9,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:localiza_favoritos/componentes/rota.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -103,8 +104,10 @@ class MapaState extends State<mapa> {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
 
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Mapa'),
+      ),
         body: Center(
           child: Stack(children: [
             FlutterMap(
@@ -145,7 +148,14 @@ class MapaState extends State<mapa> {
                     child: Icon(Icons.send_outlined),
                   ),
                   onPressed: () {
-                    //Navigator.of(context).pushNamed('rota');
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute( 
+                        builder: (context) => rota(
+                          currentCenter),
+                        )
+                      );
+
                   }),
             ),
             Positioned(
@@ -312,7 +322,7 @@ class MapaState extends State<mapa> {
             ),
           ]),
         ),
-      ),
+     
     );
   }
 
@@ -364,7 +374,6 @@ class MapaState extends State<mapa> {
 
   void addMarkerTracker(LatLng latlng) {
     try {
-      // print('Entrou no addMarker');
       currentCenter = latlng;
       markersTracker.add(
         Marker(
@@ -386,40 +395,35 @@ class MapaState extends State<mapa> {
   }
 
   void _zoomOut() {
-    /*setState(() {
-      if (zoomAtual >= 4) {
-        --zoomAtual;
-        mapController.move(getCurrentLocation(), zoomAtual);
-        print(zoomAtual);
+    try {
+      var bounds = mapController.bounds;
+      var centerZoom = mapController.center;
+      var zoom = mapController.zoom - 0.5;
+      if (zoom < 3) {
+        zoom = 3;
       }
-    });*/
-
-    var bounds = mapController.bounds;
-    var centerZoom = mapController.center;
-    var zoom = mapController.zoom - 1;
-    if (zoom < 3) {
-      zoom = 3;
+      mapController.move(centerZoom, zoom);
+    } catch (e) {
+      print('************');
+      print(e);
+      print('************');
     }
-    mapController.move(centerZoom, zoom);
   }
 
   void _zoomIn() {
-    /*setState(() {
-      if (zoomAtual <= 17) {
-        ++zoomAtual;
-
-        mapController.move(currentCenter, zoomAtual);
-        print(zoomAtual);
+    try {
+      var bounds = mapController.bounds;
+      var centerZoom = mapController.center;
+      var zoom = mapController.zoom + 0.5;
+      if (zoom < 3) {
+        zoom = 3;
       }
-    });*/
-
-     var bounds = mapController.bounds;
-    var centerZoom = mapController.center;
-    var zoom = mapController.zoom + 1;
-    if (zoom < 3) {
-      zoom = 3;
+      mapController.move(centerZoom, zoom);
+    } catch (e) {
+      print('**************');
+      print(e);
+      print('**************');
     }
-    mapController.move(centerZoom, zoom);
   }
 
   Future<void> desenhaRota(double latDestino, double longDestino) async {
@@ -463,7 +467,7 @@ class MapaState extends State<mapa> {
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.move(currentCenter, 16);
+            mapController.move(currentCenter, 17);
             addMarkerTracker(currentCenter);
             print('${_locationData!.latitude}, ${_locationData!.latitude}');
           });
