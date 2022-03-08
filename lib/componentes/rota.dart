@@ -49,8 +49,6 @@ class RotaState extends State<rota> {
   List<Marker> markersInit = [];
   List<Marker> markersFinal = [];
   List<Marker> markersTracker = [];
-  late List<LatLng> polyPoints = [];
-  late List<Polyline> polyLines = [];
   String? _error;
   /**************************************************/
 
@@ -65,12 +63,17 @@ class RotaState extends State<rota> {
   late Location location = Location();
   LocationData? _locationData;
   StreamSubscription<LocationData>? _locationSubscription;
-
+  late List<LatLng> points = [];
   /**************************************************/
 
   @override
   void initState() {
     super.initState();
+    points = <LatLng>[
+      LatLng(51.5, -0.09),
+      LatLng(53.3498, -6.2603),
+      LatLng(48.8566, 2.3522),
+    ];
     getCurrentLocation();
   }
 
@@ -141,7 +144,10 @@ class RotaState extends State<rota> {
                       subdomains: ['a', 'b', 'c']),
                   PolylineLayerOptions(
                     polylines: [
-                      for (int i = 0; i < polyLines.length; i++) polyLines[i]
+                      Polyline(
+                          points: points,
+                          strokeWidth: 4.0,
+                          color: Colors.purple),
                     ],
                   ),
                   MarkerLayerOptions(markers: [
@@ -167,7 +173,12 @@ class RotaState extends State<rota> {
                     style: TextStyle(fontSize: 25),
                   ),
                   onPressed: () {
-                    routeHelper();
+                    setState(() {
+                      points.clear();
+                      print(points);
+                      routeHelper();
+                      print(points);
+                    });
                   }),
             ),
             Positioned(
@@ -338,7 +349,6 @@ class RotaState extends State<rota> {
   }
 
   Future<void> routeHelper() async {
-    polyPoints.clear();
     double latPoint = 0.0;
     double longPoint = 0.0;
 
@@ -358,22 +368,18 @@ class RotaState extends State<rota> {
     );
 
     List resultado = decodePolyline(road.polylineEncoded.toString());
-
+    await Future.delayed(Duration(seconds: 3));
     for (int x = 0; x < resultado.length; x++) {
       List passagem = resultado[x];
-      if (passagem.length > 0) {
+      for (int i = 0; i < passagem.length; i++) {
         latPoint = passagem[0];
         longPoint = passagem[1];
-
-        polyPoints.add(LatLng(latPoint, longPoint));
-        polyLines.add(Polyline(
-          points: polyPoints,
-          strokeWidth: 4.0,
-          color: Colors.amber,
-        ));
+        points.add(LatLng(latPoint, longPoint));
       }
     }
-    print(polyPoints);
+    setState(() {});
+    print(points);
+    print('FIm Future');
   }
 
   void erroServidor(String err) {
@@ -384,9 +390,7 @@ class RotaState extends State<rota> {
     try {
       markersInit.clear();
     } catch (e) {
-      print("************************\n");
       print(e);
-      print("\n************************");
     }
   }
 
@@ -406,9 +410,7 @@ class RotaState extends State<rota> {
         ),
       );
     } catch (e) {
-      print('*******************');
       print(e);
-      print('*******************');
     }
   }
 
@@ -416,9 +418,7 @@ class RotaState extends State<rota> {
     try {
       markersFinal.clear();
     } catch (e) {
-      print("************************\n");
       print(e);
-      print("\n************************");
     }
   }
 
@@ -438,9 +438,7 @@ class RotaState extends State<rota> {
         ),
       );
     } catch (e) {
-      print('*******************');
       print(e);
-      print('*******************');
     }
   }
 
@@ -448,15 +446,12 @@ class RotaState extends State<rota> {
     try {
       markersTracker.clear();
     } catch (e) {
-      print("************************\n");
       print(e);
-      print("\n************************");
     }
   }
 
   void addMarkerTracker(LatLng latlng) {
     try {
-      // print('Entrou no addMarker');
       currentCenter = latlng;
       markersTracker.add(
         Marker(
@@ -471,9 +466,7 @@ class RotaState extends State<rota> {
         ),
       );
     } catch (e) {
-      print('*******************');
       print(e);
-      print('*******************');
     }
   }
 
@@ -553,9 +546,7 @@ class RotaState extends State<rota> {
       }
       rastreio.value = !rastreio.value;
     } catch (e) {
-      print("************************\n");
       print(e);
-      print("\n************************");
     }
   }
 
@@ -566,10 +557,7 @@ class RotaState extends State<rota> {
       addMarkerFinal(currentCenter);
       mapController.move(currentCenter, 16);
     } catch (e) {
-      print("*******Movendo mapa*******\n");
       print(e);
-      print(
-          "\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
     }
   }
 }
