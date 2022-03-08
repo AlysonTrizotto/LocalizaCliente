@@ -110,74 +110,64 @@ class ListaVazia extends StatelessWidget {
 class ListaPesquisa extends StatelessWidget {
   final redistro_favoritos _pesquisa;
   ListaPesquisa(this._pesquisa);
-  
+
   final favoritosDao _dao = favoritosDao();
   List<int> id = [];
   // int cod = 0;
-  
+
   @override
   Widget build(BuildContext context) {
     // cod = id[0].toInt();
     return Slidable(
-      startActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.25,
-        children: [
-          SlidableAction(
-            label: 'Delete',
-            backgroundColor: Colors.red,
-            icon: Icons.delete,
-            onPressed: (context) {
-               ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar( 
-                          content: const Text('Cadastro excluído com sucesso!'),
-                          duration: const Duration(milliseconds: 1500),
-                          behavior: SnackBarBehavior.floating,
-                        ),);
-              _dao.delete_favoritos(_pesquisa.id);
-            },
-          ),
-        ],
-      ),
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.25,
-        children: [
-          SlidableAction(
-              label: 'Editar',
-              backgroundColor: Colors.blue,
-              icon: Icons.archive,
+        startActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: 0.25,
+          children: [
+            SlidableAction(
+              label: 'Delete',
+              backgroundColor: Colors.red,
+              icon: Icons.delete,
               onPressed: (context) {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return editaFavoritos(
-                      _pesquisa.id,
-                      _pesquisa.Nome,
-                      _pesquisa.Telefone,
-                      _pesquisa.Estado,
-                      _pesquisa.Cidade,
-                      _pesquisa.Endereco,
-                      _pesquisa.NumeroEnd,
-                      _pesquisa.Categoria);
-                }));
-              }),
-        ],
-      ),
-      closeOnScroll: true,
-      child: Column(children: [
-        ListTile(
-          leading: Icon(Icons.people),
-          title: Text('Nome : ' + _pesquisa.Nome),
-          subtitle: Text('Telefone : ' +
-              _pesquisa.Telefone +
-              '\nEstado : ' +
-              _pesquisa.Estado +
-              '\nCidade : ' +
-              _pesquisa.Cidade +
-              '\nEndereco : ' +
-              _pesquisa.NumeroEnd.toString()),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Cadastro excluído com sucesso!'),
+                    duration: const Duration(milliseconds: 1500),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                _dao.delete_favoritos(_pesquisa.id);
+              },
+            ),
+          ],
         ),
-        Text(_pesquisa.id.toString()),
-      ]),
-    );
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: 0.25,
+          children: [
+            SlidableAction(
+                label: 'Editar',
+                backgroundColor: Colors.blue,
+                icon: Icons.archive,
+                onPressed: (context) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return editaFavoritos(_pesquisa.id, _pesquisa.Nome,
+                        _pesquisa.Lat, _pesquisa.Long, _pesquisa.Categoria);
+                  }));
+                }),
+          ],
+        ),
+        closeOnScroll: true,
+        child: Column(children: [
+          ListTile(
+            leading: Icon(Icons.people),
+            title: Text('Nome : ' + _pesquisa.Nome),
+            subtitle: Text('Telefone : ' +
+                _pesquisa.Lat +
+                '\nEstado : ' +
+                _pesquisa.Long +
+                '\nCidade : ' +
+                _pesquisa.Categoria),
+          )
+        ]));
   }
 }

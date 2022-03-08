@@ -173,12 +173,12 @@ class RotaState extends State<rota> {
                     style: TextStyle(fontSize: 25),
                   ),
                   onPressed: () {
+                    //points.clear();
+                    print(points);
                     setState(() {
-                      points.clear();
-                      print(points);
                       routeHelper();
-                      print(points);
                     });
+                    //print(points);
                   }),
             ),
             Positioned(
@@ -349,13 +349,19 @@ class RotaState extends State<rota> {
   }
 
   Future<void> routeHelper() async {
+    late List<LatLng> ponto = [];
     double latPoint = 0.0;
     double longPoint = 0.0;
+
+    points.clear();
 
     List<LngLat> waypoints = [
       LngLat(lat: latLng.latitude, lng: latLng.longitude),
       LngLat(lat: currentCenter.latitude, lng: currentCenter.longitude),
     ];
+    print('WAYPOINTS');
+    print(waypoints);
+
     final manager = OSRMManager();
     final road = await manager.getTrip(
       waypoints: waypoints,
@@ -367,19 +373,25 @@ class RotaState extends State<rota> {
       languageCode: "en",
     );
 
+    print(road.details.toString());
+    print(road.distance);
+    print(road.duration.toString());
+    print(road.instructions);
+    print(road.polyline);
+    print(decodePolyline(road.polylineEncoded.toString()));
     List resultado = decodePolyline(road.polylineEncoded.toString());
-    await Future.delayed(Duration(seconds: 3));
-    for (int x = 0; x < resultado.length; x++) {
-      List passagem = resultado[x];
-      for (int i = 0; i < passagem.length; i++) {
-        latPoint = passagem[0];
-        longPoint = passagem[1];
-        points.add(LatLng(latPoint, longPoint));
+    await Future.delayed(Duration(seconds: 1));
+
+    setState(() {
+      print(resultado);
+      for (int x = 0; x < resultado.length; x++) {
+        List passagem = resultado[x];
+        print(passagem);
+        points.add(LatLng(passagem[0], passagem[1]));
       }
-    }
-    setState(() {});
-    print(points);
-    print('FIm Future');
+      print('points');
+      print(points);
+    });
   }
 
   void erroServidor(String err) {

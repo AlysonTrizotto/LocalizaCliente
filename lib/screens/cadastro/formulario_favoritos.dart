@@ -7,22 +7,26 @@ import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
 class FormularioCadastro extends StatefulWidget {
+  final double lat;
+  final double long;
+  FormularioCadastro(this.lat, this.long);
+
   @override
   State<StatefulWidget> createState() {
-    return FormularioCadastroState();
+    return FormularioCadastroState(this.lat, this.long);
   }
 }
 
 class FormularioCadastroState extends State<FormularioCadastro> {
+  final double lat;
+  final double long;
+  FormularioCadastroState(this.lat, this.long);
   // ignore: non_constant_identifier_names
   final double tamanhp_fonte = 16.0;
 
   late TextEditingController controladorCampoNome = TextEditingController();
-  late TextEditingController controladorCampoTelefone = TextEditingController();
-  late TextEditingController controladorCampoEstado = TextEditingController();
-  late TextEditingController controladorCampoCidade = TextEditingController();
-  late TextEditingController controladorCampoRua = TextEditingController();
-  late TextEditingController controladorCampoNum = TextEditingController();
+  late TextEditingController controladorCampoLat = TextEditingController();
+  late TextEditingController controladorCampoLong = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
   String _itemSelecionado = 'Cliente';
@@ -31,11 +35,8 @@ class FormularioCadastroState extends State<FormularioCadastro> {
     super.initState();
 
     controladorCampoNome = new TextEditingController(text: '');
-    controladorCampoTelefone = new TextEditingController(text: '');
-    controladorCampoEstado = new TextEditingController(text: '');
-    controladorCampoRua = new TextEditingController(text: '');
-    controladorCampoCidade = new TextEditingController(text: '');
-    controladorCampoNum = new TextEditingController(text: '');
+    controladorCampoLat = new TextEditingController(text: lat.toString());
+    controladorCampoLong = new TextEditingController(text: long.toString());
     controladorCampoCategoria = new TextEditingController(text: '');
   }
 
@@ -68,40 +69,10 @@ class FormularioCadastroState extends State<FormularioCadastro> {
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded),
-              TextField(
-                controller: controladorCampoTelefone,
-                // ignore: prefer_const_constructors
-                style: TextStyle(
-                  fontSize: tamanhp_fonte,
-                ),
-                // ignore: prefer_const_constructors
-                decoration: InputDecoration(
-                  labelText: 'Telefone',
-                  hintText: "(DDD) 9 0000-0000",
-                  icon: Icon(Icons.phone_rounded),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              edit_text_geral(controladorCampoEstado, 'Estado', "Paraná",
-                  Icons.add_location_alt_outlined),
-              edit_text_geral(controladorCampoCidade, 'Cidade', 'Curitiba',
-                  Icons.location_city_rounded),
-              edit_text_geral(controladorCampoRua, 'Rua', "Rui Barbosa",
-                  Icons.add_road_rounded),
-              TextField(
-                controller: controladorCampoNum,
-                style: TextStyle(
-                  fontSize: tamanhp_fonte,
-                ),
-                // ignore: prefer_const_constructors
-                decoration: InputDecoration(
-                  labelText: 'Número',
-                  hintText: "123",
-                  // ignore: prefer_const_constructors
-                  icon: Icon(Icons.local_convenience_store_rounded),
-                ),
-                keyboardType: TextInputType.number,
-              ),
+              edit_text_geral(controladorCampoLat, '-41.258', "Latitude",
+                  Icons.map_outlined),
+              edit_text_geral(
+                  controladorCampoLong, '15.523', 'Longitude', Icons.map_sharp),
               DropdownButtonFormField(
                 onChanged: (value) {
                   itemInicial = value as String;
@@ -115,88 +86,59 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                    child: Text('Confirmar'),
-                    onPressed: () {
-                      if ((controladorCampoNome.text != '') &&
-                          (controladorCampoTelefone.text != '') &&
-                          (controladorCampoEstado.text != '') &&
-                          (controladorCampoRua.text != '') &&
-                          (controladorCampoCidade.text != '') &&
-                          (controladorCampoNum.text != '') &&
-                          (itemInicial != '')) {
-                        _criaCadastro(
-                            controladorCampoNome.text,
-                            controladorCampoTelefone.text,
-                            controladorCampoEstado.text,
-                            controladorCampoRua.text,
-                            controladorCampoNum.text,
-                            int.parse(controladorCampoNum.text),
-                            itemInicial,
-                            context);
+                  child: Text('Confirmar'),
+                  onPressed: () {
+                    if ((controladorCampoNome.text.length > 2 ) &&
+                       (itemInicial.length != 0)){
+                      _criaCadastro(
+                          controladorCampoNome.text,
+                          controladorCampoLat.text,
+                          controladorCampoLong.text,
+                          itemInicial,
+                          context);
 
-                        controladorCampoNome.clear();
-                        controladorCampoTelefone.clear();
-                        controladorCampoEstado.clear();
-                        controladorCampoCidade.clear();
-                        controladorCampoRua.clear();
-                        controladorCampoNum.clear();
-                        controladorCampoCategoria.clear();
+                      controladorCampoNome.clear();
+                      controladorCampoLat.clear();
+                      controladorCampoLong.clear();
+                      controladorCampoCategoria.clear();
 
-                         ScaffoldMessenger.of(context).showSnackBar(
-                         SnackBar( 
-                          content: const Text('Cadastro realizado com sucesso!'),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              const Text('Cadastro realizado com sucesso!'),
                           duration: const Duration(milliseconds: 1500),
                           behavior: SnackBarBehavior.floating,
-                        ),);
-
-                      } else { 
-                        campoVazio = '';
-                        if (controladorCampoNome.text != null) {
-                          campoVazio =  ' Nome\n';
-                        } 
-                        if (controladorCampoTelefone.text != null) {
-                          campoVazio = campoVazio + ' Telefone\n';
-                        } 
-                        if (controladorCampoEstado.text != null) {
-                          campoVazio = campoVazio + ' Estado\n';
-                        } 
-                        if (controladorCampoRua.text != null) {
-                          campoVazio = campoVazio + ' Rua\n';
-                        } 
-                        if (controladorCampoCidade.text != null) {
-                          campoVazio = campoVazio + ' Cidade\n';
-                        } 
-                        if (controladorCampoNum.text != null) {
-                          campoVazio = campoVazio + ' Número\n';
-                        } 
-                        if (itemInicial != null) {
-                               campoVazio = campoVazio + ' Categoria\n';
-                        }
-                      
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            // retorna um objeto do tipo Dialog
-                            return AlertDialog(
-                              title: new Text("Não é permitido campos vazios"),
-                              content:
-                                  new Text("Preencha os campos: \n" + campoVazio),
-                              actions: <Widget>[
-                                // define os botões na base do dialogo
-                                new FlatButton(
-                                  child: new Text("Fechar"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ); 
+                        ),
+                      );
+                    } else {
+                      campoVazio = '';
+                      if (controladorCampoNome.text.length == 0) {
+                        campoVazio = ' Nome\n';
                       }
-                    },
-                  ),
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          // retorna um objeto do tipo Dialog
+                          return AlertDialog(
+                            title: new Text("Não é permitido campos vazios"),
+                            content:
+                                new Text("Preencha os campos: \n" + campoVazio),
+                            actions: <Widget>[
+                              // define os botões na base do dialogo
+                              new FlatButton(
+                                child: new Text("Fechar"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
                 ),
+              ),
             ],
           ),
         ),
@@ -205,11 +147,10 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   }
 }
 
-void _criaCadastro(String Nome, String Telefone, String Estado, String Cidade,
-    String Rua, int numParse, String Categoria, BuildContext context) {
+void _criaCadastro(String Nome, String Lat, String Long, String Categoria,
+    BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
-  final CadastroCriado = redistro_favoritos(0,
-      Nome, Telefone, Estado, Cidade, Rua, numParse, Categoria);
+  final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, Categoria);
   _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
 }

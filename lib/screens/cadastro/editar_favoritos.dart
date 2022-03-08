@@ -10,43 +10,32 @@ import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 class editaFavoritos extends StatefulWidget {
   final int id;
   final String nome;
-  final String telefone;
-  final String estado;
-  final String cidade;
-  final String rua;
-  final int num;
+  final String lat;
+  final String long;
   final String categoria;
-  editaFavoritos(this.id, this.nome, this.telefone, this.estado, this.cidade,
-      this.rua, this.num, this.categoria);
+  editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria);
   @override
   State<StatefulWidget> createState() {
     return editaFavoritosState(
-        id, nome, telefone, estado, cidade, rua, num, categoria);
+        id, nome, lat, long, categoria);
   }
 }
 
 class editaFavoritosState extends State<editaFavoritos> {
-  final int id;
+   final int id;
   final String nome;
-  final String telefone;
-  final String estado;
-  final String cidade;
-  final String rua;
-  final int num;
+  final String lat;
+  final String long;
   final String categoria;
-  editaFavoritosState(this.id, this.nome, this.telefone, this.estado,
-      this.cidade, this.rua, this.num, this.categoria);
+  editaFavoritosState(this.id, this.nome, this.lat, this.long, this.categoria);
 
   final double tamanhp_fonte = 16.0;
   String campoVazio = '';
   String itemInicial = "Cliente";
 
   late TextEditingController controladorCampoNome = TextEditingController();
-  late TextEditingController controladorCampoTelefone = TextEditingController();
-  late TextEditingController controladorCampoEstado = TextEditingController();
-  late TextEditingController controladorCampoCidade = TextEditingController();
-  late TextEditingController controladorCampoRua = TextEditingController();
-  late TextEditingController controladorCampoNum = TextEditingController();
+  late TextEditingController controladorCampoLat = TextEditingController();
+  late TextEditingController controladorCampoLong = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
 
@@ -65,11 +54,8 @@ class editaFavoritosState extends State<editaFavoritos> {
   @override
   Widget build(BuildContext context) {
     controladorCampoNome.text = nome;
-    controladorCampoTelefone.text = telefone;
-    controladorCampoEstado.text = estado;
-    controladorCampoCidade.text = cidade;
-    controladorCampoRua.text = rua;
-    controladorCampoNum.text = num.toString();
+    controladorCampoLat.text = lat;
+    controladorCampoLong.text = long;
     _itemSelecionado = categoria;
     return Scaffold(
       appBar: AppBar(
@@ -82,40 +68,13 @@ class editaFavoritosState extends State<editaFavoritos> {
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded),
-              TextField(
-                controller: controladorCampoTelefone,
-                // ignore: prefer_const_constructors
-                style: TextStyle(
-                  fontSize: tamanhp_fonte,
-                ),
-                // ignore: prefer_const_constructors
-                decoration: InputDecoration(
-                  labelText: 'Telefone',
-                  hintText: "(DDD) 9 0000-0000",
-                  icon: Icon(Icons.phone_rounded),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              edit_text_geral(controladorCampoEstado, 'Estado', "Paraná",
+              
+              edit_text_geral(controladorCampoLat, 'Estado', "Paraná",
                   Icons.add_location_alt_outlined),
-              edit_text_geral(controladorCampoCidade, 'Cidade', 'Curitiba',
+              edit_text_geral(controladorCampoLong, 'Cidade', 'Curitiba',
                   Icons.location_city_rounded),
-              edit_text_geral(controladorCampoRua, 'Rua', "Rui Barbosa",
+              edit_text_geral(controladorCampoCategoria, 'Rua', "Rui Barbosa",
                   Icons.add_road_rounded),
-              TextField(
-                controller: controladorCampoNum,
-                style: TextStyle(
-                  fontSize: tamanhp_fonte,
-                ),
-                // ignore: prefer_const_constructors
-                decoration: InputDecoration(
-                  labelText: 'Número',
-                  hintText: "123",
-                  // ignore: prefer_const_constructors
-                  icon: Icon(Icons.local_convenience_store_rounded),
-                ),
-                keyboardType: TextInputType.number,
-              ),
               DropdownButtonFormField(
                 onChanged: (value) {
                   itemInicial = value as String;
@@ -132,29 +91,22 @@ class editaFavoritosState extends State<editaFavoritos> {
                   child: Text('Salvar'),
                   onPressed: () {
                     if ((controladorCampoNome.text != '') &&
-                        (controladorCampoTelefone.text != '') &&
-                        (controladorCampoEstado.text != '') &&
-                        (controladorCampoRua.text != '') &&
-                        (controladorCampoCidade.text != '') &&
-                        (controladorCampoNum.text != '') &&
+                        (controladorCampoLat.text != '') &&
+                        (controladorCampoLong.text != '') &&
+                        (controladorCampoCategoria.text != '') &&
                         (itemInicial != '')) {
                       _criaCadastro(
                           id,
                           controladorCampoNome.text,
-                          controladorCampoTelefone.text,
-                          controladorCampoEstado.text,
-                          controladorCampoRua.text,
-                          controladorCampoNum.text,
-                          int.parse(controladorCampoNum.text),
-                          itemInicial,
+                          controladorCampoLat.text,
+                          controladorCampoLong.text,
+                          controladorCampoCategoria.text,
                           context);
 
                       controladorCampoNome.clear();
-                      controladorCampoTelefone.clear();
-                      controladorCampoEstado.clear();
-                      controladorCampoCidade.clear();
-                      controladorCampoRua.clear();
-                      controladorCampoNum.clear();
+                      controladorCampoLat.clear();
+                      controladorCampoLong.clear();
+                      controladorCampoCategoria.clear();
                       controladorCampoCategoria.clear();
                        ScaffoldMessenger.of(context).showSnackBar(
                          SnackBar( 
@@ -167,20 +119,14 @@ class editaFavoritosState extends State<editaFavoritos> {
                       if (controladorCampoNome.text != null) {
                         campoVazio = ' Nome\n';
                       }
-                      if (controladorCampoTelefone.text != null) {
+                      if (controladorCampoLat.text != null) {
                         campoVazio = campoVazio + ' Telefone\n';
                       }
-                      if (controladorCampoEstado.text != null) {
+                      if (controladorCampoLong.text != null) {
                         campoVazio = campoVazio + ' Estado\n';
                       }
-                      if (controladorCampoRua.text != null) {
+                      if (controladorCampoCategoria.text != null) {
                         campoVazio = campoVazio + ' Rua\n';
-                      }
-                      if (controladorCampoCidade.text != null) {
-                        campoVazio = campoVazio + ' Cidade\n';
-                      }
-                      if (controladorCampoNum.text != null) {
-                        campoVazio = campoVazio + ' Número\n';
                       }
                       if (itemInicial != null) {
                         campoVazio = campoVazio + ' Categoria\n';
@@ -221,17 +167,14 @@ class editaFavoritosState extends State<editaFavoritos> {
 void _criaCadastro(
     int id,
     String Nome,
-    String Telefone,
-    String Estado,
-    String Cidade,
-    String Rua,
-    int numParse,
+    String Lat,
+    String Long,
     String Categoria,
     BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
   final CadastroCriado = redistro_favoritos(
-      id, Nome, Telefone, Estado, Cidade, Rua, numParse, Categoria);
+      id, Nome, Lat, Long, Categoria);
   _dao.editar_favoritos(CadastroCriado).then((_) => dashboard());
 
   Navigator.pop(context, CadastroCriado);
