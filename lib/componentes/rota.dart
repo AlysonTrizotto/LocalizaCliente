@@ -142,12 +142,6 @@ class RotaState extends State<rota> {
                   PolylineLayerOptions(
                     polylines: [
                       for (int i = 0; i < polyLines.length; i++) polyLines[i]
-                      /* Polyline(
-                          points: polyPoints,
-                          strokeWidth: 4.0,
-                          color: Colors.purple,
-                          
-                          ),*/
                     ],
                   ),
                   MarkerLayerOptions(markers: [
@@ -370,18 +364,15 @@ class RotaState extends State<rota> {
       if (passagem.length > 0) {
         latPoint = passagem[0];
         longPoint = passagem[1];
-        
-        polyPoints.add(LatLng(latPoint, longPoint));
-        polyLines.add(
-          Polyline(points: polyPoints,
-            strokeWidth: 4.0,
-            color: Colors.amber,
 
-          )
-        );
+        polyPoints.add(LatLng(latPoint, longPoint));
+        polyLines.add(Polyline(
+          points: polyPoints,
+          strokeWidth: 4.0,
+          color: Colors.amber,
+        ));
       }
     }
-//fazer uma lista de polyline e fazer um for igual ao do marker
     print(polyPoints);
   }
 
