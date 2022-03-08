@@ -117,7 +117,7 @@ class MapaState extends State<mapa> {
                     minZoom: 4,
                     center: currentCenter,
                     zoom: zoomAtual,
-                    onTap: (latlng) {
+                    onTap: (k,latlng) {
                       removeMarker();
                       setState(() {
                         addMarker(latlng);

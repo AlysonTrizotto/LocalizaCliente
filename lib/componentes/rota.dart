@@ -8,10 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
+
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
+
+import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -37,20 +41,17 @@ class RotaState extends State<rota> {
   double long = 106.816666;
   double lat = -6.200000;
   double zoom = 15.0;
-  double rotation = 0.0;
   late double zoomAtual = 5.0;
   LatLng currentCenter = LatLng(51.5, -0.09);
-  LatLng point = LatLng(-6.200000, 106.816666);
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
   late String pesquisa = '';
   List<Marker> markersInit = [];
   List<Marker> markersFinal = [];
   List<Marker> markersTracker = [];
-  final List<LatLng> polyPoints = [];
+  late List<LatLng> polyPoints = [];
   late List<Polyline> polyLines = [];
   String? _error;
-  var data;
   /**************************************************/
 
   /*****************Notifier*************************/
@@ -67,20 +68,10 @@ class RotaState extends State<rota> {
 
   /**************************************************/
 
-setPolyLines() {
-  Polyline polyline = Polyline(
-    color: Colors.lightBlue,
-    points: polyPoints,
-  );
-  polyLines.add(polyline);
-  setState(() {});
-}
-
   @override
   void initState() {
     super.initState();
     getCurrentLocation();
-    
   }
 
   getCurrentLocation() async {
@@ -141,12 +132,6 @@ setPolyLines() {
                     minZoom: 4,
                     center: currentCenter,
                     zoom: zoomAtual,
-                    /*onTap: (latlng) {
-                      removeMarker();
-                      setState(() {
-                        addMarker(latlng);
-                      });
-                    },*/
                     plugins: []),
                 layers: [
                   TileLayerOptions(
@@ -155,7 +140,15 @@ setPolyLines() {
                       //   "https://api.openrouteservice.org/v2/directions/driving-car?api_key=${chave}&start=${lat_init},${lng_init}&end=${lat_final},${lng_final}",
                       subdomains: ['a', 'b', 'c']),
                   PolylineLayerOptions(
-                    polylines: polyLines,
+                    polylines: [
+                      for (int i = 0; i < polyLines.length; i++) polyLines[i]
+                      /* Polyline(
+                          points: polyPoints,
+                          strokeWidth: 4.0,
+                          color: Colors.purple,
+                          
+                          ),*/
+                    ],
                   ),
                   MarkerLayerOptions(markers: [
                     for (int i = 0; i < markersInit.length; i++) markersInit[i]
@@ -180,7 +173,7 @@ setPolyLines() {
                     style: TextStyle(fontSize: 25),
                   ),
                   onPressed: () {
-                    getJsonData();
+                    routeHelper();
                   }),
             ),
             Positioned(
@@ -303,7 +296,6 @@ setPolyLines() {
                                             GestureDetector(
                                               onTap: () {
                                                 setState(() {
-                                                  //updatePosition(lat, long);
                                                   adicionaMarcador(lat, long);
                                                 });
                                               },
@@ -351,11 +343,11 @@ setPolyLines() {
     );
   }
 
-
-
-
-
   Future<void> routeHelper() async {
+    polyPoints.clear();
+    double latPoint = 0.0;
+    double longPoint = 0.0;
+
     List<LngLat> waypoints = [
       LngLat(lat: latLng.latitude, lng: latLng.longitude),
       LngLat(lat: currentCenter.latitude, lng: currentCenter.longitude),
@@ -370,8 +362,27 @@ setPolyLines() {
       steps: true,
       languageCode: "en",
     );
-    polyLines = Geometries.polyline as List<Polyline>;
-    print('PolyLineEndoced: ' + road.details.roadLegs.toString());
+
+    List resultado = decodePolyline(road.polylineEncoded.toString());
+
+    for (int x = 0; x < resultado.length; x++) {
+      List passagem = resultado[x];
+      if (passagem.length > 0) {
+        latPoint = passagem[0];
+        longPoint = passagem[1];
+        
+        polyPoints.add(LatLng(latPoint, longPoint));
+        polyLines.add(
+          Polyline(points: polyPoints,
+            strokeWidth: 4.0,
+            color: Colors.amber,
+
+          )
+        );
+      }
+    }
+//fazer uma lista de polyline e fazer um for igual ao do marker
+    print(polyPoints);
   }
 
   void erroServidor(String err) {
@@ -557,37 +568,6 @@ setPolyLines() {
     }
   }
 
-void getJsonData() async {
-  // Create an instance of Class NetworkHelper which uses http package
-  // for requesting data to the server and receiving response as JSON format
-
-  NetworkHelper network = NetworkHelper(
-    startLat: latLng.latitude,
-    startLng: latLng.longitude,
-    endLat: currentCenter.latitude,
-    endLng: currentCenter.longitude,
-  );
-
-  try {
-    // getData() returns a json Decoded data
-    data = await network.getData();
-
-    // We can reach to our desired JSON data manually as following
-    LineString ls = LineString(
-        data['features'][0]['geometry']['coordinates']);
-
-    for (int i = 0; i < ls.lineString.length; i++) {
-      polyPoints.add(LatLng(ls.lineString[i][1], ls.lineString[i][0]));
-    }
-    if (polyPoints.length == ls.lineString.length) {
-        setPolyLines();
-      }
-  }
-  catch(e){
-    print(e);
-  }
-}
-
   Future<void> adicionaMarcador(double lat, double long) async {
     try {
       currentCenter = LatLng(lat, long);
@@ -601,9 +581,4 @@ void getJsonData() async {
           "\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
     }
   }
-}
-
-class LineString {
-  LineString(this.lineString);
-  List<dynamic> lineString;
 }
