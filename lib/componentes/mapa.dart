@@ -2,24 +2,24 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'package:http/http.dart';
-
 import 'package:flutter/material.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:intl/intl.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:localiza_favoritos/componentes/rota.dart';
-import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
-import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
-import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
 
-import 'package:sliding_up_panel/sliding_up_panel.dart';
-
 import 'package:localiza_favoritos/componentes/search.dart';
+import 'package:localiza_favoritos/componentes/nethort_help.dart';
+import 'package:localiza_favoritos/componentes/rota.dart';
+import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
+import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 
 class mapa extends StatefulWidget {
   @override
@@ -41,7 +41,9 @@ class MapaState extends State<mapa> {
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
   late String pesquisa = '';
   List<Marker> markers = [];
+  List<Marker> markerDb = [];
   List<Marker> markersTracker = [];
+  List<redistro_favoritos> banco = [];
   String? _error;
   /**************************************************/
 
@@ -62,8 +64,9 @@ class MapaState extends State<mapa> {
   @override
   void initState() {
     super.initState();
-    PesquisaIcone();
     getCurrentLocation();
+
+    addMarkerDb();
   }
 
   late int quantidade = 0;
@@ -137,6 +140,9 @@ class MapaState extends State<mapa> {
                     subdomains: ['a', 'b', 'c']),
                 MarkerLayerOptions(markers: [
                   for (int i = 0; i < markers.length; i++) markers[i]
+                ]),
+                MarkerLayerOptions(markers: [
+                  for (int i = 0; i < markerDb.length; i++) markerDb[i]
                 ]),
                 MarkerLayerOptions(markers: [
                   for (int i = 0; i < markersTracker.length; i++)
@@ -348,11 +354,12 @@ class MapaState extends State<mapa> {
           height: 150.0,
           point: currentCenter,
           builder: (ctx) => GestureDetector(
-            onTap: () =>
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return FormularioCadastro(
-                  currentCenter.latitude, currentCenter.longitude);
-            })),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return FormularioCadastro(
+                    currentCenter.latitude, currentCenter.longitude);
+              })).then((value) => addMarkerDb());
+            },
             child: Icon(
               Icons.location_on,
               color: Colors.red,
@@ -366,13 +373,6 @@ class MapaState extends State<mapa> {
       print(e);
       print('*******************');
     }
-  }
-
-  void PesquisaIcone() async {
-    final favoritosDao _dao = favoritosDao();
-    Future<List<redistro_favoritos>> listaDb = _dao.findAll_favoritos();
-    List<redistro_favoritos> listaBDpassado = listaDb as List<redistro_favoritos>;
-    
   }
 
   void removeMarkerTracker() {
@@ -404,6 +404,157 @@ class MapaState extends State<mapa> {
       print('*******************');
       print(e);
       print('*******************');
+    }
+  }
+
+  void removeMarkerDb() {
+    try {
+      banco.clear();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  void addMarkerDb() async {
+    try {
+      banco = await PesquisaIcone();
+      for (int i = 0; i < banco.length; i++) {
+        String distanciaString = '';
+        double distanciaKm = 0.0;
+        double distancia_convertida = 0.0;
+
+        LatLng LatLngBanco =
+            LatLng(double.parse(banco[i].Lat), double.parse(banco[i].Long));
+
+        double distanciaMetros = await pegaDistanciaDOisPontos(
+            double.parse(banco[i].Lat), double.parse(banco[i].Long));
+
+        if (distanciaMetros >= 1000) {
+          distanciaKm = distanciaMetros / 1000;
+          distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
+          distanciaString = 'Distância: ${distancia_convertida.toDouble()} KM';
+
+          print('++++++++distancia+++++++');
+          print(distanciaString);
+        } else {
+          num distancia_convertida =
+              num.parse(distanciaMetros.toStringAsPrecision(1));
+          distanciaString = 'Distância: ${distanciaMetros.toInt()} Metros';
+          print('++++++++distancia+++++++');
+          print(distanciaMetros);
+        }
+
+        markerDb.add(Marker(
+          width: 150.0,
+          height: 150.0,
+          point: LatLngBanco,
+          builder: (ctx) => GestureDetector(
+            onTap: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                  title: Text('Ponto: ' + banco[i].Nome),
+                  content:
+                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Fechar'),
+                      child: const Text('Fechar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'IR'),
+                      child: const Text('IR'),
+                    ),
+                  ]),
+            ),
+            child: Icon(
+              Icons.location_on,
+              color: Colors.teal,
+              size: 30.0,
+            ),
+          ),
+        ));
+      }
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    } finally {
+      setState(() {});
+      print('Passou pelo setState');
+    }
+  }
+
+  void addMarkerDbTracker() async {
+    try {
+      banco = await PesquisaIcone();
+      for (int i = 0; i < banco.length; i++) {
+        String distanciaString = '';
+        double distanciaKm = 0.0;
+        double distancia_convertida = 0.0;
+
+        LatLng LatLngBanco =
+            LatLng(double.parse(banco[i].Lat), double.parse(banco[i].Long));
+
+        double distanciaMetros = await pegaDistancia(
+            currentCenter.latitude,
+            currentCenter.longitude,
+            double.parse(banco[i].Lat),
+            double.parse(banco[i].Long));
+
+        if (distanciaMetros >= 1000) {
+          distanciaKm = distanciaMetros / 1000;
+          distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
+          distanciaString = 'Distância: ${distancia_convertida.toDouble()} KM';
+
+          print('++++++++distancia+++++++');
+          print(distanciaString);
+        } else {
+          num distancia_convertida =
+              num.parse(distanciaMetros.toStringAsPrecision(1));
+          distanciaString = 'Distância: ${distanciaMetros.toInt()} Metros';
+          print('++++++++distancia+++++++');
+          print(distanciaMetros);
+        }
+
+        markerDb.add(Marker(
+          width: 150.0,
+          height: 150.0,
+          point: LatLngBanco,
+          builder: (ctx) => GestureDetector(
+            onTap: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                  title: Text('Ponto: ' + banco[i].Nome),
+                  content:
+                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Fechar'),
+                      child: const Text('Fechar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'IR'),
+                      child: const Text('IR'),
+                    ),
+                  ]),
+            ),
+            child: Icon(
+              Icons.location_on,
+              color: Colors.teal,
+              size: 30.0,
+            ),
+          ),
+        ));
+      }
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    } finally {
+      setState(() {});
+      print('Passou pelo setState');
     }
   }
 
@@ -439,20 +590,6 @@ class MapaState extends State<mapa> {
     }
   }
 
-  Future<void> desenhaRota(double latDestino, double longDestino) async {
-    List<LngLat> waypoints = [
-      LngLat(lng: latDestino, lat: longDestino),
-      LngLat(lng: -25.5119413, lat: -49.1668627),
-    ];
-    final manager = OSRMManager();
-    final road = await manager.getRoad(
-      waypoints: waypoints,
-      geometrie: Geometries.polyline,
-      steps: true,
-      languageCode: "en",
-    );
-  }
-
   Future<void> atualyPosition() async {
     double? lat = 0.0;
     double? long = 0.0;
@@ -482,7 +619,8 @@ class MapaState extends State<mapa> {
             currentCenter = latlong;
             mapController.move(currentCenter, 17);
             addMarkerTracker(currentCenter);
-            print('${_locationData!.latitude}, ${_locationData!.latitude}');
+            removeMarkerDb();
+            addMarkerDbTracker();
           });
         });
         setState(() {});
@@ -513,6 +651,12 @@ class MapaState extends State<mapa> {
       print(
           "\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
     }
+  }
+
+  PesquisaIcone() async {
+    final favoritosDao _dao = favoritosDao();
+    Future<List<redistro_favoritos>> Lista_dao = _dao.findAll_favoritos();
+    return Lista_dao;
   }
 }
 
