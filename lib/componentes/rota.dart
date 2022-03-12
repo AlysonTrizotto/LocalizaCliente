@@ -10,6 +10,8 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
 
 import 'package:latlong2/latlong.dart';
+import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -48,7 +50,9 @@ class RotaState extends State<rota> {
   late String pesquisa = '';
   List<Marker> markersInit = [];
   List<Marker> markersFinal = [];
+  List<Marker> markerDb = [];
   List<Marker> markersTracker = [];
+  List<redistro_favoritos> banco = [];
   String? _error;
   /**************************************************/
 
@@ -75,6 +79,7 @@ class RotaState extends State<rota> {
       LatLng(48.8566, 2.3522),
     ];
     getCurrentLocation();
+    addMarkerDbTracker();
   }
 
   getCurrentLocation() async {
@@ -160,6 +165,9 @@ class RotaState extends State<rota> {
                   MarkerLayerOptions(markers: [
                     for (int i = 0; i < markersTracker.length; i++)
                       markersTracker[i],
+                  ]),
+                  MarkerLayerOptions(markers: [
+                    for (int i = 0; i < markerDb.length; i++) markerDb[i]
                   ]),
                 ]),
             Positioned(
@@ -521,6 +529,7 @@ class RotaState extends State<rota> {
     double? long = 0.0;
 
     try {
+      // mapController.move(currentCenter, 16);
       if (!rastreio.value) {
         _locationSubscription =
             location.onLocationChanged.handleError((dynamic err) {
@@ -537,15 +546,18 @@ class RotaState extends State<rota> {
           setState(() {
             _error = null;
             removeMarkerTracker();
-
+            
             _locationData = currentLocation;
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.move(currentCenter, 16);
+            double? rotacao = currentLocation.heading;
+            mapController.moveAndRotate(currentCenter, 10, rotacao!);
+            print(rotacao);
             addMarkerTracker(currentCenter);
-            print('${_locationData!.latitude}, ${_locationData!.latitude}');
+            removeMarkerDb();
+            addMarkerDbTracker();
           });
         });
         setState(() {});
@@ -571,5 +583,93 @@ class RotaState extends State<rota> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void removeMarkerDb() {
+    try {
+      banco.clear();
+    } catch (e) {
+      print("************************\n");
+      print(e);
+      print("\n************************");
+    }
+  }
+
+  void addMarkerDbTracker() async {
+    try {
+      banco = await PesquisaIcone();
+      for (int i = 0; i < banco.length; i++) {
+        String distanciaString = '';
+        double distanciaKm = 0.0;
+        double distancia_convertida = 0.0;
+
+        LatLng LatLngBanco =
+            LatLng(double.parse(banco[i].Lat), double.parse(banco[i].Long));
+
+        double distanciaMetros = await pegaDistancia(
+            currentCenter.latitude,
+            currentCenter.longitude,
+            double.parse(banco[i].Lat),
+            double.parse(banco[i].Long));
+
+        if (distanciaMetros >= 1000) {
+          distanciaKm = distanciaMetros / 1000;
+          distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
+          distanciaString = 'Distância: ${distancia_convertida.toDouble()} KM';
+
+          print('++++++++distancia+++++++');
+          print(distanciaString);
+        } else {
+          num distancia_convertida =
+              num.parse(distanciaMetros.toStringAsPrecision(1));
+          distanciaString = 'Distância: ${distanciaMetros.toInt()} Metros';
+          print('++++++++distancia+++++++');
+          print(distanciaMetros);
+        }
+
+        markerDb.add(Marker(
+          width: 150.0,
+          height: 150.0,
+          point: LatLngBanco,
+          builder: (ctx) => GestureDetector(
+            onTap: () => showDialog<String>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                  title: Text('Ponto: ' + banco[i].Nome),
+                  content:
+                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'Fechar'),
+                      child: const Text('Fechar'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, 'IR'),
+                      child: const Text('IR'),
+                    ),
+                  ]),
+            ),
+            child: Icon(
+              Icons.location_on,
+              color: Colors.teal,
+              size: 30.0,
+            ),
+          ),
+        ));
+      }
+    } catch (e) {
+      print('*******************');
+      print(e);
+      print('*******************');
+    } finally {
+      setState(() {});
+      print('Passou pelo setState');
+    }
+  }
+
+  PesquisaIcone() async {
+    final favoritosDao _dao = favoritosDao();
+    Future<List<redistro_favoritos>> Lista_dao = _dao.findAll_favoritos();
+    return Lista_dao;
   }
 }

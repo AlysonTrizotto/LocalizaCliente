@@ -191,12 +191,7 @@ class ListaPesquisa extends StatelessWidget {
                     );
                 }
               },
-            ),/*
-            ListTile(
-              leading: Icon(Icons.people),
-              title: Text('Nome : ' + _pesquisa.Nome),
-              subtitle: Text('Distância: ' + dist.toString()),
-            )*/
+            ),
           ])),
     );
   }
