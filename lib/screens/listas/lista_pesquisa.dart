@@ -121,11 +121,6 @@ class ListaPesquisa extends StatelessWidget {
     var dist;
     bool visivel = true;
 
-    Future.delayed(Duration()).then((value) async {
-      dist = await distancia(
-          double.parse(_pesquisa.Lat), double.parse(_pesquisa.Long));
-    });
-
     return Visibility(
       visible: visivel,
       child: Slidable(
@@ -171,11 +166,37 @@ class ListaPesquisa extends StatelessWidget {
           ),
           closeOnScroll: true,
           child: Column(children: [
+            FutureBuilder(
+              future: Future.delayed(Duration(seconds: 1)).then(
+                (value) => distancia(
+                    double.parse(_pesquisa.Lat), double.parse(_pesquisa.Long)),
+              ),
+              builder: (context, AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  var distanciaFuture = snapshot.data;
+                  return ListTile(
+                      leading: Icon(Icons.people),
+                      title: Text('Nome : ' + _pesquisa.Nome),
+                      subtitle: Text('Distância: ' + distanciaFuture.toString()));
+                } else {
+                  return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          Text('Carregando favoritos'),
+                        ],
+                      ),
+                    );
+                }
+              },
+            ),/*
             ListTile(
               leading: Icon(Icons.people),
               title: Text('Nome : ' + _pesquisa.Nome),
               subtitle: Text('Distância: ' + dist.toString()),
-            )
+            )*/
           ])),
     );
   }
