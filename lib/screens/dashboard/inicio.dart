@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
+import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
 class formularioDashboard extends StatelessWidget {
@@ -99,6 +100,6 @@ class NewPageScreenPesquisa extends StatelessWidget {
 class NewPageScreenFormCad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FormularioCategoria();
+    return FormularioCadastro(0.0,0.0);
   }
 }

@@ -67,9 +67,9 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
                        (itemInicial.length != 0)){
                       _criaCadastro(
                           controladorCampoNome.text,
-                          'controladorCampoLat.text',
-                          'controladorCampoLong.text',
-                          'itemInicial',
+                          '',
+                          '',
+                          '',
                           context);
 
                       controladorCampoNome.clear();

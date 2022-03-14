@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 
@@ -20,7 +20,7 @@ class lista_categoria extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+           crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 height: MediaQuery.of(context).size.height - 263,
@@ -75,7 +75,7 @@ class ListaVazia extends StatelessWidget {
           CircularProgressIndicator(),
           Text('Carregando favoritos'),
         ],
-      ),
+     ),
     );
   }
 }

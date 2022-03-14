@@ -25,8 +25,8 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   final double tamanhp_fonte = 16.0;
 
   late TextEditingController controladorCampoNome = TextEditingController();
-  late TextEditingController controladorCampoLat = TextEditingController();
-  late TextEditingController controladorCampoLong = TextEditingController();
+  late TextEditingController controladorCampoLatF = TextEditingController();
+  late TextEditingController controladorCampoLongF = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
   String _itemSelecionado = 'Cliente';
@@ -35,8 +35,8 @@ class FormularioCadastroState extends State<FormularioCadastro> {
     super.initState();
 
     controladorCampoNome = new TextEditingController(text: '');
-    controladorCampoLat = new TextEditingController(text: lat.toString());
-    controladorCampoLong = new TextEditingController(text: long.toString());
+    controladorCampoLatF = new TextEditingController(text: lat.toString()); 
+    controladorCampoLongF = new TextEditingController(text: long.toString());
     controladorCampoCategoria = new TextEditingController(text: '');
   }
 
@@ -69,10 +69,10 @@ class FormularioCadastroState extends State<FormularioCadastro> {
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded),
-              edit_text_geral(controladorCampoLat, '-41.258', "Latitude",
+              edit_text_geral(controladorCampoLatF, '-41.258', "Latitude",
                   Icons.map_outlined),
               edit_text_geral(
-                  controladorCampoLong, '15.523', 'Longitude', Icons.map_sharp),
+                  controladorCampoLongF, '15.523', 'Longitude', Icons.map_sharp),
               DropdownButtonFormField(
                 onChanged: (value) {
                   itemInicial = value as String;
@@ -88,18 +88,18 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                 child: ElevatedButton(
                   child: Text('Confirmar'),
                   onPressed: () {
-                    if ((controladorCampoNome.text.length > 2 ) &&
-                       (itemInicial.length != 0)){
+                    if ((controladorCampoNome.text.length > 2) &&
+                        (itemInicial.length != 0)) {
                       _criaCadastro(
                           controladorCampoNome.text,
-                          controladorCampoLat.text,
-                          controladorCampoLong.text,
+                          controladorCampoLatF.text,
+                          controladorCampoLongF.text,
                           itemInicial,
                           context);
 
                       controladorCampoNome.clear();
-                      controladorCampoLat.clear();
-                      controladorCampoLong.clear();
+                      controladorCampoLatF.clear();
+                      controladorCampoLongF.clear();
                       controladorCampoCategoria.clear();
 
                       ScaffoldMessenger.of(context).showSnackBar(

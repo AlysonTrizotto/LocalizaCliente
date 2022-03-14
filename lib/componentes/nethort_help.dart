@@ -10,10 +10,10 @@ Geolocator geoLocator = new Geolocator();
 pegaDistanciaDOisPontos(double pInit, double pFin) async {
   _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
   
-  double distanceInMeters = Geolocator.distanceBetween(
+  var distanceInMeters = Geolocator.distanceBetween(
       _currentPosition!.latitude, _currentPosition!.longitude, pInit, pFin);
-  
-  return distanceInMeters;
+  print(distanceInMeters);
+  return distanceInMeters.toDouble();
 }
 
 pegaDistancia(double pLat, double pLong, double fLat, double fLong) async {
