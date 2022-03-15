@@ -100,6 +100,6 @@ class NewPageScreenPesquisa extends StatelessWidget {
 class NewPageScreenFormCad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return FormularioCadastro(0.0,0.0);
+    return FormularioCategoria();
   }
 }

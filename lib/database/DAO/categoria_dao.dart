@@ -19,7 +19,7 @@ class categoriaDao {
       ' $_categoria_icone     text'
       ' ); ';
 
-  Future<int> save_c_categoria_corategoria(registro_categoria categoria) async {
+  Future<int> save_corategoria(registro_categoria categoria) async {
     final Database db = await BancoDeDados();
     Map<String, dynamic> categoriaMap = _toMap(categoria);
     return db.insert(_tabelaNome, categoriaMap);

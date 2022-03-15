@@ -21,9 +21,10 @@ Future<Database> BancoDeDados() async {
     onDowngrade: onDatabaseDowngradeDelete,
   );
 }
+
 /*
 Future<void> deleteDatabase(String path) async {
-  print('Entrou no delete');
   databaseFactory.deleteDatabase(path);
+  print('Entrou no delete'); 
 }
 */

@@ -1,7 +1,9 @@
 // ignore: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
@@ -67,9 +69,8 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
                        (itemInicial.length != 0)){
                       _criaCadastro(
                           controladorCampoNome.text,
-                          '',
-                          '',
-                          '',
+                          'Cor',
+                          'Icone',
                           context);
 
                       controladorCampoNome.clear();
@@ -119,10 +120,10 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
   }
 }
 
-void _criaCadastro(String Nome, String Lat, String Long, String Categoria,
+void _criaCadastro(String Nome, String Cor, String Icone, 
     BuildContext context) {
-  final favoritosDao _dao = favoritosDao();
+  final categoriaDao _dao = categoriaDao();
 
-  final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, Categoria);
-  _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
+  final CadastroCriado = registro_categoria(Nome, Cor, Icone);
+  _dao.save_corategoria(CadastroCriado).then((_) => dashboard());
 }

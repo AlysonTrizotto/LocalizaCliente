@@ -10,14 +10,17 @@ class favoritosDao {
   static const String _favoritos_lat = 'Lat';
   static const String _favoritos_long = 'Long';
   static const String _favoritos_categ = 'categ';
+  static const String _Cate_Foreign = 'categoria_id';
 
-  static const String TabelaSqlFavoritos = 
+  static const String TabelaSqlFavoritos =
       ' CREATE TABLE IF NOT EXISTS $_tabelaNome ('
       ' $_favoritos_id     INTEGER PRIMARY KEY AUTOINCREMENT, '
       ' $_favoritos_nome       text NOT NULL,'
       ' $_favoritos_lat       text NOT NULL,'
       ' $_favoritos_long     text NOT NULL,'
-      ' $_favoritos_categ     text NOT NULL'
+      ' $_favoritos_categ     integer,'
+      ' FOREIGN KEY ($_favoritos_categ) '
+      ' REFERENCES $_Cate_Foreign ($_favoritos_categ)'
       ' ); ';
 
   Future<int> save_favoritos(redistro_favoritos favoritos) async {

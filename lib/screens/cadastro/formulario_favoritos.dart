@@ -1,7 +1,9 @@
 // ignore: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
@@ -21,7 +23,9 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   final double lat;
   final double long;
   FormularioCadastroState(this.lat, this.long);
-  // ignore: non_constant_identifier_names
+
+  final categoriaDao _daoCateg = categoriaDao();
+
   final double tamanhp_fonte = 16.0;
 
   late TextEditingController controladorCampoNome = TextEditingController();
@@ -29,13 +33,16 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   late TextEditingController controladorCampoLongF = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
-  String _itemSelecionado = 'Cliente';
+  String _itemSelecionado = '';
+
+  List<registro_categoria> categoriaListaString = [];
 
   void initState() {
     super.initState();
 
+    pesqCateg();
     controladorCampoNome = new TextEditingController(text: '');
-    controladorCampoLatF = new TextEditingController(text: lat.toString()); 
+    controladorCampoLatF = new TextEditingController(text: lat.toString());
     controladorCampoLongF = new TextEditingController(text: long.toString());
     controladorCampoCategoria = new TextEditingController(text: '');
   }
@@ -44,18 +51,33 @@ class FormularioCadastroState extends State<FormularioCadastro> {
     super.dispose();
   }
 
-  List<String> categoriaLista = [
-    'Cliente',
-    'Hotel',
-    'Posto de combustível',
-    'Restaurante',
-    'Mercado',
-    'Hospital',
-    'Farmácia',
-  ];
+  Future pesqCateg() async {
+    categoriaListaString = await _daoCateg.findAll_categoria();
+    //print(categoriaLista.length);
+
+    for (int i = 0; i < categoriaListaString.length; i++) {
+      //print(categoriaLista[i].nome_categoria);
+      getDropDownWidget(categoriaListaString[i].nome_categoria);
+    }
+  }
+
+  DropdownMenuItem<String> getDropDownWidget(String item) {
+    print(item);
+    return DropdownMenuItem<String>(
+      value: item,
+      child: Text(item),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    int quantidade = 0;
+    if (quantidade == null) {
+      ListaVazia();
+    }
+
+    late registro_categoria _registro;
+
     String campoVazio = '';
     String itemInicial = "Cliente";
     return Scaffold(
@@ -71,18 +93,44 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                   Icons.apartment_rounded),
               edit_text_geral(controladorCampoLatF, '-41.258', "Latitude",
                   Icons.map_outlined),
-              edit_text_geral(
-                  controladorCampoLongF, '15.523', 'Longitude', Icons.map_sharp),
-              DropdownButtonFormField(
-                onChanged: (value) {
-                  itemInicial = value as String;
-                  setState(() {});
-                },
-                value: itemInicial,
-                items: categoriaLista.map((items) {
-                  return DropdownMenuItem(value: items, child: Text(items));
-                }).toList(),
-              ),
+              edit_text_geral(controladorCampoLongF, '15.523', 'Longitude',
+                  Icons.map_sharp),
+              FutureBuilder(
+                  future: Future.delayed(Duration(seconds: 1))
+                      .then((value) => _daoCateg.findAll_categoria()),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final List<registro_categoria> _cadastro = snapshot.data;
+                      
+                      return DropdownButton(
+                        hint: Text('Choose an Option'),
+                        //value: registro_categoria(_registro.nome_categoria, _registro.cor_categoria, _registro.icone_categoria),
+                        onChanged: (registro_categoria? value) {
+                          setState(() {
+                            _registro = value!;
+                          });
+                        },
+                        items: _cadastro
+                            .map((categoria) =>
+                                DropdownMenuItem<registro_categoria>(
+                                  child: Text(categoria.nome_categoria),
+                                  value: categoria,
+                                ))
+                            .toList(),
+                      );
+                    } else {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            Text('Carregando favoritos'),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
