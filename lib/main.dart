@@ -24,13 +24,9 @@ class CLHApp extends StatelessWidget {
           backgroundColor: Color(0xFF101427), //use your hex code here
         ),
       ),
-      home: dashboard(),
-      /*initialRoute: 'dashboard',
-        routes: {
-          'dashboard' : (context) => dashboard(),
-          'mapa': (context) => mapa(),
-          'rota': (context) => rota(0.0,0.0),
-        }*/
+      home: FormularioCadastro(0.0,0.0),
+      //home: dashboard(),
+      
     );
   }
 }
