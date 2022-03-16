@@ -8,7 +8,7 @@ import 'DAO/categoria_dao.dart';
 Future<Database> BancoDeDados() async {
   final String path = join(await getDatabasesPath(), 'GIS-mobile.db');
 
-  //deleteDatabase(path);
+  deleteDatabase(path);
 
 
   return openDatabase(
@@ -22,9 +22,8 @@ Future<Database> BancoDeDados() async {
   );
 }
 
-/*
+
 Future<void> deleteDatabase(String path) async {
   databaseFactory.deleteDatabase(path);
   print('Entrou no delete'); 
 }
-*/

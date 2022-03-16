@@ -1,4 +1,5 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 
@@ -20,7 +21,7 @@ class lista_categoria extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 5.0),
         child: SingleChildScrollView(
           child: Column(
-           crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Container(
                 height: MediaQuery.of(context).size.height - 263,
@@ -75,7 +76,7 @@ class ListaVazia extends StatelessWidget {
           CircularProgressIndicator(),
           Text('Carregando favoritos'),
         ],
-     ),
+      ),
     );
   }
 }
@@ -94,10 +95,59 @@ class ListaPesquisa extends StatelessWidget {
 
     print(_dao);
 
-    return Card(
+    return Slidable(
+      key: const ValueKey(0),
+      startActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        dismissible: DismissiblePane(onDismissed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Cadastro excluído com sucesso!'),
+              duration: const Duration(milliseconds: 1500),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+           _dao.delete_favoritos(_pesquisa.id_categoria);
+        }),
+        extentRatio: 0.25,
+        children: [
+          SlidableAction(
+            label: 'Delete',
+            backgroundColor: Colors.red,
+            icon: Icons.delete,
+            onPressed: (context) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('Arraste para excluir!'),
+                  duration: const Duration(milliseconds: 1500),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: 0.25,
+        children: [
+          SlidableAction(
+              label: 'Editar',
+              backgroundColor: Colors.blue,
+              icon: Icons.archive,
+              onPressed: (context) {
+                /*
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return editaFavoritos(_pesquisa.id, _pesquisa.Nome,
+                      _pesquisa.Lat, _pesquisa.Long, _pesquisa.Categoria);
+                }));*/
+              }),
+        ],
+      ),
+      closeOnScroll: true,
       child: ListTile(
         leading: Icon(Icons.people),
-        title: Text(_pesquisa.nome_categoria),
+        title: Text('Nome : ' + _pesquisa.nome_categoria),
       ),
     );
   }

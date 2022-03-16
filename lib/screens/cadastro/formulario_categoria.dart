@@ -58,7 +58,7 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
           child: Column(
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
-                  Icons.apartment_rounded),
+                  Icons.apartment_rounded, true),
               
               SizedBox(
                 width: double.maxFinite,
@@ -124,6 +124,6 @@ void _criaCadastro(String Nome, String Cor, String Icone,
     BuildContext context) {
   final categoriaDao _dao = categoriaDao();
 
-  final CadastroCriado = registro_categoria(Nome, Cor, Icone);
+  final CadastroCriado = registro_categoria(0,Nome, Cor, Icone);
   _dao.save_corategoria(CadastroCriado).then((_) => dashboard());
 }

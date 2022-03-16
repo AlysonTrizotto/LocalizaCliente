@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 
@@ -12,7 +14,7 @@ class editaFavoritos extends StatefulWidget {
   final String nome;
   final String lat;
   final String long;
-  final String categoria;
+  final int categoria;
   editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria);
   @override
   State<StatefulWidget> createState() {
@@ -26,46 +28,37 @@ class editaFavoritosState extends State<editaFavoritos> {
   final String nome;
   final double lat;
   final double long;
-  final String categoria;
+  final int categoria;
   editaFavoritosState(this.id, this.nome, this.lat, this.long, this.categoria);
 
   final double tamanhp_fonte = 16.0;
   String campoVazio = '';
-  String itemInicial = "Cliente";
+  int itemInicial = 0;
 
+  final categoriaDao _daoCateg = categoriaDao();
   late TextEditingController controladorCampoNome = TextEditingController();
   late TextEditingController controladorCampoLatE = TextEditingController();
   late TextEditingController controladorCampoLongE = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
-  String _itemSelecionado = 'Cliente';
+  var _selectedValue;
 
   void initState() {
     super.initState();
 
     controladorCampoNome = new TextEditingController(text: '');
-    controladorCampoCategoria = new TextEditingController(text: '');
+    controladorCampoLatE = new TextEditingController(text: lat.toString());
+    controladorCampoLongE = new TextEditingController(text: lat.toString());
   }
 
   void disponse() {
     super.dispose();
   }
 
-  List<String> categoriaLista = [
-    'Cliente',
-    'Hotel',
-    'Posto de combustível',
-    'Restaurante',
-    'Mercado',
-    'Hospital',
-    'Farmácia',
-  ];
-
   @override
   Widget build(BuildContext context) {
     controladorCampoNome.text = nome;
 
-    _itemSelecionado = categoria;
     return Scaffold(
       appBar: AppBar(
         title: Text('Editar Cadastro'),
@@ -76,28 +69,62 @@ class editaFavoritosState extends State<editaFavoritos> {
           child: Column(
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
-                  Icons.apartment_rounded),
+                  Icons.apartment_rounded, true),
               edit_text_geral(controladorCampoLatE, '-41.258', "Latitude",
-                  Icons.map_outlined),
+                  Icons.map_outlined, false),
               edit_text_geral(controladorCampoLongE, '15.523', 'Longitude',
-                  Icons.map_sharp),
-              DropdownButtonFormField(
-                onChanged: (value) {
-                  itemInicial = value as String;
-                  setState(() {});
-                },
-                value: itemInicial,
-                items: categoriaLista.map((items) {
-                  return DropdownMenuItem(value: items, child: Text(items));
-                }).toList(),
-              ),
+                  Icons.map_sharp, false),
+              FutureBuilder(
+                  future: Future.delayed(Duration(seconds: 1))
+                      .then((value) => _daoCateg.findAll_categoria()),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final List<registro_categoria> _cadastro = snapshot.data;
+                      if (_selectedValue == "Selecione uma categoria") {
+                        _selectedValue =
+                            _cadastro.first.nome_categoria.toString();
+                      }
+                      return DropdownButton(
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedValue = value;
+                            for (int i = 0; i < _cadastro.length; i++) {
+                              if (_cadastro[i].nome_categoria ==
+                                  _selectedValue) {
+                                itemInicial = _cadastro[i].id_categoria;
+                              }
+                            }
+                          });
+                        },
+                        value: _selectedValue,
+                        items: _cadastro.map((map) {
+                          return DropdownMenuItem(
+                            child: Text(map.nome_categoria.toString()),
+                            value: map.nome_categoria.toString(),
+                          );
+                        }).toList(),
+                        hint: Text('Selecione uma categoria'),
+                      );
+                    } else {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            Text('Carregando favoritos'),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
                   child: Text('Confirmar'),
                   onPressed: () {
                     if ((controladorCampoNome.text.length > 2) &&
-                        (itemInicial.length != 0)) {
+                        ((itemInicial != 0) && (itemInicial != null))) {
                       _criaCadastro(
                           controladorCampoNome.text,
                           controladorCampoLatE.text,
@@ -108,7 +135,6 @@ class editaFavoritosState extends State<editaFavoritos> {
                       controladorCampoNome.clear();
                       controladorCampoLatE.clear();
                       controladorCampoLongE.clear();
-                      controladorCampoCategoria.clear();
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -155,11 +181,10 @@ class editaFavoritosState extends State<editaFavoritos> {
   }
 }
 
-void _criaCadastro(String Nome, String Lat, String Long, String Categoria,
-    BuildContext context) {
+void _criaCadastro(String Nome, String Lat, String Long, int id_categ, BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
-  final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, Categoria);
+  final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, id_categ);
   _dao.editar_favoritos(CadastroCriado).then((_) => dashboard());
 
   Navigator.pop(context, CadastroCriado);

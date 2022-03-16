@@ -34,7 +34,7 @@ class favoritosDao {
     favoritosMap[_favoritos_nome] = favoritos.Nome;
     favoritosMap[_favoritos_lat] = favoritos.Lat;
     favoritosMap[_favoritos_long] = favoritos.Long;
-    favoritosMap[_favoritos_categ] = favoritos.Categoria;
+    favoritosMap[_favoritos_categ] = favoritos.id_categoria;
     return favoritosMap;
   }
 

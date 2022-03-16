@@ -3,7 +3,7 @@ class redistro_favoritos {
   final String Nome;
   final String Lat;
   final String Long;
-  final String Categoria;
+  final int id_categoria;
  
-  redistro_favoritos(this.id, this.Nome, this.Lat, this.Long, this.Categoria);
+  redistro_favoritos(this.id, this.Nome, this.Lat, this.Long, this.id_categoria);
 }

@@ -434,14 +434,14 @@ class MapaState extends State<mapa> {
         if (distanciaMetros >= 1000) {
           distanciaKm = distanciaMetros / 1000;
           distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
-          distanciaString = 'Distância: ${distancia_convertida.toDouble()} KM';
+          distanciaString = ' ${distancia_convertida.toDouble()} KM';
 
           print('++++++++distancia+++++++');
           print(distanciaString);
         } else {
           num distancia_convertida =
               num.parse(distanciaMetros.toStringAsPrecision(1));
-          distanciaString = 'Distância: ${distanciaMetros.toInt()} Metros';
+          distanciaString = '${distanciaMetros.toInt()} Metros';
           print('++++++++distancia+++++++');
           print(distanciaMetros);
         }
@@ -454,9 +454,35 @@ class MapaState extends State<mapa> {
             onTap: () => showDialog<String>(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                  title: Text('Ponto: ' + banco[i].Nome),
-                  content:
-                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                  title: Row(
+                    children: <Widget>[
+                      Icon(Icons.location_on_rounded),
+                      Flexible(
+                        child:
+                        Text(
+                          banco[i].Nome,
+                          /*overflow: TextOverflow.clip,
+                          maxLines: 1,
+                          softWrap: false,*/
+                        ),
+                      ),
+                    ],
+                  ),
+                  content: Row(
+                    
+                    children: <Widget>[
+                      Icon(Icons.route_rounded),
+                      Flexible(
+                        child: Text(
+                          distanciaString,
+                          style: TextStyle(fontSize: 20),
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: false,
+                        ),
+                      )
+                    ],
+                  ),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () => Navigator.pop(context, 'Fechar'),
@@ -507,13 +533,10 @@ class MapaState extends State<mapa> {
           distanciaKm = distanciaMetros / 1000;
           distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
           distanciaString = '${distancia_convertida.toDouble()} KM';
-
-          
         } else {
           num distancia_convertida =
               num.parse(distanciaMetros.toStringAsPrecision(1));
           distanciaString = '${distanciaMetros.toInt()} Metros';
-          
         }
 
         markerDb.add(Marker(
@@ -524,10 +547,16 @@ class MapaState extends State<mapa> {
             onTap: () => showDialog<String>(
               context: context,
               builder: (BuildContext context) => AlertDialog(
-                  title: Row(children: [Icon(Icons.location_on_rounded), 
-                  Text(banco[i].Nome)]),
-                  content: Row(children: [Icon(Icons.earbuds_outlined),
-                      Text(distanciaString, style: TextStyle(fontSize: 20)),],),
+                  title: Row(children: [
+                    Icon(Icons.location_on_rounded),
+                    Text(banco[i].Nome)
+                  ]),
+                  content: Row(
+                    children: [
+                      Icon(Icons.earbuds_outlined),
+                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                    ],
+                  ),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () => Navigator.pop(context, 'Fechar'),

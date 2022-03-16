@@ -27,8 +27,8 @@ class CLHApp extends StatelessWidget {
       ),
        debugShowCheckedModeBanner: false,
       //home: FormularioCategoria(),
-      home: FormularioCadastro(0.0,0.0),
-      //home: dashboard(),
+      // home: FormularioCadastro(0.0,0.0),
+       home: dashboard(),
       
     );
   }

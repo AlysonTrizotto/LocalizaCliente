@@ -25,6 +25,19 @@ class categoriaDao {
     return db.insert(_tabelaNome, categoriaMap);
   }
 
+  Future delete_favoritos(int id) async {
+    final Database db = await BancoDeDados();
+    await db.delete(_tabelaNome, where: '$_categoria_id = ?', whereArgs: [id]);
+  }
+
+  Future editar_favoritos(registro_categoria categoria) async {
+    final Database db = await BancoDeDados();
+    Map<String, dynamic> favoritosMap = _toMap(categoria);
+    await db.update(_tabelaNome, favoritosMap,
+        where: '${_categoria_id} = ?', whereArgs: [categoria.id_categoria]);
+  }
+
+
   Map<String, dynamic> _toMap(registro_categoria categoria) {
     final Map<String, dynamic> categoriaMap = {};
     categoriaMap[_categoria_nome] = categoria.nome_categoria;
@@ -55,6 +68,7 @@ class categoriaDao {
     final List<registro_categoria> categorias = [];
     for (Map<String, dynamic> row in result) {
       final registro_categoria categoria = registro_categoria(
+        row[_categoria_id],
         row[_categoria_nome],
         row[_categoria_cor],
         row[_categoria_icone],

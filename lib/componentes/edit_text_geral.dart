@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class edit_text_geral extends StatelessWidget {
@@ -6,14 +5,15 @@ class edit_text_geral extends StatelessWidget {
   final String _rotulo;
   final String _dica;
   final IconData _icone;
-
-  edit_text_geral(this._controlador, this._dica, this._rotulo, this._icone);
+  final bool _enable;
+  edit_text_geral(this._controlador, this._dica, this._rotulo, this._icone, this._enable);
 
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
       TextField(
         controller: _controlador,
+        enabled: _enable,
         style: TextStyle(
           fontSize: 16.0,
         ),
@@ -23,7 +23,6 @@ class edit_text_geral extends StatelessWidget {
           icon: _icone != null ? Icon(_icone) : null,
         ),
         keyboardType: TextInputType.text,
-        
       ),
     ]);
   }
