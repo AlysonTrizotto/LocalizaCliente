@@ -35,71 +35,31 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   late TextEditingController controladorCampoLongF = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
-
-  List<DropdownMenuItem<String>> _categories = [];
-  List<registro_categoria> ListaCategoria = [];
+  var _selectedValue = 'Selecione uma categoria';
 
   void initState() {
     super.initState();
 
-    _loadcategoria();
+
     controladorCampoNome = new TextEditingController(text: '');
     controladorCampoLatF = new TextEditingController(text: lat.toString());
     controladorCampoLongF = new TextEditingController(text: long.toString());
     controladorCampoCategoria = new TextEditingController(text: '');
   }
 
+
   void disponse() {
     super.dispose();
   }
-
-  var _selectedValue;
-  //var _categories = <DropdownMenuItem>[];
-
-  _loadcategoria() async {
-    var categories = await _daoCateg.findAll_categoria();
-
-    categories.forEach((category) {
-      setState(() {
-        _categories.add(DropdownMenuItem<String>(
-          child: Text(category.nome_categoria.toString()),
-          value: category.nome_categoria.toString(),
-        ));
-      });
-    });
-  }
-
-/*
-  Future pesqCateg() async {
-    print('entrou no pesq');
-    ListaCategoria = await _daoCateg.findAll_categoria();
-    ListaCategoria.forEach((listaCorrida) {
-      Map<String, dynamic> categoriaMap = _toMap(listaCorrida);
-      print(listaCorrida.nome_categoria);
-      getDrop(categoriaMap);
-    });
-  }
-
-  Map<String, dynamic> _toMap(registro_categoria categoria) {
-    const String _categoria_nome = 'categoria_nome';
-    final Map<String, dynamic> categoriaMap = {};
-    categoriaMap[_categoria_nome] = categoria.nome_categoria;
-
-    print(categoriaMap.toString());
-    return categoriaMap;
-  }*/
-  @override
+   @override
   Widget build(BuildContext context) {
     String campoVazio = '';
+    String itemInicial = "Cliente";
 
-    // registro_categoria _itemSelecionado;
-
-    var itemInicial;
     int quantidade = 0;
     if (quantidade == null) {
       ListaVazia();
     }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro'),
@@ -115,21 +75,44 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                   Icons.map_outlined),
               edit_text_geral(controladorCampoLongF, '15.523', 'Longitude',
                   Icons.map_sharp),
-              DropdownButton(
-                  value: _selectedValue,
-                  items: _categories,
-                  hint: Text('Selecione uma categoria'),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedValue = value;
-                    });
+              FutureBuilder(
+                  future: Future.delayed(Duration(seconds: 1))
+                      .then((value) => _daoCateg.findAll_categoria()),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      final List<registro_categoria> _cadastro = snapshot.data;
+                      return DropdownButton(
+                        onChanged: (value) {
+                          _selectedValue = value as String;
+                          setState(() {});
+                        },
+                        value: _selectedValue,
+                        items: _cadastro.map((map) {
+                          return DropdownMenuItem(
+                            child: Text(map.nome_categoria.toString()),
+                            value: map.nome_categoria.toString(),
+                          );
+                        }).toList(),
+                        hint: Text('Selecione uma categoria'),
+                      );
+                    } else {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            Text('Carregando favoritos'),
+                          ],
+                        ),
+                      );
+                    }
                   }),
-          
+            
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
                   child: Text('Confirmar'),
-                  //onPressed: () => pesqCateg(),
                   onPressed: () {
                     if ((controladorCampoNome.text.length > 2) &&
                         (itemInicial.length != 0)) {
@@ -187,12 +170,8 @@ class FormularioCadastroState extends State<FormularioCadastro> {
         ),
       ),
     );
-  } /*
+  }
 
-  DropdownMenuItem<String> getDrop(Map<String, dynamic> map) {
-    return DropdownMenuItem<String>(
-        value: map['ITEM'], child: Text(map['ITEM']));
-  }*/
 }
 
 void _criaCadastro(String Nome, String Lat, String Long, String Categoria,
@@ -218,3 +197,130 @@ class ListaVazia extends StatelessWidget {
     );
   }
 }
+
+
+//testes
+  /*List<DropdownMenuItem<String>> _categories = [];
+  List<DropdownMenuItem<String>> list = [];
+  List<registro_categoria> ListaCategoria = [];*/
+
+  /*String? _selecione;
+  List<registro_categoria> _refeitorios = <registro_categoria>[];
+  //registro_categoria controller = new registro_categoria();
+*/
+  
+
+/* 
+    //_loadcategoria();
+/*
+    _daoCateg.findAll_categoria().then((listaMap) {
+      listaMap.map((map) {
+        print(map.toString());
+
+        return getDropDownWidget(map);
+      }).forEach((dropDownItem) {
+          list.add(dropDownItem);
+      });
+      setState(() {
+        
+      });
+    });*/
+
+  Map<String, dynamic> _toMap(registro_categoria categoria) {
+    const String _categoria_nome = 'categoria_nome';
+    const String _categoria_cor = 'categoria_cor';
+    const String _categoria_icone = 'categoria_icone';
+
+    final Map<String, dynamic> categoriaMap = {};
+    categoriaMap[_categoria_nome] = categoria.nome_categoria;
+    categoriaMap[_categoria_cor] = categoria.cor_categoria;
+    categoriaMap[_categoria_icone] = categoria.icone_categoria;
+    return categoriaMap;
+  }
+
+
+  /* _loadcategoria() async {
+    List<registro_categoria> categories = await _daoCateg.findAll_categoria();
+    print(categories.length);
+    if (categories.length == 0 || categories.length == null)
+      _selectedValue = 'Não possui categorias cadastradas';
+    setState(() {
+      for (int i = 0; i < categories.length; i++) {
+        _refeitorios.add(
+          categories[i],
+        );
+        print(categories[i].nome_categoria);
+      }
+    });
+  }*/
+
+  /* List<String> categoriaLista = [];
+
+  _loadcategoria() async {
+    List<registro_categoria> categories = await _daoCateg.findAll_categoria();
+    print(categories.length);
+    if (categories.length == 0 || categories.length == null)
+      _selectedValue = 'Não possui categorias cadastradas';
+    for (int i = 0; i < categories.length; i++) {
+      categoriaLista.add(
+        categories[i].nome_categoria.toString(),
+      );
+      print(categories[i].nome_categoria);
+    }
+
+    setState(() {});
+  }
+*/
+ 
+
+            /*DropdownButton(
+                hint: Text('Escolha um valor'),
+                onChanged: (value) {},
+                items: list,
+              ),*/
+
+              /*DropdownButton<String>(
+                hint: Text("Selecione Refeitório"),
+                dropdownColor: Colors.white,
+                icon: Icon(Icons.arrow_drop_down),
+                iconSize: 36,
+                isExpanded: true,
+                underline: SizedBox(),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                ),
+                value: _selecione,
+                onChanged: (novoValor) {
+                  setState(() {
+                    _selecione = novoValor;
+                    print(_selecione);
+                  });
+                },
+                items: _refeitorios.map((registro_categoria valueItem) {
+                  return new DropdownMenuItem<String>(
+                    value: valueItem.nome_categoria,
+                    child: new Text(valueItem.nome_categoria),
+                  );
+                }).toList(),
+              ),*/
+
+               /*DropdownButton(
+                onChanged: (value) {
+                  setState(() {
+                    _selectedValue = value;
+                  });
+                },
+                value: _selectedValue,
+                items: _categories,
+                hint: Text('Selecione uma categoria'),
+              ),*/
+
+              /*
+  DropdownMenuItem<String> getDropDownWidget(Map<String, dynamic> map) {
+    
+    return DropdownMenuItem(value: map['ITEM'], child: Text(map['ITEM']));
+  }*/
+
+   
+*/

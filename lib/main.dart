@@ -4,6 +4,7 @@ import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/componentes/nethort_help.dart';
 import 'package:localiza_favoritos/componentes/rota.dart';
 import 'package:localiza_favoritos/screens/cadastro/editar_favoritos.dart';
+import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
@@ -24,6 +25,8 @@ class CLHApp extends StatelessWidget {
           backgroundColor: Color(0xFF101427), //use your hex code here
         ),
       ),
+       debugShowCheckedModeBanner: false,
+      //home: FormularioCategoria(),
       home: FormularioCadastro(0.0,0.0),
       //home: dashboard(),
       
