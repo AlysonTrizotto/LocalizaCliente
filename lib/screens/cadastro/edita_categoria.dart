@@ -1,33 +1,42 @@
-// ignore: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
-import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
-import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
-import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
-class FormularioCategoria extends StatefulWidget {
- 
+class editaCategoria extends StatefulWidget {
+  final int id;
+  final String nome;
+  final String cor;
+  final String icone;
+  editaCategoria(this.id, this.nome, this.cor, this.icone);
   @override
   State<StatefulWidget> createState() {
-    return FormularioCategoriaState();
+    return editaCategoriaState(
+        id, nome, cor, icone);
   }
 }
 
-class FormularioCategoriaState extends State<FormularioCategoria> {
+class editaCategoriaState extends State<editaCategoria> {
+   final int id;
+  final String nome;
+  final String cor;
+  final String icone;
+  editaCategoriaState(this.id, this.nome, this.cor, this.icone);
 
-  // ignore: non_constant_identifier_names
   final double tamanhp_fonte = 16.0;
+  String campoVazio = '';
+  int itemInicial = 0;
 
+  final categoriaDao _daoCateg = categoriaDao();
   late TextEditingController controladorCampoNome = TextEditingController();
+  var _selectedValue;
 
   void initState() {
     super.initState();
 
     controladorCampoNome = new TextEditingController(text: '');
-    }
+  }
 
   void disponse() {
     super.dispose();
@@ -35,11 +44,11 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
 
   @override
   Widget build(BuildContext context) {
-    String campoVazio = '';
-    
+    controladorCampoNome.text = nome;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro'),
+        title: Text('Editar Cadastro'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -47,20 +56,23 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
           child: Column(
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
-                  Icons.apartment_rounded, true),              
+                  Icons.apartment_rounded, true),
+              
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
                   child: Text('Confirmar'),
                   onPressed: () {
-                    if (controladorCampoNome.text.length != 0 ){
+                    if (controladorCampoNome.text.length != 0){
                       _criaCadastro(
+                          id,
                           controladorCampoNome.text,
-                          'Cor',
-                          'Icone',
+                          cor,
+                          icone,
                           context);
 
                       controladorCampoNome.clear();
+                     
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -107,10 +119,11 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
   }
 }
 
-void _criaCadastro(String Nome, String Cor, String Icone, 
-    BuildContext context) {
+void _criaCadastro(int id, String Nome, cor, icone, BuildContext context) {
   final categoriaDao _dao = categoriaDao();
 
-  final CadastroCriado = registro_categoria(0,Nome, Cor, Icone);
-  _dao.save_corategoria(CadastroCriado).then((_) => dashboard());
+  final CadastroCriado = registro_categoria(id, Nome, cor, icone);
+  _dao.editar_favoritos(CadastroCriado).then((_) => dashboard());
+
+  Navigator.pop(context, CadastroCriado);
 }

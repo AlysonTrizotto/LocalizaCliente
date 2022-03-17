@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
+import 'package:localiza_favoritos/screens/cadastro/edita_categoria.dart';
+
+
 
 class lista_categoria extends StatelessWidget {
   final categoriaDao _dao = categoriaDao();
@@ -78,15 +81,17 @@ class ListaVazia extends StatelessWidget {
         ],
       ),
     );
+    
   }
+  
 }
+
 
 class ListaPesquisa extends StatelessWidget {
   final registro_categoria _pesquisa;
   ListaPesquisa(this._pesquisa);
   final categoriaDao _dao = categoriaDao();
   List<int> id = [];
-  // int cod = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +112,7 @@ class ListaPesquisa extends StatelessWidget {
               behavior: SnackBarBehavior.floating,
             ),
           );
-           _dao.delete_favoritos(_pesquisa.id_categoria);
+          _dao.delete_favoritos(_pesquisa.id_categoria);
         }),
         extentRatio: 0.25,
         children: [
@@ -135,12 +140,18 @@ class ListaPesquisa extends StatelessWidget {
               label: 'Editar',
               backgroundColor: Colors.blue,
               icon: Icons.archive,
-              onPressed: (context) {
-                /*
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return editaFavoritos(_pesquisa.id, _pesquisa.Nome,
-                      _pesquisa.Lat, _pesquisa.Long, _pesquisa.Categoria);
-                }));*/
+              onPressed: (context) async {
+                final result = await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                  return editaCategoria(
+                      _pesquisa.id_categoria,
+                      _pesquisa.nome_categoria,
+                      _pesquisa.cor_categoria,
+                      _pesquisa.icone_categoria);
+                }));
+                if(result){
+                  
+                }
               }),
         ],
       ),
