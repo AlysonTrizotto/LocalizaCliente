@@ -1,6 +1,3 @@
-import 'dart:collection';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
@@ -8,7 +5,6 @@ import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
-import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
 class FormularioCadastro extends StatefulWidget {
   final double lat;
@@ -35,7 +31,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   late TextEditingController controladorCampoLongF = TextEditingController();
   late TextEditingController controladorCampoCategoria =
       TextEditingController();
-  int itemInicial = 0;
+  int itemInicial = -1;
   var _selectedValue;
 
   void initState() {
@@ -54,11 +50,11 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   @override
   Widget build(BuildContext context) {
     String campoVazio = '';
-
     int quantidade = 0;
     if (quantidade == null) {
       ListaVazia();
     }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro'),
@@ -88,6 +84,12 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                         onChanged: (value) {
                           setState(() {
                             _selectedValue = value;
+                            for (int i = 0; i < _cadastro.length; i++) {
+                              if (_cadastro[i].nome_categoria ==
+                                  _selectedValue) {
+                                itemInicial = _cadastro[i].id_categoria;
+                              }
+                            }
                           });
                         },
                         value: _selectedValue,
@@ -181,7 +183,7 @@ void _criaCadastro(
   final favoritosDao _dao = favoritosDao();
 
   final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, id_categ);
-  _dao.save_favoritos(CadastroCriado).then((_) => dashboard());
+  _dao.save_favoritos(CadastroCriado);
 }
 
 class ListaVazia extends StatelessWidget {

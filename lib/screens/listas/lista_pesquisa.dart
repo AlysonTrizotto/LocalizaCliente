@@ -1,16 +1,12 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/componentes/nethort_help.dart';
+import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/cadastro/editar_favoritos.dart';
-import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
-import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
-import 'package:path/path.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class lista_pesquisa extends StatefulWidget {
   static String tag = 'ListaPesquisa';
@@ -23,7 +19,16 @@ class lista_pesquisa extends StatefulWidget {
 class lista_pesquisaState extends State<lista_pesquisa> {
   final favoritosDao _dao = favoritosDao();
 
+  final List<redistro_favoritos> _cadastro = [];
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+      
+
   late String pesquisa = '';
+
+  void restartApp() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,14 +106,14 @@ class ListaPesquisa extends StatelessWidget {
   final redistro_favoritos _pesquisa;
   ListaPesquisa(this._pesquisa);
   final favoritosDao _dao = favoritosDao();
+
   List<int> id = [];
+
   bool visivel = true;
 
-  // int cod = 0;
   @override
   Widget build(BuildContext context) {
     var dist;
-
     return Visibility(
       //visible: visivel,
       child: Slidable(
@@ -172,6 +177,7 @@ class ListaPesquisa extends StatelessWidget {
               builder: (context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   var distanciaFuture = snapshot.data;
+
                   return ListTile(
                       leading: Icon(Icons.people),
                       title: Text('Nome : ' + _pesquisa.Nome),
@@ -206,14 +212,10 @@ Future distancia(String Lat, String Long) async {
     distanciaKm = distanciaMetros / 1000;
     distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
     distanciaString = 'Distância: ${distancia_convertida.toDouble()} KM';
-    print('++++++++distancia+++++++');
-    print(distanciaString);
   } else {
     num distancia_convertida =
         num.parse(distanciaMetros.toStringAsPrecision(1));
     distanciaString = 'Distância: ${distanciaMetros.toInt()} Metros';
-    print('++++++++distancia+++++++');
-    print(distanciaMetros);
   }
   await Future.delayed(Duration(seconds: 1));
   return distanciaString;

@@ -12,13 +12,12 @@ class editaCategoria extends StatefulWidget {
   editaCategoria(this.id, this.nome, this.cor, this.icone);
   @override
   State<StatefulWidget> createState() {
-    return editaCategoriaState(
-        id, nome, cor, icone);
+    return editaCategoriaState(id, nome, cor, icone);
   }
 }
 
 class editaCategoriaState extends State<editaCategoria> {
-   final int id;
+  final int id;
   final String nome;
   final String cor;
   final String icone;
@@ -57,22 +56,16 @@ class editaCategoriaState extends State<editaCategoria> {
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded, true),
-              
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
                   child: Text('Confirmar'),
                   onPressed: () {
-                    if (controladorCampoNome.text.length != 0){
+                    if (controladorCampoNome.text.length != 0) {
                       _criaCadastro(
-                          id,
-                          controladorCampoNome.text,
-                          cor,
-                          icone,
-                          context);
+                          id, controladorCampoNome.text, cor, icone, context);
 
                       controladorCampoNome.clear();
-                     
 
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -123,7 +116,7 @@ void _criaCadastro(int id, String Nome, cor, icone, BuildContext context) {
   final categoriaDao _dao = categoriaDao();
 
   final CadastroCriado = registro_categoria(id, Nome, cor, icone);
-  _dao.editar_favoritos(CadastroCriado).then((_) => dashboard());
+  _dao.editar_favoritos(CadastroCriado);
 
   Navigator.pop(context, CadastroCriado);
 }

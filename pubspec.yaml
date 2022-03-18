@@ -39,11 +39,11 @@ dependencies:
   flutter_slidable: ^1.0.0
   osm_nominatim: ^2.0.1
   routing_client_dart: ^0.3.0
-
+  flutter_bloc: ^6.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  
+  pull_to_refresh: ^2.0.0
   sliding_up_panel: ^2.0.0+1
   location: ^4.3.0
   geocoder2: ^1.1.0

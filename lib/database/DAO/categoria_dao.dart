@@ -1,4 +1,3 @@
-
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -22,12 +21,22 @@ class categoriaDao {
   Future<int> save_corategoria(registro_categoria categoria) async {
     final Database db = await BancoDeDados();
     Map<String, dynamic> categoriaMap = _toMap(categoria);
+
     return db.insert(_tabelaNome, categoriaMap);
+  }
+
+  Future fecha_banco() async {
+    final Database db = await BancoDeDados();
+    if (db.isOpen == true) {
+      db.close();
+      print('Banco fechado');
+    }
   }
 
   Future delete_favoritos(int id) async {
     final Database db = await BancoDeDados();
     await db.delete(_tabelaNome, where: '$_categoria_id = ?', whereArgs: [id]);
+
   }
 
   Future editar_favoritos(registro_categoria categoria) async {
@@ -35,8 +44,8 @@ class categoriaDao {
     Map<String, dynamic> favoritosMap = _toMap(categoria);
     await db.update(_tabelaNome, favoritosMap,
         where: '${_categoria_id} = ?', whereArgs: [categoria.id_categoria]);
-  }
 
+  }
 
   Map<String, dynamic> _toMap(registro_categoria categoria) {
     final Map<String, dynamic> categoriaMap = {};
@@ -50,10 +59,10 @@ class categoriaDao {
     final Database db = await BancoDeDados();
     final List<Map<String, dynamic>> result = await db.query(_tabelaNome);
     List<registro_categoria> categorias = _toList(result);
+
     return categorias;
   }
 
-  
   Future<List<registro_categoria>> find_categoria(String _pesquisa) async {
     final Database db = await BancoDeDados();
     final List<Map<String, dynamic>> result = await db.rawQuery(
@@ -62,7 +71,6 @@ class categoriaDao {
 
     return favoritoss;
   }
-
 
   List<registro_categoria> _toList(List<Map<String, dynamic>> result) {
     final List<registro_categoria> categorias = [];

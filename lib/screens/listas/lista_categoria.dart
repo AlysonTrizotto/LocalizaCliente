@@ -4,8 +4,6 @@ import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/edita_categoria.dart';
 
-
-
 class lista_categoria extends StatelessWidget {
   final categoriaDao _dao = categoriaDao();
 
@@ -35,6 +33,7 @@ class lista_categoria extends StatelessWidget {
                       if (snapshot.hasData && snapshot.data != null) {
                         final List<registro_categoria> _cadastro =
                             snapshot.data;
+
                         return ListView.builder(
                           itemCount: _cadastro.length,
                           itemBuilder: (context, indice) {
@@ -81,22 +80,82 @@ class ListaVazia extends StatelessWidget {
         ],
       ),
     );
-    
   }
-  
 }
-
 
 class ListaPesquisa extends StatelessWidget {
   final registro_categoria _pesquisa;
+  late String cor = _pesquisa.cor_categoria;
+  late Color _color = Colors.black;
   ListaPesquisa(this._pesquisa);
   final categoriaDao _dao = categoriaDao();
   List<int> id = [];
-
   @override
   Widget build(BuildContext context) {
     var dist;
     bool visivel = true;
+
+    switch (cor) {
+      case 'amberAccent':
+        {
+          _color = Colors.amberAccent;
+        }
+        break;
+      case 'amber':
+        {
+           _color = Colors.amber;
+        }
+        break;
+      case 'orangeAccent':
+        {
+           _color = Colors.orangeAccent;
+        }
+        break;
+      case 'orange':
+        {
+           _color = Colors.orange;
+        }
+        break;
+      case 'redAccent':
+        {
+           _color = Colors.redAccent;
+        }
+        break;
+      case 'red':
+        {
+           _color = Colors.red;
+        }
+        break;
+      case 'purple':
+        {
+           _color = Colors.purple;
+        }
+        break;
+      case 'blueAccent':
+        {
+           _color = Colors.blueAccent;
+        }
+        break;
+      case 'blue':
+        {
+           _color = Colors.blue;
+        }
+        break;
+      case 'green':
+        {
+           _color = Colors.green;
+        }
+        break;
+      case 'greenAccent':
+        {
+           _color = Colors.greenAccent;
+        }
+        break;
+      default:
+      {
+        _color = Colors.grey;
+      }
+    }
 
     print(_dao);
 
@@ -149,15 +208,13 @@ class ListaPesquisa extends StatelessWidget {
                       _pesquisa.cor_categoria,
                       _pesquisa.icone_categoria);
                 }));
-                if(result){
-                  
-                }
+                if (result) {}
               }),
         ],
       ),
       closeOnScroll: true,
       child: ListTile(
-        leading: Icon(Icons.people),
+        leading: Icon(Icons.people, color: _color,),
         title: Text('Nome : ' + _pesquisa.nome_categoria),
       ),
     );

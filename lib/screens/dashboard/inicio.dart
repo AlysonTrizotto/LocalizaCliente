@@ -5,30 +5,32 @@ import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
 class formularioDashboard extends StatelessWidget {
-  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.blueGrey[400],
       ),
-      home: dashboard(),
+      home: dashboard(0),
     );
   }
 }
 
 class dashboard extends StatefulWidget {
+  final int Index;
+  dashboard(this.Index);
   static String tag = 'Dashboard';
   @override
   State<StatefulWidget> createState() {
-    return dashboardState();
+    return dashboardState(Index);
   }
 }
 
 class dashboardState extends State<dashboard> {
+  final int Index;
+  dashboardState(this.Index);
+  late int _selectedIndex = Index;
   late String titulo = 'Dashboard';
-  //ValueNotifier<int> _selectedIndex = ValueNotifier(0);
-  int _selectedIndex = 0;
 
   final List<Widget> _telas = [
     NewPageScreenMapas(),

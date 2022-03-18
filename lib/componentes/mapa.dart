@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'package:http/http.dart';
 import 'package:flutter/material.dart';
+import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
+import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:intl/intl.dart';
 
@@ -44,6 +46,7 @@ class MapaState extends State<mapa> {
   List<Marker> markerDb = [];
   List<Marker> markersTracker = [];
   List<redistro_favoritos> banco = [];
+  List<registro_categoria> bancoCategoria = [];
   String? _error;
   /**************************************************/
 
@@ -419,8 +422,79 @@ class MapaState extends State<mapa> {
 
   void addMarkerDb() async {
     try {
+      bancoCategoria = await PesquisaCategoria();
       banco = await PesquisaIcone();
       for (int i = 0; i < banco.length; i++) {
+        Color _color = Colors.black;
+        String cor = '';
+        for (int x = 0; x < bancoCategoria.length; x++) {
+          if (bancoCategoria[x].id_categoria == banco[i].id_categoria) {
+            cor = bancoCategoria[x].cor_categoria;
+          }
+        }
+
+        switch (cor) {
+          case 'amberAccent':
+            {
+              _color = Colors.amberAccent;
+            }
+            break;
+          case 'amber':
+            {
+              _color = Colors.amber;
+            }
+            break;
+          case 'orangeAccent':
+            {
+              _color = Colors.orangeAccent;
+            }
+            break;
+          case 'orange':
+            {
+              _color = Colors.orange;
+            }
+            break;
+          case 'redAccent':
+            {
+              _color = Colors.redAccent;
+            }
+            break;
+          case 'red':
+            {
+              _color = Colors.red;
+            }
+            break;
+          case 'purple':
+            {
+              _color = Colors.purple;
+            }
+            break;
+          case 'blueAccent':
+            {
+              _color = Colors.blueAccent;
+            }
+            break;
+          case 'blue':
+            {
+              _color = Colors.blue;
+            }
+            break;
+          case 'green':
+            {
+              _color = Colors.green;
+            }
+            break;
+          case 'greenAccent':
+            {
+              _color = Colors.greenAccent;
+            }
+            break;
+          default:
+            {
+              _color = Colors.grey;
+            }
+        }
+
         String distanciaString = '';
         double distanciaKm = 0.0;
         double distancia_convertida = 0.0;
@@ -435,15 +509,10 @@ class MapaState extends State<mapa> {
           distanciaKm = distanciaMetros / 1000;
           distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
           distanciaString = ' ${distancia_convertida.toDouble()} KM';
-
-          print('++++++++distancia+++++++');
-          print(distanciaString);
         } else {
           num distancia_convertida =
               num.parse(distanciaMetros.toStringAsPrecision(1));
           distanciaString = '${distanciaMetros.toInt()} Metros';
-          print('++++++++distancia+++++++');
-          print(distanciaMetros);
         }
 
         markerDb.add(Marker(
@@ -458,18 +527,13 @@ class MapaState extends State<mapa> {
                     children: <Widget>[
                       Icon(Icons.location_on_rounded),
                       Flexible(
-                        child:
-                        Text(
+                        child: Text(
                           banco[i].Nome,
-                          /*overflow: TextOverflow.clip,
-                          maxLines: 1,
-                          softWrap: false,*/
                         ),
                       ),
                     ],
                   ),
                   content: Row(
-                    
                     children: <Widget>[
                       Icon(Icons.route_rounded),
                       Flexible(
@@ -496,7 +560,7 @@ class MapaState extends State<mapa> {
             ),
             child: Icon(
               Icons.location_on,
-              color: Colors.teal,
+              color: _color,
               size: 30.0,
             ),
           ),
@@ -508,14 +572,22 @@ class MapaState extends State<mapa> {
       print('*******************');
     } finally {
       setState(() {});
-      print('Passou pelo setState');
     }
   }
 
   void addMarkerDbTracker() async {
     try {
+      bancoCategoria = await PesquisaCategoria();
       banco = await PesquisaIcone();
+
       for (int i = 0; i < banco.length; i++) {
+        late Color _color = Colors.black;
+        late String cor = '';
+        for (int x = 0; x < bancoCategoria.length; x++) {
+          if (bancoCategoria[x].id_categoria == banco[i].id_categoria) {
+            cor = bancoCategoria[x].cor_categoria;
+          }
+        }
         String distanciaString = '';
         double distanciaKm = 0.0;
         double distancia_convertida = 0.0;
@@ -537,6 +609,68 @@ class MapaState extends State<mapa> {
           num distancia_convertida =
               num.parse(distanciaMetros.toStringAsPrecision(1));
           distanciaString = '${distanciaMetros.toInt()} Metros';
+        }
+
+        switch (cor) {
+          case 'amberAccent':
+            {
+              _color = Colors.amberAccent;
+            }
+            break;
+          case 'amber':
+            {
+              _color = Colors.amber;
+            }
+            break;
+          case 'orangeAccent':
+            {
+              _color = Colors.orangeAccent;
+            }
+            break;
+          case 'orange':
+            {
+              _color = Colors.orange;
+            }
+            break;
+          case 'redAccent':
+            {
+              _color = Colors.redAccent;
+            }
+            break;
+          case 'red':
+            {
+              _color = Colors.red;
+            }
+            break;
+          case 'purple':
+            {
+              _color = Colors.purple;
+            }
+            break;
+          case 'blueAccent':
+            {
+              _color = Colors.blueAccent;
+            }
+            break;
+          case 'blue':
+            {
+              _color = Colors.blue;
+            }
+            break;
+          case 'green':
+            {
+              _color = Colors.green;
+            }
+            break;
+          case 'greenAccent':
+            {
+              _color = Colors.greenAccent;
+            }
+            break;
+          default:
+            {
+              _color = Colors.grey;
+            }
         }
 
         markerDb.add(Marker(
@@ -570,7 +704,7 @@ class MapaState extends State<mapa> {
             ),
             child: Icon(
               Icons.location_on,
-              color: Colors.teal,
+              color: _color,
               size: 30.0,
             ),
           ),
@@ -684,6 +818,14 @@ class MapaState extends State<mapa> {
   PesquisaIcone() async {
     final favoritosDao _dao = favoritosDao();
     Future<List<redistro_favoritos>> Lista_dao = _dao.findAll_favoritos();
+
+    return Lista_dao;
+  }
+
+  PesquisaCategoria() async {
+    final categoriaDao _dao = categoriaDao();
+    Future<List<registro_categoria>> Lista_dao = _dao.findAll_categoria();
+
     return Lista_dao;
   }
 }

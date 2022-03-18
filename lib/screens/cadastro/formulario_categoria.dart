@@ -9,7 +9,6 @@ import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
 class FormularioCategoria extends StatefulWidget {
- 
   @override
   State<StatefulWidget> createState() {
     return FormularioCategoriaState();
@@ -17,7 +16,6 @@ class FormularioCategoria extends StatefulWidget {
 }
 
 class FormularioCategoriaState extends State<FormularioCategoria> {
-
   // ignore: non_constant_identifier_names
   final double tamanhp_fonte = 16.0;
 
@@ -27,7 +25,7 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
     super.initState();
 
     controladorCampoNome = new TextEditingController(text: '');
-    }
+  }
 
   void disponse() {
     super.dispose();
@@ -36,7 +34,9 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
   @override
   Widget build(BuildContext context) {
     String campoVazio = '';
-    
+    String Cor = '';
+
+    final double tamanho_iconeCor = 40.0;
     return Scaffold(
       appBar: AppBar(
         title: Text('Cadastro'),
@@ -47,18 +47,162 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
           child: Column(
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
-                  Icons.apartment_rounded, true),              
+                  Icons.apartment_rounded, true),
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 8,
+                      runSpacing: 15,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou amberAccent');
+                            Cor = 'amberAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.amberAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou amber');
+                            Cor = 'amber';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.amber,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou orangeAccent');
+                            Cor = 'orangeAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.orangeAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou orange');
+                            Cor = 'orange';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.orange,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou orangeAccent');
+                            Cor = 'orangeAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.redAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou red');
+                            Cor = 'red';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.red,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou purpleAccent');
+                            Cor = 'purpleAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.purpleAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou purple');
+                            Cor = 'purple';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.purple,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou blueAccent');
+                            Cor = 'blueAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.blueAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou blue');
+                            Cor = 'blue';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.blue,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou green');
+                            Cor = 'green';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.green,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('Gestou greenAccent');
+                            Cor = 'greenAccent';
+                          },
+                          child: Icon(
+                            Icons.radio_button_checked,
+                            color: Colors.greenAccent,
+                            size: tamanho_iconeCor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
                   child: Text('Confirmar'),
                   onPressed: () {
-                    if (controladorCampoNome.text.length != 0 ){
+                    if (controladorCampoNome.text.length != 0) {
                       _criaCadastro(
-                          controladorCampoNome.text,
-                          'Cor',
-                          'Icone',
-                          context);
+                          controladorCampoNome.text, Cor, 'Icone', context);
 
                       controladorCampoNome.clear();
 
@@ -107,10 +251,10 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
   }
 }
 
-void _criaCadastro(String Nome, String Cor, String Icone, 
-    BuildContext context) {
+void _criaCadastro(
+    String Nome, String Cor, String Icone, BuildContext context) {
   final categoriaDao _dao = categoriaDao();
 
-  final CadastroCriado = registro_categoria(0,Nome, Cor, Icone);
-  _dao.save_corategoria(CadastroCriado).then((_) => dashboard());
+  final CadastroCriado = registro_categoria(0, Nome, Cor, Icone);
+  _dao.save_corategoria(CadastroCriado);
 }

@@ -26,7 +26,16 @@ class favoritosDao {
   Future<int> save_favoritos(redistro_favoritos favoritos) async {
     final Database db = await BancoDeDados();
     Map<String, dynamic> favoritosMap = _toMap(favoritos);
+
     return db.insert(_tabelaNome, favoritosMap);
+  }
+
+  Future fecha_banco() async {
+    final Database db = await BancoDeDados();
+    if (db.isOpen == true) {
+      db.close();
+      print('Banco fechado');
+    }
   }
 
   Map<String, dynamic> _toMap(redistro_favoritos favoritos) {
@@ -42,6 +51,7 @@ class favoritosDao {
     final Database db = await BancoDeDados();
     final List<Map<String, dynamic>> result = await db.query(_tabelaNome);
     List<redistro_favoritos> favoritoss = _toList(result);
+
     return favoritoss;
   }
 
@@ -49,6 +59,15 @@ class favoritosDao {
     final Database db = await BancoDeDados();
     final List<Map<String, dynamic>> result = await db.rawQuery(
         'SELECT * FROM ${_tabelaNome} WHERE ${_favoritos_nome} LIKE "%${_pesquisa}%" ;');
+    List<redistro_favoritos> favoritoss = _toList(result);
+
+    return favoritoss;
+  }
+
+  Future<List<redistro_favoritos>> find_favoritos_ID(int _pesquisa) async {
+    final Database db = await BancoDeDados();
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+        'SELECT * FROM ${_tabelaNome} WHERE ${_favoritos_id} LIKE "%${_pesquisa}%" ;');
     List<redistro_favoritos> favoritoss = _toList(result);
 
     return favoritoss;
@@ -64,6 +83,23 @@ class favoritosDao {
     Map<String, dynamic> favoritosMap = _toMap(favoritos);
     await db.update(_tabelaNome, favoritosMap,
         where: '${_favoritos_id} = ?', whereArgs: [favoritos.id]);
+
+    /*final Database db = await BancoDeDados();
+    Map<String, dynamic> favoritosMap = _toMap(favoritos);
+
+    String update = 'UPDATE ${_tabelaNome} ';
+    String set = ' SET  ${_favoritos_nome} = ?, ${_favoritos_categ} = ? ';
+    String where = ' WHERE ${favoritos.id} = ? ';
+
+    print(set);
+    print(favoritos.id_categoria);
+
+    await db.rawUpdate(
+        ' ${update} '
+        ' ${set} '
+        ' ${where} ',
+        ['${favoritos.Nome}', '${favoritos.id_categoria}', '${_favoritos_id}']);
+    */
   }
 
   List<redistro_favoritos> _toList(List<Map<String, dynamic>> result) {
