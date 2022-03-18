@@ -163,6 +163,18 @@ class MapaState extends State<mapa> {
                   child: Icon(Icons.send_outlined),
                 ),
                 onPressed: () {
+                  String xe =
+                      'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
+                  print(xe);
+                  if (rastreio.value == true) {
+                    {
+                      _locationSubscription?.cancel();
+                      setState(() {
+                        removeMarkerTracker();
+                        _locationSubscription = null;
+                      });
+                    }
+                  }
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -553,7 +565,27 @@ class MapaState extends State<mapa> {
                       child: const Text('Fechar'),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context, 'IR'),
+                      onPressed: () {
+                        
+                        String xe =
+                            'Latitude: ${banco[i].Lat} , Longitude: ${banco[i].Long}';
+                        print(xe);
+                        if (rastreio.value == true) {
+                          {
+                            _locationSubscription?.cancel();
+                            setState(() {
+                              removeMarkerTracker();
+                              _locationSubscription = null;
+                            });
+                          }
+                        }
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => rota(LatLng(double.parse(banco[i].Lat),
+                            double.parse(banco[i].Long))),
+                            ));
+                      },
                       child: const Text('IR'),
                     ),
                   ]),
