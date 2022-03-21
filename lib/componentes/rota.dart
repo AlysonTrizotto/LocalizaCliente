@@ -11,6 +11,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoder2/geocoder2.dart';
 
 import 'package:latlong2/latlong.dart';
+import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
@@ -67,8 +68,8 @@ class RotaState extends State<rota> {
   ValueNotifier<bool> rastreio = ValueNotifier(false);
   ValueNotifier<bool> btnNavegar = ValueNotifier(false);
   ValueNotifier<bool> containerRota = ValueNotifier(true);
-
-  ValueNotifier<String> distanciaRota = ValueNotifier('');
+  ValueNotifier<String> distanciaRota = ValueNotifier('0 KM');
+  ValueNotifier<String> tempoRota = ValueNotifier('00:00');
 
   bool _isVisible = false;
   bool _isVisibleContainerRota = true;
@@ -217,6 +218,16 @@ class RotaState extends State<rota> {
                               children: <Widget>[
                                 Text(
                                   distanciaRota.value,
+                                  style: TextStyle(fontSize: 30),
+                                ),
+                              ],
+                            ),
+                            SizedBox(width: 10),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Text(
+                                  tempoRota.value,
                                   style: TextStyle(fontSize: 30),
                                 ),
                               ],
@@ -466,10 +477,15 @@ class RotaState extends State<rota> {
     late List<LatLng> ponto = [];
     points.clear();
 
+    atualyPosition();
+
     List<LngLat> waypoints = [
       LngLat(lat: lat_final, lng: lng_final),
       LngLat(lat: latLng.latitude, lng: latLng.longitude),
     ];
+
+    print(
+        'lat: ${lat_final}, lng: ${lng_final} - lat: ${latLng.latitude}, lng: ${latLng.longitude}');
 
     final manager = OSRMManager();
     final road = await manager.getTrip(
@@ -483,7 +499,7 @@ class RotaState extends State<rota> {
     );
 
     print(road.instructions.toString());
-    
+
     String distanciaString = '';
     double distanciaKm = 0.0;
     double distancia_convertida = 0.0;
@@ -497,11 +513,18 @@ class RotaState extends State<rota> {
       distanciaString = '${road.distance.toInt()} Metros';
     }
     distanciaRota.value = distanciaString;
-    //print('Road.DIstance: ${road.details.toString()}');
-    //print(road.duration.toString());
-    //print(road.instructions);
-    // print(road.polyline);
-    //print(decodePolyline(road.polylineEncoded.toString()));
+    tempoRota.value = getStringToTime(road.duration);
+
+    List<RoadInstruction> listaDirecao = road.instructions;
+
+    for (int d = 0; d < listaDirecao.length; d++) {
+      print(listaDirecao[d].location);
+      if(listaDirecao[d].location.lat != currentCenter.latitude){
+
+      }
+      print(listaDirecao[d].instruction);
+      print(listaDirecao[d].distance);
+    }
     List resultado = decodePolyline(road.polylineEncoded.toString());
 
     setState(() {
@@ -510,6 +533,29 @@ class RotaState extends State<rota> {
         points.add(LatLng(passagem[0], passagem[1]));
       }
     });
+  }
+
+  String getStringToTime(double valor) {
+    if (valor < 0) return 'Tempo inválido';
+
+    valor = valor / 60;
+
+    int flooredValue = valor.floor();
+    double decimalValor = valor - flooredValue;
+    String hourValor = getHourString(flooredValue);
+    String minuteString = getMinuteString(decimalValor);
+
+    print('${hourValor}:${minuteString} min');
+
+    return '${hourValor}:${minuteString} min';
+  }
+
+  String getMinuteString(double decimalValue) {
+    return '${(decimalValue / 60).toInt()}'.padLeft(2, '0');
+  }
+
+  String getHourString(int flooredValue) {
+    return '${flooredValue % 24}'.padLeft(2, '0');
   }
 
   void erroServidor(String err) {
@@ -620,27 +666,11 @@ class RotaState extends State<rota> {
     mapController.move(centerZoom, zoom);
   }
 
-/*
-  Future<void> desenhaRota(double latDestino, double longDestino) async {
-    List<LngLat> waypoints = [
-      LngLat(lng: latDestino, lat: longDestino),
-      LngLat(lng: -25.5119413, lat: -49.1668627),
-    ];
-    final manager = OSRMManager();
-    final road = await manager.getRoad(
-      waypoints: waypoints,
-      geometrie: Geometries.polyline,
-      steps: true,
-      languageCode: "en",
-    );
-  }
-*/
   Future<void> atualyPosition() async {
     double? lat = 0.0;
     double? long = 0.0;
 
     try {
-      // mapController.move(currentCenter, 16);
       if (!rastreio.value) {
         _locationSubscription =
             location.onLocationChanged.handleError((dynamic err) {
@@ -788,17 +818,32 @@ class RotaState extends State<rota> {
         LatLng LatLngBanco =
             LatLng(double.parse(banco[i].Lat), double.parse(banco[i].Long));
 
-        double distanciaMetros = await pegaDistancia(double.parse(banco[i].Lat),
-            double.parse(banco[i].Long), lat_final, lng_final);
+        List<LngLat> waypoints = [
+          LngLat(
+              lat: double.parse(banco[i].Lat),
+              lng: double.parse(banco[i].Long)),
+          LngLat(lat: lat_final, lng: lng_final),
+        ];
 
-        if (distanciaMetros >= 1000) {
-          distanciaKm = distanciaMetros / 1000;
+        final manager = OSRMManager();
+        final road = await manager.getTrip(
+          waypoints: waypoints,
+          roundTrip: false,
+          destination: DestinationGeoPointOption.last,
+          source: SourceGeoPointOption.first,
+          geometry: Geometries.polyline,
+          steps: true,
+          languageCode: "en",
+        );
+
+        if (road.distance >= 1) {
+          distanciaKm = road.distance;
           distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
           distanciaString = ' ${distancia_convertida.toDouble()} KM';
         } else {
           num distancia_convertida =
-              num.parse(distanciaMetros.toStringAsPrecision(1));
-          distanciaString = '${distanciaMetros.toInt()} Metros';
+              num.parse(road.distance.toStringAsPrecision(1));
+          distanciaString = '${road.distance.toInt()} Metros';
         }
 
         markerDb.add(Marker(
@@ -855,8 +900,6 @@ class RotaState extends State<rota> {
                             });
                           }
                         }
-                        //LatLng(double.parse(banco[i].Lat),
-                        //  double.parse(banco[i].Long));
                         routeHelper();
                         Navigator.pop(context, 'Fechar');
                       },

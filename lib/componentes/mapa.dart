@@ -51,7 +51,7 @@ class MapaState extends State<mapa> {
   /**************************************************/
 
   /*****************Notifier*************************/
-  ValueNotifier<bool> rastreio = ValueNotifier(false);
+  ValueNotifier<bool> rastreio = ValueNotifier(true);
   /**************************************************/
 
   /*****************Controllers**********************/
@@ -550,7 +550,7 @@ class MapaState extends State<mapa> {
                       Icon(Icons.route_rounded),
                       Flexible(
                         child: Text(
-                          distanciaString,
+                          '${distanciaString}, Localização aproximada',
                           style: TextStyle(fontSize: 20),
                           overflow: TextOverflow.fade,
                           maxLines: 1,
@@ -566,7 +566,6 @@ class MapaState extends State<mapa> {
                     ),
                     TextButton(
                       onPressed: () {
-                        
                         String xe =
                             'Latitude: ${banco[i].Lat} , Longitude: ${banco[i].Long}';
                         print(xe);
@@ -582,8 +581,9 @@ class MapaState extends State<mapa> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => rota(LatLng(double.parse(banco[i].Lat),
-                            double.parse(banco[i].Long))),
+                              builder: (context) => rota(LatLng(
+                                  double.parse(banco[i].Lat),
+                                  double.parse(banco[i].Long))),
                             ));
                       },
                       child: const Text('IR'),

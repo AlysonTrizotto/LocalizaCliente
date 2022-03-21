@@ -9,12 +9,21 @@ Geolocator geoLocator = new Geolocator();
 
 pegaDistanciaDOisPontos(double pInit, double pFin) async {
   _currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  
+  print(_currentPosition);
   var distanceInMeters = Geolocator.distanceBetween(
       _currentPosition!.latitude, _currentPosition!.longitude, pInit, pFin);
-  print(distanceInMeters);
+  //print(distanceInMeters);
   return distanceInMeters.toDouble();
 }
+
+
+pegaLocalizacao() async {
+  
+ 
+  return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+}
+
+
 
 pegaDistancia(double pLat, double pLong, double fLat, double fLong) async {
     double distanceInMeters = Geolocator.distanceBetween(
