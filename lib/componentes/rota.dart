@@ -742,29 +742,24 @@ class RotaState extends State<rota> {
     });
 
     for (int i = 0; i < listaDirecao.length; i++) {
+      
       if (listaDirecao[i].instruction.contains(final_ponto)) {
         direcaoSeta(listaDirecao[i + 1].instruction);
       }
-      
     }
   }
 
   void direcaoSeta(String directions) {
     print(directions);
-    if (directions.contains(' left ')) {
-      iconeDirecao.value = Icons.turn_left;
-    }
 
-    if (directions.contains(' Continue  ')) {
+    if (directions.contains('left')) {
+      iconeDirecao.value = Icons.turn_left;
+    } else if (directions.contains('Continue')) {
       iconeDirecao.value = Icons.arrow_upward;
-    }
-
-    if (directions.contains(' right  ')) {
+    } else if (directions.contains('right')) {
       iconeDirecao.value = Icons.turn_right;
-    }
-
-    if (directions.contains(' left ')) {
-      iconeDirecao.value = Icons.turn_left;
+    } else if (directions.contains('Go on')) {
+      iconeDirecao.value = Icons.arrow_upward;
     }
   }
 
