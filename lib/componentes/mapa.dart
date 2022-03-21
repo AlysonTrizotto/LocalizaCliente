@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'package:http/http.dart';
 import 'package:flutter/material.dart';
+import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -51,7 +52,7 @@ class MapaState extends State<mapa> {
   /**************************************************/
 
   /*****************Notifier*************************/
-  ValueNotifier<bool> rastreio = ValueNotifier(true);
+  ValueNotifier<bool> rastreio = ValueNotifier(false);
   /**************************************************/
 
   /*****************Controllers**********************/
@@ -152,36 +153,35 @@ class MapaState extends State<mapa> {
                     markersTracker[i],
                 ]),
               ]),
-          Positioned(
-            bottom: 30.0,
-            left: 20.0,
-            child: FloatingActionButton(
-                heroTag: 'rota',
-                elevation: 50,
-                child: Transform.rotate(
-                  angle: 150 * pi / 100,
-                  child: Icon(Icons.send_outlined),
-                ),
-                onPressed: () {
-                  String xe =
-                      'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
-                  print(xe);
-                  if (rastreio.value == true) {
-                    {
-                      _locationSubscription?.cancel();
-                      setState(() {
-                        removeMarkerTracker();
-                        _locationSubscription = null;
-                      });
-                    }
-                  }
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => rota(currentCenter),
-                      ));
-                }),
+              Positioned(
+        bottom: 30.0,
+        left: 20.0,
+        child: FloatingActionButton.extended(
+          heroTag: 'rota',
+          elevation: 50,
+          backgroundColor: Colors.deepOrangeAccent,
+          onPressed: () {
+            String xe =
+                'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
+            print(xe);
+
+            if (rastreio.value == true) {
+              atualyPosition();
+            }
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => rota(currentCenter),
+                ));
+          },
+          icon: Transform.rotate(
+            angle: 150 * pi / 100,
+            child: Icon(Icons.send_outlined),
           ),
+          label: Text('Navegar'),
+        ),
+      ),
           Positioned(
             top: 130.0,
             right: 20.0,
@@ -343,6 +343,7 @@ class MapaState extends State<mapa> {
           ),
         ]),
       ),
+      //floatingActionButton: 
     );
   }
 
@@ -549,13 +550,57 @@ class MapaState extends State<mapa> {
                     children: <Widget>[
                       Icon(Icons.route_rounded),
                       Flexible(
-                        child: Text(
-                          '${distanciaString}, Localização aproximada',
-                          style: TextStyle(fontSize: 20),
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
+                        child: FutureBuilder(
+                            future: Future.delayed(Duration(seconds: 1)).then(
+                                (value) => calculoRota(
+                                    double.parse(banco[i].Lat),
+                                    double.parse(banco[i].Long),
+                                    currentCenter.latitude,
+                                    currentCenter.longitude)),
+                            builder: (context, AsyncSnapshot snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                final double distance = snapshot.data;
+
+                                String distanciaString = '';
+                                double distanciaKm = 0.0;
+                                double distancia_convertida = 0.0;
+
+                                if (distance >= 1) {
+                                  distanciaKm = distance;
+                                  distancia_convertida = double.parse(
+                                      distanciaKm.toStringAsFixed(2));
+                                  distanciaString =
+                                      ' ${distancia_convertida.toDouble()} KM';
+                                } else {
+                                  num distancia_convertida = num.parse(
+                                      distance.toStringAsPrecision(1));
+                                  distanciaString =
+                                      '${distance.toInt()} Metros';
+                                }
+
+                                return Text(
+                                  distanciaString,
+                                  style: TextStyle(fontSize: 20),
+                                  overflow: TextOverflow.fade,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                );
+                              } else {
+                                return SizedBox(
+                                  height: 80,
+                                  width: 300,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      Text('Calculando distância'),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }),
                       )
                     ],
                   ),
@@ -570,13 +615,7 @@ class MapaState extends State<mapa> {
                             'Latitude: ${banco[i].Lat} , Longitude: ${banco[i].Long}';
                         print(xe);
                         if (rastreio.value == true) {
-                          {
-                            _locationSubscription?.cancel();
-                            setState(() {
-                              removeMarkerTracker();
-                              _locationSubscription = null;
-                            });
-                          }
+                          atualyPosition();
                         }
                         Navigator.push(
                             context,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
@@ -60,7 +61,7 @@ class RotaState extends State<rota> {
   List<Marker> markersTracker = [];
   List<redistro_favoritos> banco = [];
   List<registro_categoria> bancoCategoria = [];
-
+  List<RoadInstruction> listaDirecao = [];
   String? _error;
   /**************************************************/
 
@@ -70,6 +71,8 @@ class RotaState extends State<rota> {
   ValueNotifier<bool> containerRota = ValueNotifier(true);
   ValueNotifier<String> distanciaRota = ValueNotifier('0 KM');
   ValueNotifier<String> tempoRota = ValueNotifier('00:00');
+  ValueNotifier<IconData> iconeDirecao =
+      ValueNotifier(Icons.gpp_maybe_outlined);
 
   bool _isVisible = false;
   bool _isVisibleContainerRota = true;
@@ -77,6 +80,7 @@ class RotaState extends State<rota> {
 
   /*****************Controllers**********************/
   MapController mapController = MapController();
+
   late MapState map;
   late bool _serviceEnabled;
   late Location location = Location();
@@ -101,6 +105,25 @@ class RotaState extends State<rota> {
     addMarkerDbTracker();
 
     print('Latitude: ${latLng.latitude} , Longitude: ${latLng.longitude}');
+  }
+
+  @override
+  void dispose() {
+    if (rastreio.value == true) {
+      _locationSubscription?.onDone(() {});
+      Future.delayed(Duration.zero, () async {
+        await atualyPosition().then((value) => print(rastreio.value));
+      });
+
+      print('saiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiu');
+    }
+    print(rastreio.value);
+
+    _locationSubscription?.cancel();
+
+    _locationSubscription = null;
+
+    super.dispose();
   }
 
   getCurrentLocation() async {
@@ -207,7 +230,7 @@ class RotaState extends State<rota> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Icon(
-                                  Icons.turn_left,
+                                  iconeDirecao.value,
                                   color: Colors.grey,
                                   size: 45.0,
                                 ),
@@ -244,12 +267,13 @@ class RotaState extends State<rota> {
                 child: Positioned(
                   bottom: 130.0,
                   left: 20.0,
-                  child: FloatingActionButton(
+                  child: FloatingActionButton.extended(
                       heroTag: 'rota',
                       elevation: 50,
-                      child: Text(
+                      backgroundColor: Colors.deepOrangeAccent,
+                      icon: Icon(Icons.directions_car_filled_outlined),
+                      label: Text(
                         'IR',
-                        style: TextStyle(fontSize: 25),
                       ),
                       onPressed: () {
                         //points.clear();
@@ -476,8 +500,9 @@ class RotaState extends State<rota> {
   Future<void> routeHelper() async {
     late List<LatLng> ponto = [];
     points.clear();
+    listaDirecao.clear();
 
-    atualyPosition();
+    //atualyPosition();
 
     List<LngLat> waypoints = [
       LngLat(lat: lat_final, lng: lng_final),
@@ -514,17 +539,8 @@ class RotaState extends State<rota> {
     }
     distanciaRota.value = distanciaString;
     tempoRota.value = getStringToTime(road.duration);
+    listaDirecao = road.instructions;
 
-    List<RoadInstruction> listaDirecao = road.instructions;
-
-    for (int d = 0; d < listaDirecao.length; d++) {
-      print(listaDirecao[d].location);
-      if(listaDirecao[d].location.lat != currentCenter.latitude){
-
-      }
-      print(listaDirecao[d].instruction);
-      print(listaDirecao[d].distance);
-    }
     List resultado = decodePolyline(road.polylineEncoded.toString());
 
     setState(() {
@@ -533,6 +549,7 @@ class RotaState extends State<rota> {
         points.add(LatLng(passagem[0], passagem[1]));
       }
     });
+    atualyPosition();
   }
 
   String getStringToTime(double valor) {
@@ -684,22 +701,25 @@ class RotaState extends State<rota> {
             _locationSubscription = null;
           });
         }).listen((LocationData currentLocation) {
-          setState(() {
-            _error = null;
-            removeMarkerTracker();
+          if (mounted == true) {
+            setState(() {
+              _error = null;
+              removeMarkerTracker();
 
-            _locationData = currentLocation;
-            lat = _locationData!.latitude;
-            long = _locationData!.longitude;
-            LatLng latlong = LatLng(lat!, long!);
-            currentCenter = latlong;
-            double? rotacao = currentLocation.heading;
-            mapController.move(currentCenter, 10);
-            print(rotacao);
-            addMarkerTracker(currentCenter);
-            removeMarkerDb();
-            addMarkerDbTracker();
-          });
+              _locationData = currentLocation;
+              lat = _locationData!.latitude;
+              long = _locationData!.longitude;
+              LatLng latlong = LatLng(lat!, long!);
+              currentCenter = latlong;
+              double? rotacao = currentLocation.heading;
+              //mapController.move(currentCenter, 10);
+
+              addMarkerTracker(currentCenter);
+              removeMarkerDb();
+              addMarkerDbTracker();
+              direcao(currentCenter.latitude, currentCenter.longitude);
+            });
+          }
         });
         setState(() {});
       } else {
@@ -712,6 +732,39 @@ class RotaState extends State<rota> {
       rastreio.value = !rastreio.value;
     } catch (e) {
       print(e);
+    }
+  }
+
+  void direcao(double lat, double long) {
+    String final_ponto = 'You have reached a waypoint of your trip';
+    listaDirecao.forEach((element) {
+      element.instruction.replaceAll(RegExp('%s'), element.distance.toString());
+    });
+
+    for (int i = 0; i < listaDirecao.length; i++) {
+      if (listaDirecao[i].instruction.contains(final_ponto)) {
+        direcaoSeta(listaDirecao[i + 1].instruction);
+      }
+      
+    }
+  }
+
+  void direcaoSeta(String directions) {
+    print(directions);
+    if (directions.contains(' left ')) {
+      iconeDirecao.value = Icons.turn_left;
+    }
+
+    if (directions.contains(' Continue  ')) {
+      iconeDirecao.value = Icons.arrow_upward;
+    }
+
+    if (directions.contains(' right  ')) {
+      iconeDirecao.value = Icons.turn_right;
+    }
+
+    if (directions.contains(' left ')) {
+      iconeDirecao.value = Icons.turn_left;
     }
   }
 
@@ -811,40 +864,8 @@ class RotaState extends State<rota> {
             }
         }
 
-        String distanciaString = '';
-        double distanciaKm = 0.0;
-        double distancia_convertida = 0.0;
-
         LatLng LatLngBanco =
             LatLng(double.parse(banco[i].Lat), double.parse(banco[i].Long));
-
-        List<LngLat> waypoints = [
-          LngLat(
-              lat: double.parse(banco[i].Lat),
-              lng: double.parse(banco[i].Long)),
-          LngLat(lat: lat_final, lng: lng_final),
-        ];
-
-        final manager = OSRMManager();
-        final road = await manager.getTrip(
-          waypoints: waypoints,
-          roundTrip: false,
-          destination: DestinationGeoPointOption.last,
-          source: SourceGeoPointOption.first,
-          geometry: Geometries.polyline,
-          steps: true,
-          languageCode: "en",
-        );
-
-        if (road.distance >= 1) {
-          distanciaKm = road.distance;
-          distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
-          distanciaString = ' ${distancia_convertida.toDouble()} KM';
-        } else {
-          num distancia_convertida =
-              num.parse(road.distance.toStringAsPrecision(1));
-          distanciaString = '${road.distance.toInt()} Metros';
-        }
 
         markerDb.add(Marker(
           width: 150.0,
@@ -868,13 +889,57 @@ class RotaState extends State<rota> {
                     children: <Widget>[
                       Icon(Icons.route_rounded),
                       Flexible(
-                        child: Text(
-                          distanciaString,
-                          style: TextStyle(fontSize: 20),
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: false,
-                        ),
+                        child: FutureBuilder(
+                            future: Future.delayed(Duration(seconds: 1)).then(
+                                (value) => calculoRota(
+                                    double.parse(banco[i].Lat),
+                                    double.parse(banco[i].Long),
+                                    lat_final,
+                                    lng_final)),
+                            builder: (context, AsyncSnapshot snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                final double distance = snapshot.data;
+
+                                String distanciaString = '';
+                                double distanciaKm = 0.0;
+                                double distancia_convertida = 0.0;
+
+                                if (distance >= 1) {
+                                  distanciaKm = distance;
+                                  distancia_convertida = double.parse(
+                                      distanciaKm.toStringAsFixed(2));
+                                  distanciaString =
+                                      ' ${distancia_convertida.toDouble()} KM';
+                                } else {
+                                  num distancia_convertida = num.parse(
+                                      distance.toStringAsPrecision(1));
+                                  distanciaString =
+                                      '${distance.toInt()} Metros';
+                                }
+
+                                return Text(
+                                  distanciaString,
+                                  style: TextStyle(fontSize: 20),
+                                  overflow: TextOverflow.fade,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                );
+                              } else {
+                                return SizedBox(
+                                  height: 80,
+                                  width: 300,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CircularProgressIndicator(),
+                                      Text('Calculando distância'),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }),
                       )
                     ],
                   ),
