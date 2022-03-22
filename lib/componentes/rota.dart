@@ -69,6 +69,8 @@ class RotaState extends State<rota> {
   ValueNotifier<bool> rastreio = ValueNotifier(false);
   ValueNotifier<bool> btnNavegar = ValueNotifier(false);
   ValueNotifier<bool> containerRota = ValueNotifier(true);
+  ValueNotifier<bool> containerDirecao = ValueNotifier(false);
+  ValueNotifier<bool> containerPesquisa = ValueNotifier(true);
   ValueNotifier<String> distanciaRota = ValueNotifier('0 KM');
   ValueNotifier<String> tempoRota = ValueNotifier('00:00');
   ValueNotifier<IconData> iconeDirecao =
@@ -114,8 +116,6 @@ class RotaState extends State<rota> {
       Future.delayed(Duration.zero, () async {
         await atualyPosition().then((value) => print(rastreio.value));
       });
-
-      print('saiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiu');
     }
     print(rastreio.value);
 
@@ -167,7 +167,8 @@ class RotaState extends State<rota> {
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
-    String chave = '5b3ce3597851110001cf6248c78ca55096174c19a21280e2d83a5133';
+
+    var _needLoadingError = true;
     addMarker(latLng);
     return MaterialApp(
       home: Scaffold(
@@ -181,17 +182,38 @@ class RotaState extends State<rota> {
               FlutterMap(
                   mapController: mapController,
                   options: MapOptions(
-                      maxZoom: 18,
-                      minZoom: 4,
-                      center: currentCenter,
-                      zoom: zoomAtual,
-                      plugins: []),
+                    maxZoom: 18,
+                    minZoom: 4,
+                    center: currentCenter,
+                    zoom: zoomAtual,
+                    plugins: [],
+                    slideOnBoundaries: true,
+                    screenSize: MediaQuery.of(context).size,
+                  ),
                   layers: [
                     TileLayerOptions(
                         urlTemplate:
                             "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        //   "https://api.openrouteservice.org/v2/directions/driving-car?api_key=${chave}&start=${lat_init},${lng_init}&end=${lat_final},${lng_final}",
-                        subdomains: ['a', 'b', 'c']),
+                        subdomains: ['a', 'b', 'c'],
+
+                        ///tileProvider:  titulo,
+                        updateInterval: 1,
+                        errorTileCallback: (Tile tile, error) {
+                          if (_needLoadingError) {
+                            WidgetsBinding.instance!.addPostFrameCallback((_) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                duration: Duration(seconds: 1),
+                                content: Text(
+                                  error.toString(),
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                backgroundColor: Colors.deepOrange,
+                              ));
+                            });
+                            _needLoadingError = false;
+                          }
+                        }),
                     PolylineLayerOptions(
                       polylines: [
                         Polyline(
@@ -333,125 +355,224 @@ class RotaState extends State<rota> {
                   ),
                 ),
               ),
-              SlidingUpPanel(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24.0),
-                    topRight: Radius.circular(24.0)),
-                minHeight: 110.0,
-                panel: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
-                  child: Stack(children: <Widget>[
-                    Container(
-                      height: 500,
-                      child: SingleChildScrollView(
-                        child: Column(children: <Widget>[
-                          SizedBox(
-                            child: Card(
-                              elevation: 50,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              color: Colors.white,
-                              child: TextField(
-                                controller: controladorCampoPesquisa,
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(
-                                    Icons.location_on_outlined,
-                                    color: Colors.black,
-                                  ),
-                                  suffixIcon: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        pesquisa =
-                                            controladorCampoPesquisa.text;
-                                        if (pesquisa.length > 3) {
-                                          print(pesquisa);
-                                          estadoBtnNavegarFalse();
-                                        }
-                                      });
-                                    },
-                                    child: Icon(
-                                      Icons.search,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  hintText: 'Destino',
-                                  border: OutlineInputBorder(
+              Visibility(
+                visible: containerPesquisa.value,
+                child: SlidingUpPanel(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24.0),
+                      topRight: Radius.circular(24.0)),
+                  minHeight: 110.0,
+                  panel: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          height: 500,
+                          child: SingleChildScrollView(
+                            child: Column(children: <Widget>[
+                              SizedBox(
+                                child: Card(
+                                  elevation: 50,
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
                                   ),
-                                  contentPadding: const EdgeInsets.all(15),
+                                  color: Colors.white,
+                                  child: TextField(
+                                    controller: controladorCampoPesquisa,
+                                    decoration: InputDecoration(
+                                      prefixIcon: Icon(
+                                        Icons.location_on_outlined,
+                                        color: Colors.black,
+                                      ),
+                                      suffixIcon: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            pesquisa =
+                                                controladorCampoPesquisa.text;
+                                            if (pesquisa.length > 3) {
+                                              print(pesquisa);
+                                              estadoBtnNavegarFalse();
+                                            }
+                                          });
+                                        },
+                                        child: Icon(
+                                          Icons.search,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      hintText: 'Destino',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      contentPadding: const EdgeInsets.all(15),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                          Container(
-                            child: FutureBuilder(
-                                future: Future.delayed(Duration())
-                                    .then((value) => SugestionAdd(pesquisa)),
-                                builder: (context, AsyncSnapshot snapshot) {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    final List _retorno = snapshot.data;
-                                    return ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: _retorno.length,
-                                      itemBuilder: (context, indice) {
-                                        final String _endereco =
-                                            _retorno[indice].address.toString();
-                                        final double lat =
-                                            _retorno[indice].point!.latitude;
-                                        final double long =
-                                            _retorno[indice].point!.longitude;
-                                        return Column(
+                              Container(
+                                child: FutureBuilder(
+                                    future: Future.delayed(Duration()).then(
+                                        (value) => SugestionAdd(pesquisa)),
+                                    builder: (context, AsyncSnapshot snapshot) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null) {
+                                        final List _retorno = snapshot.data;
+                                        return ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              NeverScrollableScrollPhysics(),
+                                          itemCount: _retorno.length,
+                                          itemBuilder: (context, indice) {
+                                            final String _endereco =
+                                                _retorno[indice]
+                                                    .address
+                                                    .toString();
+                                            final double lat = _retorno[indice]
+                                                .point!
+                                                .latitude;
+                                            final double long = _retorno[indice]
+                                                .point!
+                                                .longitude;
+                                            return Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      lat_final = lat;
+                                                      lng_final = long;
+                                                      setState(() {
+                                                        adicionaMarcador(
+                                                            lat, long);
+                                                      });
+                                                    },
+                                                    child: Card(
+                                                      elevation: 50,
+                                                      child: ListTile(
+                                                        leading: Icon(Icons
+                                                            .location_on_outlined),
+                                                        title: Text(_endereco),
+                                                        subtitle: Text(
+                                                            'Latitude: ' +
+                                                                lat.toString() +
+                                                                '\nLongitude: ' +
+                                                                long.toString()),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ]);
+                                          },
+                                        );
+                                      } else {
+                                        return Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              GestureDetector(
-                                                onTap: () {
-                                                  lat_final = lat;
-                                                  lng_final = long;
-                                                  setState(() {
-                                                    adicionaMarcador(lat, long);
-                                                  });
-                                                },
-                                                child: Card(
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(),
+                                              Text(''),
+                                            ],
+                                          ),
+                                        );
+                                      }
+                                    }),
+                              ),
+                            ]),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Visibility(
+                visible: containerDirecao.value,
+                child: SlidingUpPanel(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24.0),
+                      topRight: Radius.circular(24.0)),
+                  minHeight: 110.0,
+                  panel: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+                    child: Stack(children: <Widget>[
+                      Container(
+                        height: 500,
+                        child: SingleChildScrollView(
+                          child: Column(children: <Widget>[
+                            SizedBox(
+                              child: Card(
+                                elevation: 50,
+                                
+                                color: Colors.white,
+                                child: Text('Direção', style: TextStyle(fontSize: 20)),
+                              ),
+                            ),
+                            Container(
+                              child: FutureBuilder(
+                                  future: Future.delayed(Duration())
+                                      .then((value) => direcao()),
+                                  builder: (context, AsyncSnapshot snapshot) {
+                                    if (snapshot.hasData &&
+                                        snapshot.data != null) {
+                                      final List<RoadInstruction> _retorno =
+                                          snapshot.data;
+
+                                      return ListView.builder(
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: _retorno.length,
+                                        itemBuilder: (context, indice) {
+                                          ValueNotifier<IconData> endereco =
+                                              ValueNotifier(
+                                                  Icons.gpp_maybe_outlined);
+                                          endereco.value = direcaoSeta(
+                                              _retorno[indice].instruction);
+
+                                          ValueNotifier<String> distancia =
+                                              ValueNotifier('0.0 Km');
+                                          distancia.value = convert_Metros_Km(
+                                              _retorno[indice].distance, 1000);
+
+                                          return Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: <Widget>[
+                                                Card(
                                                   elevation: 50,
                                                   child: ListTile(
-                                                    leading: Icon(Icons
-                                                        .location_on_outlined),
-                                                    title: Text(_endereco),
-                                                    subtitle: Text(
-                                                        'Latitude: ' +
-                                                            lat.toString() +
-                                                            '\nLongitude: ' +
-                                                            long.toString()),
+                                                    leading:
+                                                        Icon(endereco.value),
+                                                    title: Text(
+                                                        '${_retorno[indice].instruction.replaceAll(' %s', ' ' + distancia.value)}'),
+                                                    subtitle: Text(''),
                                                   ),
                                                 ),
-                                              ),
-                                            ]);
-                                      },
-                                    );
-                                  } else {
-                                    return Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          CircularProgressIndicator(),
-                                          Text(''),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                }),
-                          ),
-                        ]),
+                                              ]);
+                                        },
+                                      );
+                                    } else {
+                                      return Center(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            CircularProgressIndicator(),
+                                            Text(''),
+                                          ],
+                                        ),
+                                      );
+                                    }
+                                  }),
+                            ),
+                          ]),
+                        ),
                       ),
-                    ),
-                  ]),
+                    ]),
+                  ),
                 ),
               ),
             ],
@@ -525,21 +646,11 @@ class RotaState extends State<rota> {
 
     print(road.instructions.toString());
 
-    String distanciaString = '';
-    double distanciaKm = 0.0;
-    double distancia_convertida = 0.0;
-    if (road.distance >= 1) {
-      distanciaKm = road.distance;
-      distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
-      distanciaString = ' ${distancia_convertida.toDouble()} KM';
-    } else {
-      num distancia_convertida =
-          num.parse(road.distance.toStringAsPrecision(1));
-      distanciaString = '${road.distance.toInt()} Metros';
-    }
-    distanciaRota.value = distanciaString;
+    distanciaRota.value = convert_Metros_Km(road.distance, 1);
     tempoRota.value = getStringToTime(road.duration);
     listaDirecao = road.instructions;
+
+    listaDirecao.removeWhere((element) => element.instruction == '');
 
     List resultado = decodePolyline(road.polylineEncoded.toString());
 
@@ -549,7 +660,52 @@ class RotaState extends State<rota> {
         points.add(LatLng(passagem[0], passagem[1]));
       }
     });
+
+    containerPesquisa.value = false;
+    containerDirecao.value = true;
+
     atualyPosition();
+  }
+
+  convert_Metros_Km(double valor, int divisor) {
+    String distanciaString = '';
+    double distanciaKm = 0.0;
+    double distancia_convertida = 0.0;
+    valor = valor / divisor;
+    if (valor >= 1) {
+      distanciaKm = valor;
+      distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
+      distanciaString = ' ${distancia_convertida.toDouble()} KM';
+    } else {
+      valor = valor * 1000;
+      num distancia_convertida = num.parse(valor.toStringAsPrecision(2));
+      distanciaString = '${valor.toInt()} Metros';
+    }
+
+    return distanciaString;
+  }
+
+  convert_Coord_End(double lat_coord, double long_coord) {
+    FutureBuilder(
+        future: Future.delayed(Duration()).then((value) {}),
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            String snap = snapshot.data;
+
+            return Text('${snap}');
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  Text(''),
+                ],
+              ),
+            );
+          }
+        });
   }
 
   String getStringToTime(double valor) {
@@ -717,7 +873,7 @@ class RotaState extends State<rota> {
               addMarkerTracker(currentCenter);
               removeMarkerDb();
               addMarkerDbTracker();
-              direcao(currentCenter.latitude, currentCenter.longitude);
+              direcao();
             });
           }
         });
@@ -735,32 +891,30 @@ class RotaState extends State<rota> {
     }
   }
 
-  void direcao(double lat, double long) {
+  List<RoadInstruction> direcao() {
     String final_ponto = 'You have reached a waypoint of your trip';
-    listaDirecao.forEach((element) {
-      element.instruction.replaceAll(RegExp('%s'), element.distance.toString());
-    });
-
     for (int i = 0; i < listaDirecao.length; i++) {
-      
       if (listaDirecao[i].instruction.contains(final_ponto)) {
-        direcaoSeta(listaDirecao[i + 1].instruction);
+        iconeDirecao.value = direcaoSeta(listaDirecao[i + 1].instruction);
       }
     }
+
+    return listaDirecao;
   }
 
-  void direcaoSeta(String directions) {
-    print(directions);
-
+  IconData direcaoSeta(String directions) {
+    IconData icone = Icons.gpp_maybe_outlined;
     if (directions.contains('left')) {
-      iconeDirecao.value = Icons.turn_left;
+      icone = Icons.turn_left;
     } else if (directions.contains('Continue')) {
-      iconeDirecao.value = Icons.arrow_upward;
+      icone = Icons.arrow_upward;
     } else if (directions.contains('right')) {
-      iconeDirecao.value = Icons.turn_right;
+      icone = Icons.turn_right;
     } else if (directions.contains('Go on')) {
-      iconeDirecao.value = Icons.arrow_upward;
+      icone = Icons.arrow_upward;
     }
+
+    return icone;
   }
 
   Future<void> adicionaMarcador(double lat, double long) async {

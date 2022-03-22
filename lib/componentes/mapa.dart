@@ -1,17 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:ffi';
-import 'package:http/http.dart';
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
+import 'package:localiza_favoritos/componentes/cacche_disco.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:intl/intl.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:geocoder2/geocoder2.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
@@ -116,6 +112,7 @@ class MapaState extends State<mapa> {
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
         TextEditingController();
+    var _needLoadingError = true;
 
     return Scaffold(
       appBar: AppBar(
@@ -126,22 +123,42 @@ class MapaState extends State<mapa> {
           FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                  maxZoom: 18,
-                  minZoom: 4,
-                  center: currentCenter,
-                  zoom: zoomAtual,
-                  onTap: (k, latlng) {
-                    removeMarker();
-                    setState(() {
-                      addMarker(latlng);
-                    });
-                  },
-                  plugins: []),
+                maxZoom: 18,
+                minZoom: 4,
+                center: currentCenter,
+                zoom: zoomAtual,
+                onTap: (k, latlng) {
+                  removeMarker();
+                  setState(() {
+                    addMarker(latlng);
+                  });
+                },
+                plugins: [],
+                slideOnBoundaries: true,
+                screenSize: MediaQuery.of(context).size,
+              ),
               layers: [
                 TileLayerOptions(
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c']),
+                    subdomains: ['a', 'b', 'c'],
+                    //tileProvider:  CachedNetworkTileProvider(),
+                     updateInterval: 1,
+                    errorTileCallback: (Tile tile, error) {
+                      if (_needLoadingError) {
+                        WidgetsBinding.instance!.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: Duration(seconds: 1),
+                            content: Text(
+                              error.toString(),
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.deepOrange,
+                          ));
+                        });
+                        _needLoadingError = false;
+                      }
+                    }),
                 MarkerLayerOptions(markers: [
                   for (int i = 0; i < markers.length; i++) markers[i]
                 ]),
@@ -153,35 +170,35 @@ class MapaState extends State<mapa> {
                     markersTracker[i],
                 ]),
               ]),
-              Positioned(
-        bottom: 30.0,
-        left: 20.0,
-        child: FloatingActionButton.extended(
-          heroTag: 'rota',
-          elevation: 50,
-          backgroundColor: Colors.deepOrangeAccent,
-          onPressed: () {
-            String xe =
-                'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
-            print(xe);
+          Positioned(
+            bottom: 30.0,
+            left: 20.0,
+            child: FloatingActionButton.extended(
+              heroTag: 'rota',
+              elevation: 50,
+              backgroundColor: Colors.deepOrangeAccent,
+              onPressed: () {
+                String xe =
+                    'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
+                print(xe);
 
-            if (rastreio.value == true) {
-              atualyPosition();
-            }
+                if (rastreio.value == true) {
+                  atualyPosition();
+                }
 
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => rota(currentCenter),
-                ));
-          },
-          icon: Transform.rotate(
-            angle: 150 * pi / 100,
-            child: Icon(Icons.send_outlined),
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => rota(currentCenter),
+                    ));
+              },
+              icon: Transform.rotate(
+                angle: 150 * pi / 100,
+                child: Icon(Icons.send_outlined),
+              ),
+              label: Text('Navegar'),
+            ),
           ),
-          label: Text('Navegar'),
-        ),
-      ),
           Positioned(
             top: 130.0,
             right: 20.0,
@@ -343,7 +360,7 @@ class MapaState extends State<mapa> {
           ),
         ]),
       ),
-      //floatingActionButton: 
+     
     );
   }
 
