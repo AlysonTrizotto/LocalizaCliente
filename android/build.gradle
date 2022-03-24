@@ -1,5 +1,15 @@
 buildscript {
-    ext.kotlin_version = '1.5.21'
+    //ext.kotlin_version = '1.5.21'
+    ext.kotlin_version = '1.6.10'
+    //
+     ext {
+        compileSdkVersion   = 31
+        targetSdkVersion    = 29
+        minSdkVersion       = 23
+        appCompatVersion    = "1.1.0"
+    }
+    //
+
     
     repositories {
         google()
@@ -19,6 +29,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+           // [required] background_fetch
+           url "${project(':background_fetch').projectDir}/libs"
+       }
     }
 }
 

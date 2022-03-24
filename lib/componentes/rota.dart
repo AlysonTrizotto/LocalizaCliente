@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:math';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +14,7 @@ import 'package:geocoder2/geocoder2.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
+import 'package:localiza_favoritos/componentes/cacche_disco.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
@@ -179,7 +181,11 @@ class RotaState extends State<rota> {
         body: Center(
           child: Stack(
             children: [
-              FlutterMap(
+              FutureBuilder(
+                  future: pegaDiretorio(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return FlutterMap(
                   mapController: mapController,
                   options: MapOptions(
                     maxZoom: 18,
@@ -192,28 +198,35 @@ class RotaState extends State<rota> {
                   ),
                   layers: [
                     TileLayerOptions(
-                        urlTemplate:
-                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                        subdomains: ['a', 'b', 'c'],
+                      tileProvider: StorageCachingTileProvider(
+                              cachedValidDuration: Duration(days: 15),
+                              storeName: 'Nome',
+                              parentDirectory: Directory(snapshot.data),
+                            ),
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                            updateInterval: 1,
+                            errorTileCallback: (Tile tile, error) {
+                              if (_needLoadingError) {
+                                WidgetsBinding.instance!
+                                    .addPostFrameCallback((_) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    duration: Duration(seconds: 1),
+                                    content: Text(
+                                      error.toString(),
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    backgroundColor: Colors.deepOrange,
+                                  ));
+                                });
 
-                        ///tileProvider:  titulo,
-                        updateInterval: 1,
-                        errorTileCallback: (Tile tile, error) {
-                          if (_needLoadingError) {
-                            WidgetsBinding.instance!.addPostFrameCallback((_) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                duration: Duration(seconds: 1),
-                                content: Text(
-                                  error.toString(),
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                                backgroundColor: Colors.deepOrange,
-                              ));
-                            });
-                            _needLoadingError = false;
-                          }
-                        }),
+                                _needLoadingError = false;
+                              }
+                              throw Exception(
+                                  'Unknown error, description: $error');
+                            }),
                     PolylineLayerOptions(
                       polylines: [
                         Polyline(
@@ -237,7 +250,21 @@ class RotaState extends State<rota> {
                     MarkerLayerOptions(markers: [
                       for (int i = 0; i < markerDb.length; i++) markerDb[i]
                     ]),
-                  ]),
+                  ]);
+                    } else {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            Text('Carregando Mapa'),
+                          ],
+                        ),
+                      );
+                    }
+                  }),
+              
               Visibility(
                 visible: true,
                 child: Stack(
@@ -504,9 +531,9 @@ class RotaState extends State<rota> {
                             SizedBox(
                               child: Card(
                                 elevation: 50,
-                                
                                 color: Colors.white,
-                                child: Text('Direção', style: TextStyle(fontSize: 20)),
+                                child: Text('Direção',
+                                    style: TextStyle(fontSize: 20)),
                               ),
                             ),
                             Container(

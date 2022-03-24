@@ -9,7 +9,9 @@ import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
+import 'package:path_provider/path_provider.dart';
 import 'screens/dashboard/inicio.dart';
+import 'dart:io';
 
 void main() {
   runApp(CLHApp());
@@ -21,15 +23,16 @@ class CLHApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: localizaTema,
-       debugShowCheckedModeBanner: false,
-      //home: FormularioCategoria(),
-      // home: FormularioCadastro(0.0,0.0),
-       home: dashboard(0),
+      debugShowCheckedModeBanner: false,
+      //home: mapa(),
+      //home: FormularioCadastro(0.0,0.0),
+      home: dashboard(0),
 
-       routes: {
-         '/retornoEditaFavorios' : (BuildContext context) => dashboard(1),
-       },
-      
+      routes: {
+        '/retornoEditaFavorios': (BuildContext context) => dashboard(1),
+      },
     );
   }
+
+  
 }

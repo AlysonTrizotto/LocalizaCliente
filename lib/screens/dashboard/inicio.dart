@@ -1,20 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
-
-class formularioDashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Colors.blueGrey[400],
-      ),
-      home: dashboard(0),
-    );
-  }
-}
 
 class dashboard extends StatefulWidget {
   final int Index;
@@ -29,14 +18,9 @@ class dashboard extends StatefulWidget {
 class dashboardState extends State<dashboard> {
   final int Index;
   dashboardState(this.Index);
+
   late int _selectedIndex = Index;
   late String titulo = 'Dashboard';
-
-  final List<Widget> _telas = [
-    NewPageScreenMapas(),
-    NewPageScreenPesquisa(),
-    NewPageScreenFormCad(),
-  ];
 
   static const TextStyle optionStyle = TextStyle(
     fontSize: 30,
@@ -51,6 +35,11 @@ class dashboardState extends State<dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _telas = [
+      NewPageScreenMapas(),
+      NewPageScreenPesquisa(),
+      NewPageScreenFormCad(),
+    ];
     return Scaffold(
         body: _telas[_selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
@@ -86,6 +75,7 @@ class dashboardState extends State<dashboard> {
 }
 
 class NewPageScreenMapas extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return mapa();
