@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
-import 'package:localiza_favoritos/componentes/cacche_disco.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 
@@ -109,8 +108,6 @@ class MapaState extends State<mapa> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final TextEditingController controladorCampoPesquisa =
@@ -123,10 +120,12 @@ class MapaState extends State<mapa> {
       body: Center(
         child: Stack(children: [
           FutureBuilder(
-              future: pegaDiretorio(),
+              future: MapCachingManager.normalCache,
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  return FlutterMap(
+                  print(snapshot.data);
+                  
+                  return FlutterMap(  
                       mapController: mapController,
                       options: MapOptions(
                         maxZoom: 18,
@@ -144,14 +143,9 @@ class MapaState extends State<mapa> {
                         screenSize: MediaQuery.of(context).size,
                       ),
                       layers: [
-                        TileLayerOptions(                            
-                            tileProvider: StorageCachingTileProvider(
-                              cachedValidDuration: Duration(days: 15),
-                              storeName: 'Nome',
-                              parentDirectory: Directory(snapshot.data),
-                            ),
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        TileLayerOptions(
+                           
+                            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ,
                             subdomains: ['a', 'b', 'c'],
                             updateInterval: 1,
                             errorTileCallback: (Tile tile, error) {
@@ -197,6 +191,57 @@ class MapaState extends State<mapa> {
                   );
                 }
               }),
+          /*FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                maxZoom: 18,
+                minZoom: 4,
+                center: currentCenter,
+                zoom: zoomAtual,
+                onTap: (k, latlng) {
+                  removeMarker();
+                  setState(() {
+                    addMarker(latlng);
+                  });
+                },
+                plugins: [],
+                slideOnBoundaries: true,
+                screenSize: MediaQuery.of(context).size,
+              ),
+              layers: [
+                TileLayerOptions(
+                    tileProvider: NetworkTileProvider(),
+                    urlTemplate: 
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a', 'b', 'c'],
+                    updateInterval: 1,
+                    errorTileCallback: (Tile tile, error) {
+                      if (_needLoadingError) {
+                        WidgetsBinding.instance!.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: Duration(seconds: 1),
+                            content: Text(
+                              error.toString(),
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.deepOrange,
+                          ));
+                        });
+                        _needLoadingError = false;
+                      }
+                      throw Exception('Unknown error, description: $error');
+                    }),
+                MarkerLayerOptions(markers: [
+                  for (int i = 0; i < markers.length; i++) markers[i]
+                ]),
+                MarkerLayerOptions(markers: [
+                  for (int i = 0; i < markerDb.length; i++) markerDb[i]
+                ]),
+                MarkerLayerOptions(markers: [
+                  for (int i = 0; i < markersTracker.length; i++)
+                    markersTracker[i],
+                ]),
+              ]),*/
           Positioned(
             bottom: 30.0,
             left: 20.0,

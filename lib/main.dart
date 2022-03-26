@@ -13,9 +13,10 @@ import 'package:path_provider/path_provider.dart';
 import 'screens/dashboard/inicio.dart';
 import 'dart:io';
 
-void main() {
+void main() async {
   runApp(CLHApp());
 }
+
 
 // ignore: use_key_in_widget_constructors
 class CLHApp extends StatelessWidget {
@@ -33,6 +34,4 @@ class CLHApp extends StatelessWidget {
       },
     );
   }
-
-  
 }
