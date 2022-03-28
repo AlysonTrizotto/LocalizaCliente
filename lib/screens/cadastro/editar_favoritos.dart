@@ -4,7 +4,6 @@ import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
-import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 
 class editaFavoritos extends StatefulWidget {
   final int id;
@@ -12,7 +11,7 @@ class editaFavoritos extends StatefulWidget {
   final String lat;
   final String long;
   final int categoria;
-  editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria);
+  const editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria, {Key? key}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return editaFavoritosState(
@@ -28,7 +27,7 @@ class editaFavoritosState extends State<editaFavoritos> {
   final int categoria;
   editaFavoritosState(this.id, this.nome, this.lat, this.long, this.categoria);
 
-  final double tamanhp_fonte = 16.0;
+  final double tamanhoFonte = 16.0;
   String campoVazio = '';
   late int itemInicial = categoria;
 
@@ -40,12 +39,13 @@ class editaFavoritosState extends State<editaFavoritos> {
       TextEditingController();
   var _selectedValue;
 
+  @override
   void initState() {
     super.initState();
 
-    controladorCampoNome = new TextEditingController(text: nome);
-    controladorCampoLatE = new TextEditingController(text: lat.toString());
-    controladorCampoLongE = new TextEditingController(text: lat.toString());
+    controladorCampoNome =  TextEditingController(text: nome);
+    controladorCampoLatE =  TextEditingController(text: lat.toString());
+    controladorCampoLongE =  TextEditingController(text: lat.toString());
   }
 
   void disponse() {
@@ -56,7 +56,7 @@ class editaFavoritosState extends State<editaFavoritos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Editar Cadastro'),
+        title: const Text('Editar Cadastro'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -70,7 +70,7 @@ class editaFavoritosState extends State<editaFavoritos> {
               edit_text_geral(controladorCampoLongE, '15.523', 'Longitude',
                   Icons.map_sharp, false),
               FutureBuilder(
-                  future: Future.delayed(Duration(seconds: 1))
+                  future: Future.delayed(const Duration(seconds: 1))
                       .then((value) => _daoCateg.findAll_categoria()),
                   builder: (context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
@@ -88,7 +88,7 @@ class editaFavoritosState extends State<editaFavoritos> {
                               if (_cadastro[i].nome_categoria ==
                                   _selectedValue) {
                                 itemInicial = _cadastro[i].id_categoria;
-                                print(itemInicial);
+                               
                               }
                             }
                           });
@@ -100,14 +100,14 @@ class editaFavoritosState extends State<editaFavoritos> {
                             value: map.nome_categoria.toString(),
                           );
                         }).toList(),
-                        hint: Text('Selecione uma categoria'),
+                        hint: const Text('Selecione uma categoria'),
                       );
                     } else {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+                          children: const [
                             CircularProgressIndicator(),
                             Text('Carregando favoritos'),
                           ],
@@ -118,7 +118,7 @@ class editaFavoritosState extends State<editaFavoritos> {
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                  child: Text('Confirmar'),
+                  child: const Text('Confirmar'),
                   onPressed: () {
                     if (controladorCampoNome.text.length > 2) {
                       _criaCadastro(
@@ -136,10 +136,10 @@ class editaFavoritosState extends State<editaFavoritos> {
                       controladorCampoLongE.clear();
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content:
-                              const Text('Cadastro realizado com sucesso!'),
-                          duration: const Duration(milliseconds: 1500),
+                              Text('Cadastro realizado com sucesso!'),
+                          duration: Duration(milliseconds: 1500),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -149,12 +149,12 @@ class editaFavoritosState extends State<editaFavoritos> {
                         builder: (BuildContext context) {
                           // retorna um objeto do tipo Dialog
                           return AlertDialog(
-                            title: new Text("Não é possível salvar alteração"),
-                            content: new Text("Preencha o campo NOME"),
+                            title: const Text("Não é possível salvar alteração"),
+                            content: const Text("Preencha o campo NOME"),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                              new FlatButton(
-                                child: new Text("Fechar"),
+                               FlatButton(
+                                child:  const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -175,20 +175,12 @@ class editaFavoritosState extends State<editaFavoritos> {
   }
 }
 
-void _criaCadastro(int id, String _Nome, String Lat, String Long, int id_categ,
+void _criaCadastro(int id, String nome, String lat, String long, int idCateg,
     BuildContext context) {
   final favoritosDao _dao = favoritosDao();
-  print(id_categ);
-  final CadastroCriado = redistro_favoritos(id, _Nome, Lat, Long, id_categ);
-  _dao.editar_favoritos(CadastroCriado);
 
-  //Navigator.pushReplacementNamed(context, '/retornoEditaFavorios');
+  final cadastroCriado = redistro_favoritos(id, nome, lat, long, idCateg);
+  _dao.editar_favoritos(cadastroCriado);
 
-  /*
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => NewPageScreenPesquisa()),
-  );
-  */
-  Navigator.pop(context, CadastroCriado);
+   Navigator.pop(context, cadastroCriado);
 }

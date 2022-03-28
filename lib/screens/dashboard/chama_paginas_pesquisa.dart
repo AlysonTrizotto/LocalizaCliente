@@ -2,33 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 import 'package:localiza_favoritos/screens/listas/lista_pesquisa.dart';
 
-class chama_paginas_pesquisa extends StatefulWidget {
+class chamaPaginasPesquisa extends StatefulWidget {
+  const chamaPaginasPesquisa({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
-    return chama_paginas_pesquisaState();
+    return chamaPaginasPesquisaState();
   }
 }
 
-class chama_paginas_pesquisaState extends State<chama_paginas_pesquisa> {
+class chamaPaginasPesquisaState extends State<chamaPaginasPesquisa> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
   length: 2,
   child: Scaffold(
     appBar: AppBar(
-        bottom: TabBar(
+        bottom: const TabBar(
             indicatorColor: Colors.deepOrangeAccent,
             indicatorSize: TabBarIndicatorSize.label,
             tabs: [
               Tab(
                 text: 'Categoria',
               ),
-              Tab(
+               Tab(
                 text: 'Favoritos',
               )
             ],
           ),
-        title: Text('Pesquisa'),
+        title: const Text('Pesquisa'),
       ),
       body: TabBarView(
         children: [

@@ -2,11 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
-import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
-import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
-import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
-import 'package:localiza_favoritos/screens/listas/lista_categoria.dart';
 
 class FormularioCategoria extends StatefulWidget {
   @override
@@ -21,10 +17,11 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
 
   late TextEditingController controladorCampoNome = TextEditingController();
 
+  @override
   void initState() {
     super.initState();
 
-    controladorCampoNome = new TextEditingController(text: '');
+    controladorCampoNome = TextEditingController(text: '');
   }
 
   void disponse() {
@@ -34,12 +31,12 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
   @override
   Widget build(BuildContext context) {
     String campoVazio = '';
-    String Cor = '';
+    String cor = '';
 
-    final double tamanho_iconeCor = 40.0;
+    const double tamanhoIconeCor = 40.0;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro'),
+        title: const Text('Cadastro'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -48,175 +45,161 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
             children: <Widget>[
               edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded, true),
-              Container(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Wrap(
-                      direction: Axis.horizontal,
-                      spacing: 8,
-                      runSpacing: 15,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou amberAccent');
-                            Cor = 'amberAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.amberAccent,
-                            size: tamanho_iconeCor,
-                          ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Wrap(
+                    direction: Axis.horizontal,
+                    spacing: 8,
+                    runSpacing: 15,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'amberAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.amberAccent,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou amber');
-                            Cor = 'amber';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.amber,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'amber';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.amber,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou orangeAccent');
-                            Cor = 'orangeAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.orangeAccent,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'orangeAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.orangeAccent,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou orange');
-                            Cor = 'orange';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.orange,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'orange';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.orange,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou orangeAccent');
-                            Cor = 'orangeAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.redAccent,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'orangeAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.redAccent,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou red');
-                            Cor = 'red';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.red,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'red';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.red,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou purpleAccent');
-                            Cor = 'purpleAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.purpleAccent,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'purpleAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.purpleAccent,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou purple');
-                            Cor = 'purple';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.purple,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'purple';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.purple,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou blueAccent');
-                            Cor = 'blueAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.blueAccent,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'blueAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.blueAccent,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou blue');
-                            Cor = 'blue';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.blue,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'blue';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.blue,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou green');
-                            Cor = 'green';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.green,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'green';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Colors.green,
+                          size: tamanhoIconeCor,
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print('Gestou greenAccent');
-                            Cor = 'greenAccent';
-                          },
-                          child: Icon(
-                            Icons.radio_button_checked,
-                            color: Colors.greenAccent,
-                            size: tamanho_iconeCor,
-                          ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          cor = 'greenAccent';
+                        },
+                        child: const Icon(
+                          Icons.radio_button_checked,
+                          color: Color.fromARGB(255, 21, 34, 28),
+                          size: tamanhoIconeCor,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                  child: Text('Confirmar'),
+                  child: const Text('Confirmar'),
                   onPressed: () {
-                    if (controladorCampoNome.text.length != 0) {
+                    if (controladorCampoNome.text.isNotEmpty) {
                       _criaCadastro(
-                          controladorCampoNome.text, Cor, 'Icone', context);
+                          controladorCampoNome.text, cor, 'Icone', context);
 
                       controladorCampoNome.clear();
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content:
-                              const Text('Cadastro realizado com sucesso!'),
-                          duration: const Duration(milliseconds: 1500),
+                              Text('Cadastro realizado com sucesso!'),
+                          duration: Duration(milliseconds: 1500),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
                     } else {
                       campoVazio = '';
-                      if (controladorCampoNome.text.length == 0) {
+                      if (controladorCampoNome.text.isEmpty) {
                         campoVazio = ' Nome\n';
                       }
                       showDialog(
@@ -224,13 +207,13 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
                         builder: (BuildContext context) {
                           // retorna um objeto do tipo Dialog
                           return AlertDialog(
-                            title: new Text("Não é permitido campos vazios"),
+                            title: const Text("Não é permitido campos vazios"),
                             content:
-                                new Text("Preencha os campos: \n" + campoVazio),
+                                Text("Preencha os campos: \n" + campoVazio),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                              new FlatButton(
-                                child: new Text("Fechar"),
+                               FlatButton(
+                                child: const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -252,9 +235,9 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
 }
 
 void _criaCadastro(
-    String Nome, String Cor, String Icone, BuildContext context) {
+    String nome, String cor, String icone, BuildContext context) {
   final categoriaDao _dao = categoriaDao();
 
-  final CadastroCriado = registro_categoria(0, Nome, Cor, Icone);
-  _dao.save_corategoria(CadastroCriado);
+  final cadastroCriado = registro_categoria(0, nome, cor, icone);
+  _dao.save_corategoria(cadastroCriado);
 }

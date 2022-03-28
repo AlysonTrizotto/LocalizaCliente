@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
-import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
 class dashboard extends StatefulWidget {
-  final int Index;
-  dashboard(this.Index);
+  final int index;
+  const dashboard(this.index, {Key? key}) : super(key: key);
   static String tag = 'Dashboard';
   @override
   State<StatefulWidget> createState() {
-    return dashboardState(Index);
+    return dashboardState(index);
   }
 }
 
 class dashboardState extends State<dashboard> {
-  final int Index;
-  dashboardState(this.Index);
+  final int index;
+  dashboardState(this.index);
 
-  late int _selectedIndex = Index;
+  late int _selectedindex = index;
   late String titulo = 'Dashboard';
 
   static const TextStyle optionStyle = TextStyle(
@@ -29,23 +27,23 @@ class dashboardState extends State<dashboard> {
 
   void onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _selectedindex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> _telas = [
-      NewPageScreenMapas(),
-      NewPageScreenPesquisa(),
-      NewPageScreenFormCad(),
+      const NewPageScreenMapas(),
+      const NewPageScreenPesquisa(),
+      const NewPageScreenFormCad(),
     ];
     return Scaffold(
-        body: _telas[_selectedIndex],
+        body: _telas[_selectedindex],
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
+          currentIndex: _selectedindex,
           onTap: onItemTapped,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.map_rounded),
               label: 'Mapa',
@@ -63,9 +61,9 @@ class dashboardState extends State<dashboard> {
             )
           ],
           selectedItemColor: Colors.white,
-          selectedIconTheme: IconThemeData(color: Colors.white, size: 40),
+          selectedIconTheme: const IconThemeData(color: Colors.white, size: 40),
           selectedFontSize: 20,
-          unselectedIconTheme: IconThemeData(
+          unselectedIconTheme: const IconThemeData(
             color: Colors.deepOrangeAccent,
           ),
           unselectedItemColor: Colors.deepOrangeAccent,
@@ -75,6 +73,7 @@ class dashboardState extends State<dashboard> {
 }
 
 class NewPageScreenMapas extends StatelessWidget {
+  const NewPageScreenMapas({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -83,13 +82,17 @@ class NewPageScreenMapas extends StatelessWidget {
 }
 
 class NewPageScreenPesquisa extends StatelessWidget {
+  const NewPageScreenPesquisa({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return chama_paginas_pesquisa();
+    return const chamaPaginasPesquisa();
   }
 }
 
 class NewPageScreenFormCad extends StatelessWidget {
+  const NewPageScreenFormCad({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return FormularioCategoria();

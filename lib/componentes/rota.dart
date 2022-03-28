@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:math';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 
@@ -180,86 +179,65 @@ class RotaState extends State<rota> {
         body: Center(
           child: Stack(
             children: [
-              FutureBuilder(
-                 
-                  builder: (context, AsyncSnapshot snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return FlutterMap(
-                          mapController: mapController,
-                          options: MapOptions(
-                            maxZoom: 18,
-                            minZoom: 4,
-                            center: currentCenter,
-                            zoom: zoomAtual,
-                            plugins: [],
-                            slideOnBoundaries: true,
-                            screenSize: MediaQuery.of(context).size,
-                          ),
-                          layers: [
-                            TileLayerOptions(
-                                
-                                urlTemplate:
-                                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                subdomains: ['a', 'b', 'c'],
-                                updateInterval: 1,
-                                errorTileCallback: (Tile tile, error) {
-                                  if (_needLoadingError) {
-                                    WidgetsBinding.instance!
-                                        .addPostFrameCallback((_) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        duration: Duration(seconds: 1),
-                                        content: Text(
-                                          error.toString(),
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        backgroundColor: Colors.deepOrange,
-                                      ));
-                                    });
+              FlutterMap(
+                  mapController: mapController,
+                  options: MapOptions(
+                    maxZoom: 18,
+                    minZoom: 4,
+                    center: currentCenter,
+                    zoom: zoomAtual,
+                    plugins: [],
+                    slideOnBoundaries: true,
+                    screenSize: MediaQuery.of(context).size,
+                  ),
+                  layers: [
+                    TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
+                        updateInterval: 1,
+                        errorTileCallback: (Tile tile, error) {
+                          if (_needLoadingError) {
+                            WidgetsBinding.instance!.addPostFrameCallback((_) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                duration: Duration(seconds: 1),
+                                content: Text(
+                                  error.toString(),
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                backgroundColor: Colors.deepOrange,
+                              ));
+                            });
 
-                                    _needLoadingError = false;
-                                  }
-                                  throw Exception(
-                                      'Unknown error, description: $error');
-                                }),
-                            PolylineLayerOptions(
-                              polylines: [
-                                Polyline(
-                                    points: points,
-                                    strokeWidth: 4.0,
-                                    color: Colors.purple),
-                              ],
-                            ),
-                            MarkerLayerOptions(markers: [
-                              for (int i = 0; i < markersInit.length; i++)
-                                markersInit[i]
-                            ]),
-                            MarkerLayerOptions(markers: [
-                              for (int i = 0; i < markersFinal.length; i++)
-                                markersFinal[i]
-                            ]),
-                            MarkerLayerOptions(markers: [
-                              for (int i = 0; i < markersTracker.length; i++)
-                                markersTracker[i],
-                            ]),
-                            MarkerLayerOptions(markers: [
-                              for (int i = 0; i < markerDb.length; i++)
-                                markerDb[i]
-                            ]),
-                          ]);
-                    } else {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(),
-                            Text('Carregando Mapa'),
-                          ],
-                        ),
-                      );
-                    }
-                  }),
+                            _needLoadingError = false;
+                          }
+                          throw Exception('Unknown error, description: $error');
+                        }),
+                    PolylineLayerOptions(
+                      polylines: [
+                        Polyline(
+                            points: points,
+                            strokeWidth: 4.0,
+                            color: Colors.purple),
+                      ],
+                    ),
+                    MarkerLayerOptions(markers: [
+                      for (int i = 0; i < markersInit.length; i++)
+                        markersInit[i]
+                    ]),
+                    MarkerLayerOptions(markers: [
+                      for (int i = 0; i < markersFinal.length; i++)
+                        markersFinal[i]
+                    ]),
+                    MarkerLayerOptions(markers: [
+                      for (int i = 0; i < markersTracker.length; i++)
+                        markersTracker[i],
+                    ]),
+                    MarkerLayerOptions(markers: [
+                      for (int i = 0; i < markerDb.length; i++) markerDb[i]
+                    ]),
+                  ]),
               Visibility(
                 visible: true,
                 child: Stack(

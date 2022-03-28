@@ -9,6 +9,8 @@ class lista_categoria extends StatelessWidget {
 
   static const IconData local_pharmacy =
       IconData(0xe39e, fontFamily: 'MaterialIcons');
+
+  lista_categoria({Key? key}) : super(key: key);
   // Classe que apresenta os dados
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class lista_categoria extends StatelessWidget {
               Container(
                 height: MediaQuery.of(context).size.height - 263,
                 child: FutureBuilder(
-                    future: Future.delayed(Duration(seconds: 1))
+                    future: Future.delayed(const Duration(seconds: 1))
                         .then((value) => _dao.find_categoria('')),
                     builder: (context, AsyncSnapshot snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
@@ -42,7 +44,7 @@ class lista_categoria extends StatelessWidget {
                             final registro_categoria cadastro =
                                 _cadastro[indice];
 
-                            return ListaPesquisa(cadastro);
+                            return listaPesquisa(cadastro);
                           },
                         );
                       } else {
@@ -50,9 +52,9 @@ class lista_categoria extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(),
-                              Text('Carregando favoritos'),
+                            children: const  [
+                               CircularProgressIndicator(),
+                               Text('Carregando favoritos'),
                             ],
                           ),
                         );
@@ -68,28 +70,41 @@ class lista_categoria extends StatelessWidget {
 }
 
 class ListaVazia extends StatelessWidget {
+  const ListaVazia({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          Text('Carregando favoritos'),
+        children: const [
+           CircularProgressIndicator(),
+           Text('Carregando favoritos'),
         ],
       ),
     );
   }
 }
 
-class ListaPesquisa extends StatelessWidget {
+class listaPesquisa extends StatefulWidget {
   final registro_categoria _pesquisa;
-  late String cor = _pesquisa.cor_categoria;
+
+  listaPesquisa(this._pesquisa);
+
+  @override
+  State<listaPesquisa> createState() => _listaPesquisaState();
+}
+
+class _listaPesquisaState extends State<listaPesquisa> {
+  late String cor = widget._pesquisa.cor_categoria;
+
   late Color _color = Colors.black;
-  ListaPesquisa(this._pesquisa);
+
   final categoriaDao _dao = categoriaDao();
+
   List<int> id = [];
+
   @override
   Widget build(BuildContext context) {
     var dist;
@@ -165,13 +180,13 @@ class ListaPesquisa extends StatelessWidget {
         motion: const DrawerMotion(),
         dismissible: DismissiblePane(onDismissed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Cadastro excluído com sucesso!'),
-              duration: const Duration(milliseconds: 1500),
+            const SnackBar(
+              content: Text('Cadastro excluído com sucesso!'),
+              duration: Duration(milliseconds: 1500),
               behavior: SnackBarBehavior.floating,
             ),
           );
-          _dao.delete_favoritos(_pesquisa.id_categoria);
+          _dao.delete_favoritos(widget._pesquisa.id_categoria);
         }),
         extentRatio: 0.25,
         children: [
@@ -181,9 +196,9 @@ class ListaPesquisa extends StatelessWidget {
             icon: Icons.delete,
             onPressed: (context) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Arraste para excluir!'),
-                  duration: const Duration(milliseconds: 1500),
+                const SnackBar(
+                  content: Text('Arraste para excluir!'),
+                  duration: Duration(milliseconds: 1500),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -203,10 +218,10 @@ class ListaPesquisa extends StatelessWidget {
                 final result = await Navigator.push(context,
                     MaterialPageRoute(builder: (context) {
                   return editaCategoria(
-                      _pesquisa.id_categoria,
-                      _pesquisa.nome_categoria,
-                      _pesquisa.cor_categoria,
-                      _pesquisa.icone_categoria);
+                      widget._pesquisa.id_categoria,
+                      widget._pesquisa.nome_categoria,
+                      widget._pesquisa.cor_categoria,
+                      widget._pesquisa.icone_categoria);
                 }));
                 if (result) {}
               }),
@@ -215,7 +230,7 @@ class ListaPesquisa extends StatelessWidget {
       closeOnScroll: true,
       child: ListTile(
         leading: Icon(Icons.people, color: _color,),
-        title: Text('Nome : ' + _pesquisa.nome_categoria),
+        title: Text('Nome : ' + widget._pesquisa.nome_categoria),
       ),
     );
   }

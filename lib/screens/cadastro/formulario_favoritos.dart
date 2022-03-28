@@ -4,16 +4,15 @@ import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
-import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
 
 class FormularioCadastro extends StatefulWidget {
   final double lat;
   final double long;
-  FormularioCadastro(this.lat, this.long);
+  const FormularioCadastro(this.lat, this.long, {Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return FormularioCadastroState(this.lat, this.long);
+    return FormularioCadastroState(lat, long);
   }
 }
 
@@ -24,7 +23,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 
   final categoriaDao _daoCateg = categoriaDao();
 
-  final double tamanhp_fonte = 16.0;
+  final double tamanhoFonte = 16.0;
 
   late TextEditingController controladorCampoNome = TextEditingController();
   late TextEditingController controladorCampoLatF = TextEditingController();
@@ -34,13 +33,14 @@ class FormularioCadastroState extends State<FormularioCadastro> {
   int itemInicial = -1;
   var _selectedValue;
 
+  @override
   void initState() {
     super.initState();
 
-    controladorCampoNome = new TextEditingController(text: '');
-    controladorCampoLatF = new TextEditingController(text: lat.toString());
-    controladorCampoLongF = new TextEditingController(text: long.toString());
-    controladorCampoCategoria = new TextEditingController(text: '');
+    controladorCampoNome = TextEditingController(text: '');
+    controladorCampoLatF = TextEditingController(text: lat.toString());
+    controladorCampoLongF = TextEditingController(text: long.toString());
+    controladorCampoCategoria = TextEditingController(text: '');
   }
 
   void disponse() {
@@ -57,7 +57,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cadastro'),
+        title: const Text('Cadastro'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
@@ -71,7 +71,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               edit_text_geral(controladorCampoLongF, '15.523', 'Longitude',
                   Icons.map_sharp, false),
               FutureBuilder(
-                  future: Future.delayed(Duration(seconds: 1))
+                  future: Future.delayed(const Duration(seconds: 1))
                       .then((value) => _daoCateg.findAll_categoria()),
                   builder: (context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
@@ -99,14 +99,14 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                             value: map.nome_categoria.toString(),
                           );
                         }).toList(),
-                        hint: Text('Selecione uma categoria'),
+                        hint: const Text('Selecione uma categoria'),
                       );
                     } else {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
+                          children: const [
                             CircularProgressIndicator(),
                             Text('Carregando favoritos'),
                           ],
@@ -117,7 +117,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
               SizedBox(
                 width: double.maxFinite,
                 child: ElevatedButton(
-                  child: Text('Confirmar'),
+                  child: const Text('Confirmar'),
                   onPressed: () {
                     if ((controladorCampoNome.text.length > 2) &&
                         (itemInicial != null)) {
@@ -134,16 +134,16 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                       controladorCampoCategoria.clear();
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content:
-                              const Text('Cadastro realizado com sucesso!'),
-                          duration: const Duration(milliseconds: 1500),
+                              Text('Cadastro realizado com sucesso!'),
+                          duration: Duration(milliseconds: 1500),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
                     } else {
                       campoVazio = '';
-                      if (controladorCampoNome.text.length == 0) {
+                      if (controladorCampoNome.text.isEmpty) {
                         campoVazio = ' Nome\n';
                       }
                       showDialog(
@@ -151,13 +151,13 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                         builder: (BuildContext context) {
                           // retorna um objeto do tipo Dialog
                           return AlertDialog(
-                            title: new Text("Não é permitido campos vazios"),
+                            title: const Text("Não é permitido campos vazios"),
                             content:
-                                new Text("Preencha os campos: \n" + campoVazio),
+                                Text("Preencha os campos: \n" + campoVazio),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                              new FlatButton(
-                                child: new Text("Fechar"),
+                              FlatButton(
+                                child: const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -179,23 +179,25 @@ class FormularioCadastroState extends State<FormularioCadastro> {
 }
 
 void _criaCadastro(
-    String Nome, String Lat, String Long, int id_categ, BuildContext context) {
+    String nome, String lat, String lng, int idCateg, BuildContext context) {
   final favoritosDao _dao = favoritosDao();
 
-  final CadastroCriado = redistro_favoritos(0, Nome, Lat, Long, id_categ);
-  _dao.save_favoritos(CadastroCriado);
+  final cadastroCriado = redistro_favoritos(0, nome, lat, lng, idCateg);
+  _dao.save_favoritos(cadastroCriado);
 }
 
 class ListaVazia extends StatelessWidget {
+  const ListaVazia({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(),
-          Text('Carregando favoritos'),
+        children: const [
+           CircularProgressIndicator(),
+           Text('Carregando favoritos'),
         ],
       ),
     );

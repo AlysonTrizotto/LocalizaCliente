@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
-
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -123,9 +122,7 @@ class MapaState extends State<mapa> {
               future: MapCachingManager.normalCache,
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
-                  print(snapshot.data);
-                  
-                  return FlutterMap(  
+                  return FlutterMap(
                       mapController: mapController,
                       options: MapOptions(
                         maxZoom: 18,
@@ -143,9 +140,14 @@ class MapaState extends State<mapa> {
                         screenSize: MediaQuery.of(context).size,
                       ),
                       layers: [
-                        TileLayerOptions(
-                           
-                            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" ,
+                        TileLayerOptions(                            
+                            tileProvider: StorageCachingTileProvider(
+                              cachedValidDuration: Duration(days: 15),
+                              storeName: 'Nome',
+                              parentDirectory: snapshot.data,
+                            ),
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                             subdomains: ['a', 'b', 'c'],
                             updateInterval: 1,
                             errorTileCallback: (Tile tile, error) {
@@ -191,7 +193,8 @@ class MapaState extends State<mapa> {
                   );
                 }
               }),
-          /*FlutterMap(
+          
+         /* FlutterMap(
               mapController: mapController,
               options: MapOptions(
                 maxZoom: 18,
@@ -210,7 +213,7 @@ class MapaState extends State<mapa> {
               ),
               layers: [
                 TileLayerOptions(
-                    tileProvider: NetworkTileProvider(),
+                   
                     urlTemplate: 
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
@@ -435,10 +438,6 @@ class MapaState extends State<mapa> {
     );
   }
 
-  void _onTileError() {
-    print("uh-oh - a tile couldn't load");
-  }
-
   void erroServidor(String err) {
     print('Servidor temporáriamente indisponível');
   }
@@ -447,9 +446,9 @@ class MapaState extends State<mapa> {
     try {
       markers.clear();
     } catch (e) {
-      print("************************\n");
+     
       print(e);
-      print("\n************************");
+      
     }
   }
 

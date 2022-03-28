@@ -9,7 +9,6 @@ import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
-import 'package:path_provider/path_provider.dart';
 import 'screens/dashboard/inicio.dart';
 import 'dart:io';
 
