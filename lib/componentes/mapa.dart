@@ -118,83 +118,7 @@ class MapaState extends State<mapa> {
       ),
       body: Center(
         child: Stack(children: [
-          FutureBuilder(
-              future: MapCachingManager.normalCache,
-              builder: (context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  return FlutterMap(
-                      mapController: mapController,
-                      options: MapOptions(
-                        maxZoom: 18,
-                        minZoom: 4,
-                        center: currentCenter,
-                        zoom: zoomAtual,
-                        onTap: (k, latlng) {
-                          removeMarker();
-                          setState(() {
-                            addMarker(latlng);
-                          });
-                        },
-                        plugins: [],
-                        slideOnBoundaries: true,
-                        screenSize: MediaQuery.of(context).size,
-                      ),
-                      layers: [
-                        TileLayerOptions(                            
-                            tileProvider: StorageCachingTileProvider(
-                              cachedValidDuration: Duration(days: 15),
-                              storeName: 'Nome',
-                              parentDirectory: snapshot.data,
-                            ),
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                            updateInterval: 1,
-                            errorTileCallback: (Tile tile, error) {
-                              if (_needLoadingError) {
-                                WidgetsBinding.instance!
-                                    .addPostFrameCallback((_) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    duration: Duration(seconds: 1),
-                                    content: Text(
-                                      error.toString(),
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    backgroundColor: Colors.deepOrange,
-                                  ));
-                                });
-                                _needLoadingError = false;
-                              }
-                              throw Exception(
-                                  'Unknown error, description: $error');
-                            }),
-                        MarkerLayerOptions(markers: [
-                          for (int i = 0; i < markers.length; i++) markers[i]
-                        ]),
-                        MarkerLayerOptions(markers: [
-                          for (int i = 0; i < markerDb.length; i++) markerDb[i]
-                        ]),
-                        MarkerLayerOptions(markers: [
-                          for (int i = 0; i < markersTracker.length; i++)
-                            markersTracker[i],
-                        ]),
-                      ]);
-                } else {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando Mapa'),
-                      ],
-                    ),
-                  );
-                }
-              }),
-          
-         /* FlutterMap(
+          FlutterMap(
               mapController: mapController,
               options: MapOptions(
                 maxZoom: 18,
@@ -213,8 +137,7 @@ class MapaState extends State<mapa> {
               ),
               layers: [
                 TileLayerOptions(
-                   
-                    urlTemplate: 
+                    urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                     updateInterval: 1,
@@ -244,7 +167,7 @@ class MapaState extends State<mapa> {
                   for (int i = 0; i < markersTracker.length; i++)
                     markersTracker[i],
                 ]),
-              ]),*/
+              ]),
           Positioned(
             bottom: 30.0,
             left: 20.0,
@@ -446,9 +369,7 @@ class MapaState extends State<mapa> {
     try {
       markers.clear();
     } catch (e) {
-     
       print(e);
-      
     }
   }
 
@@ -942,6 +863,8 @@ class MapaState extends State<mapa> {
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
             mapController.move(currentCenter, 17);
+            double? rotacao = currentLocation.heading;
+            mapController.rotate(rotacao!);
             addMarkerTracker(currentCenter);
             removeMarkerDb();
             addMarkerDbTracker();

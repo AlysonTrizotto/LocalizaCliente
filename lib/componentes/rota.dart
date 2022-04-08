@@ -13,6 +13,7 @@ import 'package:geocoder2/geocoder2.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
+import 'package:localiza_favoritos/componentes/convert_metros_km.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
@@ -75,6 +76,7 @@ class RotaState extends State<rota> {
   ValueNotifier<String> tempoRota = ValueNotifier('00:00');
   ValueNotifier<IconData> iconeDirecao =
       ValueNotifier(Icons.gpp_maybe_outlined);
+  ValueNotifier<double> direcaoGraus = ValueNotifier(0);
 
   bool _isVisible = false;
   bool _isVisibleContainerRota = true;
@@ -294,16 +296,12 @@ class RotaState extends State<rota> {
                       elevation: 50,
                       backgroundColor: Colors.deepOrangeAccent,
                       icon: Icon(Icons.directions_car_filled_outlined),
-                      label: Text(
-                        'IR',
-                      ),
+                      label: const Text('IR'),
                       onPressed: () {
                         //points.clear();
-                        print(points);
                         setState(() {
                           routeHelper();
                         });
-                        //print(points);
                       }),
                 ),
               ),
@@ -315,15 +313,15 @@ class RotaState extends State<rota> {
                   FloatingActionButton(
                     heroTag: 'zoomIn',
                     elevation: 50,
-                    child: Icon(Icons.add),
-                    backgroundColor: Color(0xFF101427),
+                    child: const Icon(Icons.add),
+                    backgroundColor: const Color(0xFF101427),
                     onPressed: () async => _zoomIn(),
                     mini: true,
                   ),
                   FloatingActionButton(
                     heroTag: 'zoomOut',
                     elevation: 50,
-                    child: Icon(Icons.remove),
+                    child: const Icon(Icons.remove),
                     backgroundColor: Color(0xFF101427),
                     onPressed: () async => _zoomOut(),
                     mini: true,
@@ -336,7 +334,7 @@ class RotaState extends State<rota> {
                 child: FloatingActionButton(
                   heroTag: 'localizador',
                   elevation: 50,
-                  backgroundColor: Color(0xFF101427),
+                  backgroundColor: const Color(0xFF101427),
                   onPressed: () async {
                     atualyPosition();
                   },
@@ -344,12 +342,12 @@ class RotaState extends State<rota> {
                     valueListenable: rastreio,
                     builder: (ctx, isTracking, _) {
                       if (isTracking) {
-                        return Icon(
+                        return const Icon(
                           Icons.my_location,
                           color: Color.fromARGB(255, 226, 215, 215),
                         );
                       }
-                      return Icon(Icons.gps_off_sharp,
+                      return const Icon(Icons.gps_off_sharp,
                           color: Colors.deepOrangeAccent);
                     },
                   ),
@@ -358,7 +356,7 @@ class RotaState extends State<rota> {
               Visibility(
                 visible: containerPesquisa.value,
                 child: SlidingUpPanel(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24.0),
                       topRight: Radius.circular(24.0)),
                   minHeight: 110.0,
@@ -380,7 +378,7 @@ class RotaState extends State<rota> {
                                   child: TextField(
                                     controller: controladorCampoPesquisa,
                                     decoration: InputDecoration(
-                                      prefixIcon: Icon(
+                                      prefixIcon: const Icon(
                                         Icons.location_on_outlined,
                                         color: Colors.black,
                                       ),
@@ -390,12 +388,11 @@ class RotaState extends State<rota> {
                                             pesquisa =
                                                 controladorCampoPesquisa.text;
                                             if (pesquisa.length > 3) {
-                                              print(pesquisa);
                                               estadoBtnNavegarFalse();
                                             }
                                           });
                                         },
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.search,
                                           color: Colors.black,
                                         ),
@@ -420,7 +417,7 @@ class RotaState extends State<rota> {
                                         return ListView.builder(
                                           shrinkWrap: true,
                                           physics:
-                                              NeverScrollableScrollPhysics(),
+                                              const NeverScrollableScrollPhysics(),
                                           itemCount: _retorno.length,
                                           itemBuilder: (context, indice) {
                                             final String _endereco =
@@ -449,7 +446,7 @@ class RotaState extends State<rota> {
                                                     child: Card(
                                                       elevation: 50,
                                                       child: ListTile(
-                                                        leading: Icon(Icons
+                                                        leading: const Icon(Icons
                                                             .location_on_outlined),
                                                         title: Text(_endereco),
                                                         subtitle: Text(
@@ -470,7 +467,7 @@ class RotaState extends State<rota> {
                                                 MainAxisAlignment.center,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
-                                            children: [
+                                            children: const [
                                               CircularProgressIndicator(),
                                               Text(''),
                                             ],
@@ -490,7 +487,7 @@ class RotaState extends State<rota> {
               Visibility(
                 visible: containerDirecao.value,
                 child: SlidingUpPanel(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24.0),
                       topRight: Radius.circular(24.0)),
                   minHeight: 110.0,
@@ -501,7 +498,7 @@ class RotaState extends State<rota> {
                         height: 500,
                         child: SingleChildScrollView(
                           child: Column(children: <Widget>[
-                            SizedBox(
+                            const SizedBox(
                               child: Card(
                                 elevation: 50,
                                 color: Colors.white,
@@ -521,7 +518,8 @@ class RotaState extends State<rota> {
 
                                       return ListView.builder(
                                         shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         itemCount: _retorno.length,
                                         itemBuilder: (context, indice) {
                                           ValueNotifier<IconData> endereco =
@@ -544,9 +542,14 @@ class RotaState extends State<rota> {
                                                   child: ListTile(
                                                     leading:
                                                         Icon(endereco.value),
-                                                    title: Text(
-                                                        '${_retorno[indice].instruction.replaceAll(' %s', ' ' + distancia.value)}'),
-                                                    subtitle: Text(''),
+                                                    title: Text(_retorno[indice]
+                                                        .instruction
+                                                        .replaceAll(
+                                                            ' %s',
+                                                            ' ' +
+                                                                distancia
+                                                                    .value)),
+                                                    subtitle: const Text(''),
                                                   ),
                                                 ),
                                               ]);
@@ -559,7 +562,7 @@ class RotaState extends State<rota> {
                                               MainAxisAlignment.center,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.center,
-                                          children: [
+                                          children: const [
                                             CircularProgressIndicator(),
                                             Text(''),
                                           ],
@@ -623,15 +626,10 @@ class RotaState extends State<rota> {
     points.clear();
     listaDirecao.clear();
 
-    //atualyPosition();
-
     List<LngLat> waypoints = [
-      LngLat(lat: lat_final, lng: lng_final),
       LngLat(lat: latLng.latitude, lng: latLng.longitude),
+      LngLat(lat: lat_final, lng: lng_final),
     ];
-
-    print(
-        'lat: ${lat_final}, lng: ${lng_final} - lat: ${latLng.latitude}, lng: ${latLng.longitude}');
 
     final manager = OSRMManager();
     final road = await manager.getTrip(
@@ -644,10 +642,8 @@ class RotaState extends State<rota> {
       languageCode: "en",
     );
 
-    print(road.instructions.toString());
-
     distanciaRota.value = convert_Metros_Km(road.distance, 1);
-    tempoRota.value = getStringToTime(road.duration);
+    tempoRota.value = getStringToTime(road.duration.toInt());
     listaDirecao = road.instructions;
 
     listaDirecao.removeWhere((element) => element.instruction == '');
@@ -667,72 +663,30 @@ class RotaState extends State<rota> {
     atualyPosition();
   }
 
-  convert_Metros_Km(double valor, int divisor) {
-    String distanciaString = '';
-    double distanciaKm = 0.0;
-    double distancia_convertida = 0.0;
-    valor = valor / divisor;
-    if (valor >= 1) {
-      distanciaKm = valor;
-      distancia_convertida = double.parse(distanciaKm.toStringAsFixed(2));
-      distanciaString = ' ${distancia_convertida.toDouble()} KM';
-    } else {
-      valor = valor * 1000;
-      num distancia_convertida = num.parse(valor.toStringAsPrecision(2));
-      distanciaString = '${valor.toInt()} Metros';
-    }
-
-    return distanciaString;
-  }
-
-  convert_Coord_End(double lat_coord, double long_coord) {
-    FutureBuilder(
-        future: Future.delayed(Duration()).then((value) {}),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            String snap = snapshot.data;
-
-            return Text('${snap}');
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  Text(''),
-                ],
-              ),
-            );
-          }
-        });
-  }
-
-  String getStringToTime(double valor) {
+  String getStringToTime(int valor) {
     if (valor < 0) return 'Tempo inválido';
 
-    valor = valor / 60;
+    var seconds = valor;
+    final days = seconds ~/ Duration.secondsPerDay;
+    seconds -= days * Duration.secondsPerDay;
+    final hours = seconds ~/ Duration.secondsPerHour;
+    seconds -= hours * Duration.secondsPerHour;
+    final minutes = seconds ~/ Duration.secondsPerMinute;
+    seconds -= minutes * Duration.secondsPerMinute;
 
-    int flooredValue = valor.floor();
-    double decimalValor = valor - flooredValue;
-    String hourValor = getHourString(flooredValue);
-    String minuteString = getMinuteString(decimalValor);
+    final List<String> tokens = [];
+    if (days != 0) {
+      tokens.add('${days}d');
+    }
+    if (tokens.isNotEmpty || hours != 0) {
+      tokens.add('${hours}h');
+    }
+    if (tokens.isNotEmpty || minutes != 0) {
+      tokens.add('${minutes}m');
+    }
+    tokens.add('${seconds}s');
 
-    print('${hourValor}:${minuteString} min');
-
-    return '${hourValor}:${minuteString} min';
-  }
-
-  String getMinuteString(double decimalValue) {
-    return '${(decimalValue / 60).toInt()}'.padLeft(2, '0');
-  }
-
-  String getHourString(int flooredValue) {
-    return '${flooredValue % 24}'.padLeft(2, '0');
-  }
-
-  void erroServidor(String err) {
-    print('Servidor temporáriamente indisponível');
+    return tokens.join(':');
   }
 
   void removeMarker() {
@@ -868,7 +822,7 @@ class RotaState extends State<rota> {
               LatLng latlong = LatLng(lat!, long!);
               currentCenter = latlong;
               double? rotacao = currentLocation.heading;
-              //mapController.move(currentCenter, 10);
+              mapController.rotate(rotacao!);
 
               addMarkerTracker(currentCenter);
               removeMarkerDb();
@@ -892,9 +846,9 @@ class RotaState extends State<rota> {
   }
 
   List<RoadInstruction> direcao() {
-    String final_ponto = 'You have reached a waypoint of your trip';
+    String finalPonto = 'You have reached a waypoint of your trip';
     for (int i = 0; i < listaDirecao.length; i++) {
-      if (listaDirecao[i].instruction.contains(final_ponto)) {
+      if (listaDirecao[i].instruction.contains(finalPonto)) {
         iconeDirecao.value = direcaoSeta(listaDirecao[i + 1].instruction);
       }
     }
@@ -1051,16 +1005,16 @@ class RotaState extends State<rota> {
 
                                 String distanciaString = '';
                                 double distanciaKm = 0.0;
-                                double distancia_convertida = 0.0;
+                                double distanciaConvertida = 0.0;
 
                                 if (distance >= 1) {
                                   distanciaKm = distance;
-                                  distancia_convertida = double.parse(
+                                  distanciaConvertida = double.parse(
                                       distanciaKm.toStringAsFixed(2));
                                   distanciaString =
-                                      ' ${distancia_convertida.toDouble()} KM';
+                                      ' ${distanciaConvertida.toDouble()} KM';
                                 } else {
-                                  num distancia_convertida = num.parse(
+                                  num distanciaConvertida = num.parse(
                                       distance.toStringAsPrecision(1));
                                   distanciaString =
                                       '${distance.toInt()} Metros';
@@ -1140,14 +1094,14 @@ class RotaState extends State<rota> {
 
   PesquisaIcone() async {
     final favoritosDao _dao = favoritosDao();
-    Future<List<redistro_favoritos>> Lista_dao = _dao.findAll_favoritos();
-    return Lista_dao;
+    Future<List<redistro_favoritos>> ListaDao = _dao.findAll_favoritos();
+    return ListaDao;
   }
 
   PesquisaCategoria() async {
     final categoriaDao _dao = categoriaDao();
-    Future<List<registro_categoria>> Lista_dao = _dao.findAll_categoria();
+    Future<List<registro_categoria>> ListaDao = _dao.findAll_categoria();
 
-    return Lista_dao;
+    return ListaDao;
   }
 }
