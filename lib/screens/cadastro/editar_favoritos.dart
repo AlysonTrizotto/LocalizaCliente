@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
+
+import '../../componentes/loading.dart';
 
 class editaFavoritos extends StatefulWidget {
   final int id;
@@ -11,7 +14,9 @@ class editaFavoritos extends StatefulWidget {
   final String lat;
   final String long;
   final int categoria;
-  const editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria, {Key? key}) : super(key: key);
+  const editaFavoritos(this.id, this.nome, this.lat, this.long, this.categoria,
+      {Key? key})
+      : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return editaFavoritosState(
@@ -43,9 +48,9 @@ class editaFavoritosState extends State<editaFavoritos> {
   void initState() {
     super.initState();
 
-    controladorCampoNome =  TextEditingController(text: nome);
-    controladorCampoLatE =  TextEditingController(text: lat.toString());
-    controladorCampoLongE =  TextEditingController(text: lat.toString());
+    controladorCampoNome = TextEditingController(text: nome);
+    controladorCampoLatE = TextEditingController(text: lat.toString());
+    controladorCampoLongE = TextEditingController(text: lat.toString());
   }
 
   void disponse() {
@@ -88,7 +93,6 @@ class editaFavoritosState extends State<editaFavoritos> {
                               if (_cadastro[i].nome_categoria ==
                                   _selectedValue) {
                                 itemInicial = _cadastro[i].id_categoria;
-                               
                               }
                             }
                           });
@@ -103,16 +107,8 @@ class editaFavoritosState extends State<editaFavoritos> {
                         hint: const Text('Selecione uma categoria'),
                       );
                     } else {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            CircularProgressIndicator(),
-                            Text('Carregando favoritos'),
-                          ],
-                        ),
-                      );
+                      return loadingScreen(
+                          context, 'Carregando lista de categoria');
                     }
                   }),
               SizedBox(
@@ -126,8 +122,6 @@ class editaFavoritosState extends State<editaFavoritos> {
                           controladorCampoNome.text,
                           lat.toString(),
                           long.toString(),
-                          //controladorCampoLatE.text,
-                          //controladorCampoLongE.text,
                           itemInicial,
                           context);
 
@@ -135,26 +129,20 @@ class editaFavoritosState extends State<editaFavoritos> {
                       controladorCampoLatE.clear();
                       controladorCampoLongE.clear();
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Cadastro realizado com sucesso!'),
-                          duration: Duration(milliseconds: 1500),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      mensgemScreen(context, 'Cadastro editado com sucesso!');
                     } else {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           // retorna um objeto do tipo Dialog
                           return AlertDialog(
-                            title: const Text("Não é possível salvar alteração"),
+                            title:
+                                const Text("Não é possível salvar alteração"),
                             content: const Text("Preencha o campo NOME"),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                               FlatButton(
-                                child:  const Text("Fechar"),
+                              FlatButton(
+                                child: const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },
@@ -182,5 +170,5 @@ void _criaCadastro(int id, String nome, String lat, String long, int idCateg,
   final cadastroCriado = redistro_favoritos(id, nome, lat, long, idCateg);
   _dao.editar_favoritos(cadastroCriado);
 
-   Navigator.pop(context, cadastroCriado);
+  Navigator.pop(context, cadastroCriado);
 }

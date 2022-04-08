@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:localiza_favoritos/componentes/loading.dart';
 import 'package:localiza_favoritos/componentes/nethort_help.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
@@ -67,16 +68,7 @@ class lista_pesquisaState extends State<lista_pesquisa> {
                       },
                     );
                   } else {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(),
-                          Text('Carregando favoritos'),
-                        ],
-                      ),
-                    );
+                    return  loadingScreen(context, 'Post favor, aguarde');
                   }
                 }),
           ),
@@ -183,16 +175,7 @@ class ListaPesquisa extends StatelessWidget {
                       title: Text('Nome : ' + _pesquisa.Nome),
                       subtitle: Text('Distância: ' + distanciaFuture));
                 } else {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        Text('Carregando favoritos'),
-                      ],
-                    ),
-                  );
+                  return  loadingScreen(context, 'Mais um instante');
                 }
               },
             ),

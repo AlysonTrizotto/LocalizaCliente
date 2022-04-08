@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/componentes/loading.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
@@ -52,7 +54,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
     String campoVazio = '';
     int quantidade = 0;
     if (quantidade == null) {
-      ListaVazia();
+      mensgemScreen(context, 'Cadastro realizado com sucesso!');
     }
 
     return Scaffold(
@@ -102,16 +104,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                         hint: const Text('Selecione uma categoria'),
                       );
                     } else {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            CircularProgressIndicator(),
-                            Text('Carregando favoritos'),
-                          ],
-                        ),
-                      );
+                      return loadingScreen(context, 'Carregando favoritos');
                     }
                   }),
               SizedBox(
@@ -133,14 +126,7 @@ class FormularioCadastroState extends State<FormularioCadastro> {
                       controladorCampoLongF.clear();
                       controladorCampoCategoria.clear();
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Cadastro realizado com sucesso!'),
-                          duration: Duration(milliseconds: 1500),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      mensgemScreen(context, 'Cadastro realizado com sucesso!');
                     } else {
                       campoVazio = '';
                       if (controladorCampoNome.text.isEmpty) {
@@ -184,22 +170,4 @@ void _criaCadastro(
 
   final cadastroCriado = redistro_favoritos(0, nome, lat, lng, idCateg);
   _dao.save_favoritos(cadastroCriado);
-}
-
-class ListaVazia extends StatelessWidget {
-  const ListaVazia({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-           CircularProgressIndicator(),
-           Text('Carregando favoritos'),
-        ],
-      ),
-    );
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:localiza_favoritos/componentes/loading.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/screens/cadastro/edita_categoria.dart';
@@ -48,16 +49,7 @@ class lista_categoria extends StatelessWidget {
                           },
                         );
                       } else {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const  [
-                               CircularProgressIndicator(),
-                               Text('Carregando favoritos'),
-                            ],
-                          ),
-                        );
+                        return loadingScreen(context, 'Post favor, aguarde');
                       }
                     }),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:localiza_favoritos/screens/dashboard/inicio.dart';
@@ -67,14 +68,7 @@ class editaCategoriaState extends State<editaCategoria> {
 
                       controladorCampoNome.clear();
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content:
-                              const Text('Cadastro realizado com sucesso!'),
-                          duration: const Duration(milliseconds: 1500),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      mensgemScreen(context, 'Cadastro editado com sucesso!');
                     } else {
                       campoVazio = '';
                       if (controladorCampoNome.text.length == 0) {
@@ -85,13 +79,13 @@ class editaCategoriaState extends State<editaCategoria> {
                         builder: (BuildContext context) {
                           // retorna um objeto do tipo Dialog
                           return AlertDialog(
-                            title: new Text("Não é permitido campos vazios"),
+                            title: const Text("Não é permitido campos vazios"),
                             content:
-                                new Text("Preencha os campos: \n" + campoVazio),
+                                 Text("Preencha os campos: \n" + campoVazio),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                              new FlatButton(
-                                child: new Text("Fechar"),
+                               FlatButton(
+                                child: const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();
                                 },

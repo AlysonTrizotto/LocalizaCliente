@@ -409,7 +409,7 @@ class RotaState extends State<rota> {
                               Container(
                                 child: FutureBuilder(
                                     future: Future.delayed(Duration()).then(
-                                        (value) => SugestionAdd(pesquisa)),
+                                        (value) => SugestionAdd(context, pesquisa)),
                                     builder: (context, AsyncSnapshot snapshot) {
                                       if (snapshot.hasData &&
                                           snapshot.data != null) {

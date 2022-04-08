@@ -1,6 +1,7 @@
 // ignore: use_key_in_widget_constructors
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/edit_text_geral.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 
@@ -188,15 +189,7 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
                           controladorCampoNome.text, cor, 'Icone', context);
 
                       controladorCampoNome.clear();
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Cadastro realizado com sucesso!'),
-                          duration: Duration(milliseconds: 1500),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
+                      mensgemScreen(context, 'Cadastro realizado com sucesso!');
                     } else {
                       campoVazio = '';
                       if (controladorCampoNome.text.isEmpty) {
@@ -212,7 +205,7 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
                                 Text("Preencha os campos: \n" + campoVazio),
                             actions: <Widget>[
                               // define os botões na base do dialogo
-                               FlatButton(
+                              FlatButton(
                                 child: const Text("Fechar"),
                                 onPressed: () {
                                   Navigator.of(context).pop();

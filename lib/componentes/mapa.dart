@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
+import 'package:localiza_favoritos/componentes/loading.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
-import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -293,8 +294,8 @@ class MapaState extends State<mapa> {
                       ),
                       Container(
                         child: FutureBuilder(
-                            future: Future.delayed(Duration())
-                                .then((value) => SugestionAdd(pesquisa)),
+                            future: Future.delayed(Duration()).then(
+                                (value) => SugestionAdd(context, pesquisa)),
                             builder: (context, AsyncSnapshot snapshot) {
                               if (snapshot.hasData && snapshot.data != null) {
                                 final List _retorno = snapshot.data;
@@ -322,7 +323,7 @@ class MapaState extends State<mapa> {
                                             child: Card(
                                               elevation: 50,
                                               child: ListTile(
-                                                leading: Icon(
+                                                leading: const Icon(
                                                     Icons.location_on_outlined),
                                                 title: Text(_endereco),
                                                 subtitle: Text('Latitude: ' +
@@ -361,15 +362,11 @@ class MapaState extends State<mapa> {
     );
   }
 
-  void erroServidor(String err) {
-    print('Servidor temporáriamente indisponível');
-  }
-
   void removeMarker() {
     try {
       markers.clear();
     } catch (e) {
-      print(e);
+      mensgemScreen(context, 'Erro ao remover marcador, \n Erro: ${e}');
     }
   }
 
@@ -397,9 +394,7 @@ class MapaState extends State<mapa> {
         ),
       );
     } catch (e) {
-      print('*******************');
-      print(e);
-      print('*******************');
+      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: ${e}');
     }
   }
 
@@ -407,9 +402,7 @@ class MapaState extends State<mapa> {
     try {
       markersTracker.clear();
     } catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
+      mensgemScreen(context, 'Erro ao remover o marcador, \n Erro: ${e}');
     }
   }
 
@@ -599,17 +592,10 @@ class MapaState extends State<mapa> {
                                 );
                               } else {
                                 return SizedBox(
-                                  height: 80,
-                                  width: 300,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      CircularProgressIndicator(),
-                                      Text('Calculando distância'),
-                                    ],
-                                  ),
+                                  height: 100,
+                                  width: 150,
+                                  child: loadingScreen(
+                                      context, 'Calculando distância'),
                                 );
                               }
                             }),
@@ -650,9 +636,7 @@ class MapaState extends State<mapa> {
         ));
       }
     } catch (e) {
-      print('*******************');
-      print(e);
-      print('*******************');
+      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: ${e}');
     } finally {
       setState(() {});
     }
@@ -794,9 +778,7 @@ class MapaState extends State<mapa> {
         ));
       }
     } catch (e) {
-      print('*******************');
-      print(e);
-      print('*******************');
+      mensgemScreen(context, 'Erro ao inserir point, \n Erro: ${e}');
     } finally {
       setState(() {});
       print('Passou pelo setState');
@@ -813,9 +795,7 @@ class MapaState extends State<mapa> {
       }
       mapController.move(centerZoom, zoom);
     } catch (e) {
-      print('************');
-      print(e);
-      print('************');
+      mensgemScreen(context, 'Erro ao diminuir zoom \n Erro: ${e}');
     }
   }
 
@@ -829,9 +809,7 @@ class MapaState extends State<mapa> {
       }
       mapController.move(centerZoom, zoom);
     } catch (e) {
-      print('**************');
-      print(e);
-      print('**************');
+      mensgemScreen(context, 'Erro ao dar zoom, \n Erro: ${e}');
     }
   }
 
@@ -858,13 +836,14 @@ class MapaState extends State<mapa> {
             removeMarkerTracker();
 
             _locationData = currentLocation;
+            double? rotacao = _locationData?.heading;
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.move(currentCenter, 17);
-            double? rotacao = currentLocation.heading;
             mapController.rotate(rotacao!);
+            mapController.move(currentCenter, 17);
+
             addMarkerTracker(currentCenter);
             removeMarkerDb();
             addMarkerDbTracker();
@@ -893,10 +872,7 @@ class MapaState extends State<mapa> {
       addMarker(currentCenter);
       mapController.move(currentCenter, 16);
     } catch (e) {
-      print("*******Movendo mapa*******\n");
-      print(e);
-      print(
-          "\n***lat: ${lat.toString()}********long: ${long.toString()}*************");
+      mensgemScreen(context, 'Erro ao adicionar marcador, \n Erro: ${e}');
     }
   }
 
