@@ -20,13 +20,16 @@ pegaDistanciaDOisPontos(double pInit, double pFin) async {
 
 pegaLocalizacao() async {
   return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high);
+    desiredAccuracy: LocationAccuracy.high,
+  );
 }
 
 pegaDistancia(double pLat, double pLong, double fLat, double fLong) async {
   double distanceInMeters =
       Geolocator.distanceBetween(pLat, pLong, fLat, fLong);
-
   return distanceInMeters;
 }
 
+direcao_geo() {
+  return _currentPosition?.heading ?? 0.0;
+}

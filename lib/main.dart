@@ -1,16 +1,8 @@
+// @dart=2.9
 //Apresentando Layout -
 import 'package:flutter/material.dart';
-import 'package:localiza_favoritos/componentes/mapa.dart';
-import 'package:localiza_favoritos/componentes/nethort_help.dart';
-import 'package:localiza_favoritos/componentes/rota.dart';
 import 'package:localiza_favoritos/componentes/tema.dart';
-import 'package:localiza_favoritos/screens/cadastro/editar_favoritos.dart';
-import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
-import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
-import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
-
 import 'screens/dashboard/inicio.dart';
-import 'dart:io';
 
 void main() async {
   runApp(CLHApp());
@@ -26,10 +18,10 @@ class CLHApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       //home: mapa(),
       //home: FormularioCadastro(0.0,0.0),
-      home: dashboard(0),
+      home: const dashboard(0),
 
       routes: {
-        '/retornoEditaFavorios': (BuildContext context) => dashboard(1),
+        '/retornoEditaFavorios': (BuildContext context) => const dashboard(1),
       },
     );
   }

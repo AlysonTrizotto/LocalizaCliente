@@ -1,19 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/componentes/loading.dart';
 import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
-
 import 'package:localiza_favoritos/componentes/search.dart';
 import 'package:localiza_favoritos/componentes/nethort_help.dart';
 import 'package:localiza_favoritos/componentes/rota.dart';
@@ -46,10 +46,14 @@ class MapaState extends State<mapa> {
   List<redistro_favoritos> banco = [];
   List<registro_categoria> bancoCategoria = [];
   String? _error;
+  final TextEditingController controladorCampoPesquisa =
+      TextEditingController();
+  var _needLoadingError = true;
   /**************************************************/
 
   /*****************Notifier*************************/
   ValueNotifier<bool> rastreio = ValueNotifier(false);
+  ValueNotifier<double> direcao = ValueNotifier(0.0);
   /**************************************************/
 
   /*****************Controllers**********************/
@@ -63,10 +67,11 @@ class MapaState extends State<mapa> {
 
   @override
   void initState() {
-    super.initState();
     getCurrentLocation();
 
     addMarkerDb();
+
+    super.initState();
   }
 
   late int quantidade = 0;
@@ -94,6 +99,12 @@ class MapaState extends State<mapa> {
       }
     }
 
+    getLocation.changeSettings(
+      accuracy: LocationAccuracy.navigation,
+      interval: 10,
+      distanceFilter: 0,
+    );
+
     _locationData = await getLocation.getLocation();
     setState(() {
       print(LatLng(parseToDouble(_locationData?.latitude),
@@ -110,9 +121,6 @@ class MapaState extends State<mapa> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController controladorCampoPesquisa =
-        TextEditingController();
-    var _needLoadingError = true;
     return Scaffold(
       appBar: AppBar(
         title: Text('Mapa'),
@@ -126,7 +134,7 @@ class MapaState extends State<mapa> {
                 minZoom: 4,
                 center: currentCenter,
                 zoom: zoomAtual,
-                onTap: (k, latlng) {
+                onTap: (latlng) {
                   removeMarker();
                   setState(() {
                     addMarker(latlng);
@@ -169,6 +177,7 @@ class MapaState extends State<mapa> {
                     markersTracker[i],
                 ]),
               ]),
+          compass(),
           Positioned(
             bottom: 30.0,
             left: 20.0,
@@ -192,7 +201,7 @@ class MapaState extends State<mapa> {
                     ));
               },
               icon: Transform.rotate(
-                angle: 150 * pi / 100,
+                angle: 150 * math.pi / 100,
                 child: Icon(Icons.send_outlined),
               ),
               label: Text('Navegar'),
@@ -360,6 +369,49 @@ class MapaState extends State<mapa> {
         ]),
       ),
     );
+  }
+
+  Widget compass() {
+    return StreamBuilder<CompassEvent>(
+        stream: FlutterCompass.events,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Error reading heading: ${snapshot.error}');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          double? direction = snapshot.data!.headingForCameraMode;
+          print('Compass -> headingModeCamera: ${direction}');
+          if (direction == null) {
+            return Center(
+              child: Text("Device does not have sensors !"),
+            );
+          } else {
+            direcao.value = direction * (math.pi / 180) * -1;
+          }
+
+          return Positioned(
+            top: 30.0,
+            left: 30.0,
+            child: Container(
+              child: Transform.rotate(
+                angle: (direction * (math.pi / 180) * -1),
+                child: Card(
+                  color: Colors.blueGrey[400],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(90.0)),
+                  child: Padding(
+                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send)),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   void removeMarker() {
@@ -781,7 +833,6 @@ class MapaState extends State<mapa> {
       mensgemScreen(context, 'Erro ao inserir point, \n Erro: ${e}');
     } finally {
       setState(() {});
-      print('Passou pelo setState');
     }
   }
 
@@ -836,14 +887,13 @@ class MapaState extends State<mapa> {
             removeMarkerTracker();
 
             _locationData = currentLocation;
-            double? rotacao = _locationData?.heading;
+            double? rotacao = _locationData?.headingAccuracy;
             lat = _locationData!.latitude;
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.rotate(rotacao!);
             mapController.move(currentCenter, 17);
-
+            mapController.rotate(direcao.value);
             addMarkerTracker(currentCenter);
             removeMarkerDb();
             addMarkerDbTracker();

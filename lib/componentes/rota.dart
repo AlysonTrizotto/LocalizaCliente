@@ -1,17 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:geocoder2/geocoder2.dart';
 
-import 'package:latlong2/latlong.dart';
+import 'package:latlong/latlong.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/componentes/convert_metros_km.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
@@ -29,7 +28,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:localiza_favoritos/componentes/search.dart';
 
-import 'nethort_help.dart';
 
 class rota extends StatefulWidget {
   LatLng latLng;
@@ -77,7 +75,7 @@ class RotaState extends State<rota> {
   ValueNotifier<IconData> iconeDirecao =
       ValueNotifier(Icons.gpp_maybe_outlined);
   ValueNotifier<double> direcaoGraus = ValueNotifier(0);
-
+  ValueNotifier<double> direcao_compass = ValueNotifier(0.0);
   bool _isVisible = false;
   bool _isVisibleContainerRota = true;
   /**************************************************/
@@ -128,7 +126,7 @@ class RotaState extends State<rota> {
     super.dispose();
   }
 
-  getCurrentLocation() async {
+   getCurrentLocation() async {
     Location getLocation = new Location();
 
     bool _serviceEnabled;
@@ -150,6 +148,12 @@ class RotaState extends State<rota> {
         return;
       }
     }
+
+    getLocation.changeSettings(
+      accuracy: LocationAccuracy.high,
+      interval: 10,
+      distanceFilter: 1,
+    );
 
     _locationData = await getLocation.getLocation();
     setState(() {
@@ -240,6 +244,7 @@ class RotaState extends State<rota> {
                       for (int i = 0; i < markerDb.length; i++) markerDb[i]
                     ]),
                   ]),
+              compass(),
               Visibility(
                 visible: true,
                 child: Stack(
@@ -409,7 +414,8 @@ class RotaState extends State<rota> {
                               Container(
                                 child: FutureBuilder(
                                     future: Future.delayed(Duration()).then(
-                                        (value) => SugestionAdd(context, pesquisa)),
+                                        (value) =>
+                                            SugestionAdd(context, pesquisa)),
                                     builder: (context, AsyncSnapshot snapshot) {
                                       if (snapshot.hasData &&
                                           snapshot.data != null) {
@@ -583,6 +589,49 @@ class RotaState extends State<rota> {
         ),
       ),
     );
+  }
+
+  Widget compass() {
+    return StreamBuilder<CompassEvent>(
+        stream: FlutterCompass.events,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Text('Error reading heading: ${snapshot.error}');
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          double? direction = snapshot.data!.heading;
+
+          if (direction == null) {
+            return Center(
+              child: Text("Device does not have sensors !"),
+            );
+          } else {
+            direcao_compass.value = direction;
+          }
+
+          return Positioned(
+            top: 30.0,
+            left: 30.0,
+            child: Container(
+              child: Transform.rotate(
+                angle: (direction * (math.pi / 180) * -1),
+                child: Card(
+                  color: Colors.blueGrey[400],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(90.0)),
+                  child: Padding(
+                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send)),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   void estadoBtnNavegarFalse() {
@@ -821,9 +870,8 @@ class RotaState extends State<rota> {
               long = _locationData!.longitude;
               LatLng latlong = LatLng(lat!, long!);
               currentCenter = latlong;
-              double? rotacao = currentLocation.heading;
-              mapController.rotate(rotacao!);
-
+              mapController.rotate(direcao_compass.value * -1);
+              
               addMarkerTracker(currentCenter);
               removeMarkerDb();
               addMarkerDbTracker();
