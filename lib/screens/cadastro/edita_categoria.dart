@@ -55,7 +55,7 @@ class editaCategoriaState extends State<editaCategoria> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
+              EditTextGeral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded, true),
               SizedBox(
                 width: double.maxFinite,

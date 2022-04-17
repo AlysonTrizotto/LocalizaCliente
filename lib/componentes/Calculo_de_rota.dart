@@ -1,10 +1,10 @@
 import 'package:routing_client_dart/routing_client_dart.dart';
 
 Future<double> calculoRota(
-    double lat_ini, double long_ini, double lat_final, double lng_final) async {
+    double latIni, double longIni, double latFinal, double lngFinal) async {
   List<LngLat> waypoints = [
-    LngLat(lat: lat_final, lng: lng_final),
-    LngLat(lat: lat_ini, lng: long_ini),
+    LngLat(lat: latFinal, lng: lngFinal),
+    LngLat(lat: latIni, lng: longIni),
   ];
 
   final manager = OSRMManager();

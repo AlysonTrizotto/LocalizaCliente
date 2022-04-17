@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class edit_text_geral extends StatelessWidget {
+class EditTextGeral extends StatelessWidget {
   final TextEditingController _controlador;
   final String _rotulo;
   final String _dica;
   final IconData _icone;
   final bool _enable;
-  edit_text_geral(this._controlador, this._dica, this._rotulo, this._icone, this._enable);
+  const EditTextGeral(this._controlador, this._dica, this._rotulo, this._icone, this._enable, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class edit_text_geral extends StatelessWidget {
       TextField(
         controller: _controlador,
         enabled: _enable,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 16.0,
         ),
         decoration: InputDecoration(

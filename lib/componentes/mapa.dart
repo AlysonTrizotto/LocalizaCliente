@@ -8,9 +8,9 @@ import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:flutter_map/flutter_map.dart';
+//import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -21,15 +21,18 @@ import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_favoritos.dart';
 
-class mapa extends StatefulWidget {
+class Mapa extends StatefulWidget {
+  const Mapa({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return MapaState();
   }
 }
 
-class MapaState extends State<mapa> {
-  /********************variveis********************/
+class MapaState extends State<Mapa> {
+  //********************variveis********************
+  String title = 'Mapa';
   double long = 106.816666;
   double lat = -6.200000;
   double zoom = 15.0;
@@ -45,25 +48,24 @@ class MapaState extends State<mapa> {
   List<Marker> markersTracker = [];
   List<redistro_favoritos> banco = [];
   List<registro_categoria> bancoCategoria = [];
-  String? _error;
   final TextEditingController controladorCampoPesquisa =
       TextEditingController();
   var _needLoadingError = true;
-  /**************************************************/
+  //**************************************************/
 
-  /*****************Notifier*************************/
+  //*****************Notifier*************************/
   ValueNotifier<bool> rastreio = ValueNotifier(false);
   ValueNotifier<double> direcao = ValueNotifier(0.0);
-  /**************************************************/
+  //**************************************************/
 
-  /*****************Controllers**********************/
+  //*****************Controllers**********************/
   MapController mapController = MapController();
   late MapState map;
-  late bool _serviceEnabled;
+  //late bool _serviceEnabled;
   late Location location = Location();
   LocationData? _locationData;
   StreamSubscription<LocationData>? _locationSubscription;
-  /**************************************************/
+  //**************************************************/
 
   @override
   void initState() {
@@ -77,7 +79,7 @@ class MapaState extends State<mapa> {
   late int quantidade = 0;
 
   getCurrentLocation() async {
-    Location getLocation = new Location();
+    Location getLocation = Location();
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -107,9 +109,6 @@ class MapaState extends State<mapa> {
 
     _locationData = await getLocation.getLocation();
     setState(() {
-      print(LatLng(parseToDouble(_locationData?.latitude),
-          parseToDouble(_locationData?.longitude)));
-
       currentCenter = LatLng(parseToDouble(_locationData?.latitude),
           parseToDouble(_locationData?.longitude));
       mapController.move(
@@ -123,7 +122,7 @@ class MapaState extends State<mapa> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mapa'),
+        title: Text(title),
       ),
       body: Center(
         child: Stack(children: [
@@ -134,7 +133,7 @@ class MapaState extends State<mapa> {
                 minZoom: 4,
                 center: currentCenter,
                 zoom: zoomAtual,
-                onTap: (latlng) {
+                onTap: (k, latlng) {
                   removeMarker();
                   setState(() {
                     addMarker(latlng);
@@ -154,10 +153,10 @@ class MapaState extends State<mapa> {
                       if (_needLoadingError) {
                         WidgetsBinding.instance!.addPostFrameCallback((_) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: Duration(seconds: 1),
+                            duration: const Duration(seconds: 1),
                             content: Text(
                               error.toString(),
-                              style: TextStyle(color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                             ),
                             backgroundColor: Colors.deepOrange,
                           ));
@@ -186,10 +185,6 @@ class MapaState extends State<mapa> {
               elevation: 50,
               backgroundColor: Colors.deepOrangeAccent,
               onPressed: () {
-                String xe =
-                    'Latitude: ${currentCenter.latitude} , Longitude: ${currentCenter.longitude}';
-                print(xe);
-
                 if (rastreio.value == true) {
                   atualyPosition();
                 }
@@ -197,14 +192,14 @@ class MapaState extends State<mapa> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => rota(currentCenter),
+                      builder: (context) => Rota(currentCenter),
                     ));
               },
               icon: Transform.rotate(
                 angle: 150 * math.pi / 100,
-                child: Icon(Icons.send_outlined),
+                child: const Icon(Icons.send_outlined),
               ),
-              label: Text('Navegar'),
+              label: const Text('Navegar'),
             ),
           ),
           Positioned(
@@ -214,16 +209,16 @@ class MapaState extends State<mapa> {
               FloatingActionButton(
                 heroTag: 'zoomIn',
                 elevation: 50,
-                child: Icon(Icons.add),
-                backgroundColor: Color(0xFF101427),
+                child: const Icon(Icons.add),
+                backgroundColor: const Color(0xFF101427),
                 onPressed: () async => _zoomIn(),
                 mini: true,
               ),
               FloatingActionButton(
                 heroTag: 'zoomOut',
                 elevation: 50,
-                child: Icon(Icons.remove),
-                backgroundColor: Color(0xFF101427),
+                child: const Icon(Icons.remove),
+                backgroundColor: const Color(0xFF101427),
                 onPressed: () async => _zoomOut(),
                 mini: true,
               ),
@@ -235,7 +230,7 @@ class MapaState extends State<mapa> {
             child: FloatingActionButton(
               heroTag: 'localizador',
               elevation: 50,
-              backgroundColor: Color(0xFF101427),
+              backgroundColor: const Color(0xFF101427),
               onPressed: () async {
                 atualyPosition();
               },
@@ -243,19 +238,19 @@ class MapaState extends State<mapa> {
                 valueListenable: rastreio,
                 builder: (ctx, isTracking, _) {
                   if (isTracking) {
-                    return Icon(
+                    return const Icon(
                       Icons.my_location,
                       color: Color.fromARGB(255, 226, 215, 215),
                     );
                   }
-                  return Icon(Icons.gps_off_sharp,
+                  return const Icon(Icons.gps_off_sharp,
                       color: Colors.deepOrangeAccent);
                 },
               ),
             ),
           ),
           SlidingUpPanel(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24.0),
                 topRight: Radius.circular(24.0)),
             minHeight: 28.0,
@@ -276,7 +271,7 @@ class MapaState extends State<mapa> {
                           child: TextField(
                             controller: controladorCampoPesquisa,
                             decoration: InputDecoration(
-                              prefixIcon: Icon(
+                              prefixIcon: const Icon(
                                 Icons.location_on_outlined,
                                 color: Colors.black,
                               ),
@@ -284,10 +279,9 @@ class MapaState extends State<mapa> {
                                 onTap: () {
                                   setState(() {
                                     pesquisa = controladorCampoPesquisa.text;
-                                    print(pesquisa);
                                   });
                                 },
-                                child: Icon(
+                                child: const Icon(
                                   Icons.search,
                                   color: Colors.black,
                                 ),
@@ -303,14 +297,14 @@ class MapaState extends State<mapa> {
                       ),
                       Container(
                         child: FutureBuilder(
-                            future: Future.delayed(Duration()).then(
+                            future: Future.delayed(const Duration()).then(
                                 (value) => SugestionAdd(context, pesquisa)),
                             builder: (context, AsyncSnapshot snapshot) {
                               if (snapshot.hasData && snapshot.data != null) {
                                 final List _retorno = snapshot.data;
                                 return ListView.builder(
                                   shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: _retorno.length,
                                   itemBuilder: (context, indice) {
                                     final String _endereco =
@@ -351,7 +345,7 @@ class MapaState extends State<mapa> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
-                                    children: [
+                                    children: const [
                                       CircularProgressIndicator(),
                                       Text(''),
                                     ],
@@ -380,19 +374,20 @@ class MapaState extends State<mapa> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
           double? direction = snapshot.data!.headingForCameraMode;
-          print('Compass -> headingModeCamera: ${direction}');
+
           if (direction == null) {
-            return Center(
+            return const Center(
               child: Text("Device does not have sensors !"),
             );
           } else {
-            direcao.value = direction * (math.pi / 180) * -1;
+            //direcao.value = direction * (math.pi / 180) * -1;
+            direcao.value = direction;
           }
 
           return Positioned(
@@ -405,7 +400,7 @@ class MapaState extends State<mapa> {
                   color: Colors.blueGrey[400],
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(90.0)),
-                  child: Padding(
+                  child: const Padding(
                       padding: EdgeInsets.all(15.0), child: Icon(Icons.send)),
                 ),
               ),
@@ -418,7 +413,7 @@ class MapaState extends State<mapa> {
     try {
       markers.clear();
     } catch (e) {
-      mensgemScreen(context, 'Erro ao remover marcador, \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao remover marcador, \n Erro: $e');
     }
   }
 
@@ -437,7 +432,7 @@ class MapaState extends State<mapa> {
                     currentCenter.latitude, currentCenter.longitude);
               })).then((value) => addMarkerDb());
             },
-            child: Icon(
+            child: const Icon(
               Icons.location_on,
               color: Colors.red,
               size: 35.0,
@@ -446,7 +441,7 @@ class MapaState extends State<mapa> {
         ),
       );
     } catch (e) {
-      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: ${e}');
+      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: $e');
     }
   }
 
@@ -454,7 +449,7 @@ class MapaState extends State<mapa> {
     try {
       markersTracker.clear();
     } catch (e) {
-      mensgemScreen(context, 'Erro ao remover o marcador, \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao remover o marcador, \n Erro: $e');
     }
   }
 
@@ -474,9 +469,7 @@ class MapaState extends State<mapa> {
         ),
       );
     } catch (e) {
-      print('*******************');
-      print(e);
-      print('*******************');
+      mensgemScreen(context, 'Erro ao inserir marcador tracker. Erro: $e');
     }
   }
 
@@ -484,9 +477,7 @@ class MapaState extends State<mapa> {
     try {
       banco.clear();
     } catch (e) {
-      print("************************\n");
-      print(e);
-      print("\n************************");
+       mensgemScreen(context, 'Erro ao inserir marcador tracker. Erro: $e');
     }
   }
 
@@ -595,7 +586,7 @@ class MapaState extends State<mapa> {
               builder: (BuildContext context) => AlertDialog(
                   title: Row(
                     children: <Widget>[
-                      Icon(Icons.location_on_rounded),
+                      const Icon(Icons.location_on_rounded),
                       Flexible(
                         child: Text(
                           banco[i].Nome,
@@ -605,11 +596,11 @@ class MapaState extends State<mapa> {
                   ),
                   content: Row(
                     children: <Widget>[
-                      Icon(Icons.route_rounded),
+                      const Icon(Icons.route_rounded),
                       Flexible(
                         child: FutureBuilder(
-                            future: Future.delayed(Duration(seconds: 1)).then(
-                                (value) => calculoRota(
+                            future: Future.delayed(const Duration(seconds: 1))
+                                .then((value) => calculoRota(
                                     double.parse(banco[i].Lat),
                                     double.parse(banco[i].Long),
                                     currentCenter.latitude,
@@ -637,7 +628,7 @@ class MapaState extends State<mapa> {
 
                                 return Text(
                                   distanciaString,
-                                  style: TextStyle(fontSize: 20),
+                                  style: const TextStyle(fontSize: 20),
                                   overflow: TextOverflow.fade,
                                   maxLines: 1,
                                   softWrap: false,
@@ -670,7 +661,7 @@ class MapaState extends State<mapa> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => rota(LatLng(
+                              builder: (context) => Rota(LatLng(
                                   double.parse(banco[i].Lat),
                                   double.parse(banco[i].Long))),
                             ));
@@ -688,7 +679,7 @@ class MapaState extends State<mapa> {
         ));
       }
     } catch (e) {
-      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: ${e}');
+      mensgemScreen(context, 'Ocorreu um erro não previsto, \n Erro: $e');
     } finally {
       setState(() {});
     }
@@ -801,13 +792,14 @@ class MapaState extends State<mapa> {
               context: context,
               builder: (BuildContext context) => AlertDialog(
                   title: Row(children: [
-                    Icon(Icons.location_on_rounded),
+                    const Icon(Icons.location_on_rounded),
                     Text(banco[i].Nome)
                   ]),
                   content: Row(
                     children: [
-                      Icon(Icons.earbuds_outlined),
-                      Text(distanciaString, style: TextStyle(fontSize: 20)),
+                      const Icon(Icons.earbuds_outlined),
+                      Text(distanciaString,
+                          style: const TextStyle(fontSize: 20)),
                     ],
                   ),
                   actions: <Widget>[
@@ -830,7 +822,7 @@ class MapaState extends State<mapa> {
         ));
       }
     } catch (e) {
-      mensgemScreen(context, 'Erro ao inserir point, \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao inserir point, \n Erro: $e');
     } finally {
       setState(() {});
     }
@@ -846,7 +838,7 @@ class MapaState extends State<mapa> {
       }
       mapController.move(centerZoom, zoom);
     } catch (e) {
-      mensgemScreen(context, 'Erro ao diminuir zoom \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao diminuir zoom \n Erro: $e');
     }
   }
 
@@ -860,7 +852,7 @@ class MapaState extends State<mapa> {
       }
       mapController.move(centerZoom, zoom);
     } catch (e) {
-      mensgemScreen(context, 'Erro ao dar zoom, \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao dar zoom, \n Erro: $e');
     }
   }
 
@@ -873,9 +865,7 @@ class MapaState extends State<mapa> {
         _locationSubscription =
             location.onLocationChanged.handleError((dynamic err) {
           if (err is PlatformException) {
-            setState(() {
-              _error = err.code;
-            });
+            setState(() {});
           }
           _locationSubscription?.cancel();
           setState(() {
@@ -883,7 +873,6 @@ class MapaState extends State<mapa> {
           });
         }).listen((LocationData currentLocation) {
           setState(() {
-            _error = null;
             removeMarkerTracker();
 
             _locationData = currentLocation;
@@ -922,7 +911,7 @@ class MapaState extends State<mapa> {
       addMarker(currentCenter);
       mapController.move(currentCenter, 16);
     } catch (e) {
-      mensgemScreen(context, 'Erro ao adicionar marcador, \n Erro: ${e}');
+      mensgemScreen(context, 'Erro ao adicionar marcador, \n Erro: $e');
     }
   }
 

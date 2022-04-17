@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-convert_Coord_End(double latCoord, double longCoord) {
+convertCoordEnd(double latCoord, double longCoord) {
     FutureBuilder(
-        future: Future.delayed(Duration()).then((value) {}),
+        future: Future.delayed(const Duration()).then((value) {}),
         builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             String snap = snapshot.data;
 
-            return Text('${snap}');
+            return Text(snap);
           } else {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
+                children: const [
                   CircularProgressIndicator(),
                   Text(''),
                 ],

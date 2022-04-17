@@ -1,16 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:flutter_compass/flutter_compass.dart';
-import 'package:flutter/material.dart';
 
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/componentes/convert_metros_km.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
@@ -20,31 +16,33 @@ import 'package:localiza_favoritos/models/pesquisa_cliente.dart';
 import 'package:routing_client_dart/routing_client_dart.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
+//import 'package:flutter_map/flutter_map.dart';
 
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:localiza_favoritos/componentes/search.dart';
 
 
-class rota extends StatefulWidget {
+class Rota extends StatefulWidget {
   LatLng latLng;
-  rota(this.latLng);
+
+  Rota(this.latLng ,{Key? key, }) : super(key: key);
+  
   @override
   State<StatefulWidget> createState() {
-    return RotaState(latLng);
+    return  RotaState(latLng);
   }
 }
 
-class RotaState extends State<rota> {
+class RotaState extends State<Rota> {
   final LatLng latLng;
   RotaState(this.latLng);
   double lat_final = 0.0;
   double lng_final = 0.0;
 
-  /********************variveis********************/
+  //********************variveis********************/
   double long = 106.816666;
   double lat = -6.200000;
   double zoom = 15.0;
@@ -536,7 +534,7 @@ class RotaState extends State<rota> {
 
                                           ValueNotifier<String> distancia =
                                               ValueNotifier('0.0 Km');
-                                          distancia.value = convert_Metros_Km(
+                                          distancia.value = convertMetrosKm(
                                               _retorno[indice].distance, 1000);
 
                                           return Column(
@@ -691,7 +689,7 @@ class RotaState extends State<rota> {
       languageCode: "en",
     );
 
-    distanciaRota.value = convert_Metros_Km(road.distance, 1);
+    distanciaRota.value = convertMetrosKm(road.distance, 1);
     tempoRota.value = getStringToTime(road.duration.toInt());
     listaDirecao = road.instructions;
 

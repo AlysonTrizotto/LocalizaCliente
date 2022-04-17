@@ -3,19 +3,19 @@ import 'package:localiza_favoritos/componentes/mapa.dart';
 import 'package:localiza_favoritos/screens/cadastro/formulario_categoria.dart';
 import 'package:localiza_favoritos/screens/dashboard/chama_paginas_pesquisa.dart';
 
-class dashboard extends StatefulWidget {
+class Dashboard extends StatefulWidget {
   final int index;
-  const dashboard(this.index, {Key? key}) : super(key: key);
+  const Dashboard(this.index, {Key? key}) : super(key: key);
   static String tag = 'Dashboard';
   @override
   State<StatefulWidget> createState() {
-    return dashboardState(index);
+    return DashboardState(index);
   }
 }
 
-class dashboardState extends State<dashboard> {
+class DashboardState extends State<Dashboard> {
   final int index;
-  dashboardState(this.index);
+  DashboardState(this.index);
 
   late int _selectedindex = index;
   late String titulo = 'Dashboard';
@@ -77,7 +77,7 @@ class NewPageScreenMapas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return mapa();
+    return const Mapa();
   }
 }
 

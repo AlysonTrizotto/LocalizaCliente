@@ -66,11 +66,11 @@ class FormularioCadastroState extends State<FormularioCadastro> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
+              EditTextGeral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded, true),
-              edit_text_geral(controladorCampoLatF, '-41.258', "Latitude",
+              EditTextGeral(controladorCampoLatF, '-41.258', "Latitude",
                   Icons.map_outlined, false),
-              edit_text_geral(controladorCampoLongF, '15.523', 'Longitude',
+              EditTextGeral(controladorCampoLongF, '15.523', 'Longitude',
                   Icons.map_sharp, false),
               FutureBuilder(
                   future: Future.delayed(const Duration(seconds: 1))

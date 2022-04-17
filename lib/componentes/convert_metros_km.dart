@@ -1,4 +1,4 @@
- convert_Metros_Km(double valor, int divisor) {
+ convertMetrosKm(double valor, int divisor) {
     String distanciaString = '';
     double distanciaKm = 0.0;
     double distanciaConvertida = 0.0;
@@ -9,7 +9,7 @@
       distanciaString = ' ${distanciaConvertida.toDouble()} KM';
     } else {
       valor = valor * 1000;
-      num distanciaConvertida = num.parse(valor.toStringAsPrecision(2));
+     
       distanciaString = '${valor.toInt()} Metros';
     }
 

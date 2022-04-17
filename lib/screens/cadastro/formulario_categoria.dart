@@ -6,6 +6,8 @@ import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
 
 class FormularioCategoria extends StatefulWidget {
+  const FormularioCategoria({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return FormularioCategoriaState();
@@ -44,7 +46,7 @@ class FormularioCategoriaState extends State<FormularioCategoria> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              edit_text_geral(controladorCampoNome, 'Nome', 'Empresa',
+              EditTextGeral(controladorCampoNome, 'Nome', 'Empresa',
                   Icons.apartment_rounded, true),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 16.0),

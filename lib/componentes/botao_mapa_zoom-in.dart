@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class botao extends StatelessWidget{
-  const botao({Key? key}) : super(key: key);
+class Botao extends StatelessWidget{
+  const Botao({Key? key}) : super(key: key);
 
  @override
   Widget build(BuildContext context) {
