@@ -590,7 +590,7 @@ class RotaState extends State<Rota> {
   }
 
   Widget compass() {
-    return StreamBuilder<CompassEvent>(
+     return StreamBuilder<CompassEvent>(
         stream: FlutterCompass.events,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -598,33 +598,34 @@ class RotaState extends State<Rota> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           }
 
-          double? direction = snapshot.data!.heading;
+          double? direction = snapshot.data!.headingForCameraMode;
 
           if (direction == null) {
-            return Center(
+            return const Center(
               child: Text("Device does not have sensors !"),
             );
           } else {
+            //direcao.value = direction * (math.pi / 180) * -1;
             direcao_compass.value = direction;
           }
 
           return Positioned(
             top: 30.0,
-            left: 30.0,
+            right: 20.0,
             child: Container(
               child: Transform.rotate(
                 angle: (direction * (math.pi / 180) * -1),
                 child: Card(
-                  color: Colors.blueGrey[400],
+                  color: Color(0xFF101427),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(90.0)),
-                  child: Padding(
-                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send)),
+                  child: const Padding(
+                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send, color: Colors.white,)),
                 ),
               ),
             ),

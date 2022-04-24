@@ -129,14 +129,14 @@ class MapaState extends State<Mapa> {
           FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                maxZoom: 18,
-                minZoom: 4,
+                maxZoom: 12,
+                minZoom: 12,
                 center: currentCenter,
                 zoom: zoomAtual,
-                onTap: (k, latlng) {
+                onTap: (k, markerPointAdd) {
                   removeMarker();
                   setState(() {
-                    addMarker(latlng);
+                    addMarker(markerPointAdd);
                   });
                 },
                 plugins: [],
@@ -145,8 +145,11 @@ class MapaState extends State<Mapa> {
               ),
               layers: [
                 TileLayerOptions(
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+                    tileProvider: AssetTileProvider(),
+                    urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
+                        
+                    //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                     updateInterval: 1,
                     errorTileCallback: (Tile tile, error) {
@@ -277,9 +280,15 @@ class MapaState extends State<Mapa> {
                               ),
                               suffixIcon: GestureDetector(
                                 onTap: () {
-                                  setState(() {
-                                    pesquisa = controladorCampoPesquisa.text;
-                                  });
+                                  if (controladorCampoPesquisa.text.length >=
+                                      3) {
+                                    setState(() {
+                                      pesquisa = controladorCampoPesquisa.text;
+                                    });
+                                  } else {
+                                    mensgemScreen(context,
+                                        'Para realizar uma pesquisa digite mais que 3 caracteres');
+                                  }
                                 },
                                 child: const Icon(
                                   Icons.search,
@@ -301,18 +310,17 @@ class MapaState extends State<Mapa> {
                                 (value) => SugestionAdd(context, pesquisa)),
                             builder: (context, AsyncSnapshot snapshot) {
                               if (snapshot.hasData && snapshot.data != null) {
-                                final List _retorno = snapshot.data;
+                                List<ListaGeocoder> _retorno = snapshot.data;
                                 return ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: _retorno.length,
                                   itemBuilder: (context, indice) {
                                     final String _endereco =
-                                        _retorno[indice].address.toString();
-                                    final double lat =
-                                        _retorno[indice].point!.latitude;
+                                        _retorno[indice].rua.toString();
+                                    final double lat = _retorno[indice].lat;
                                     final double long =
-                                        _retorno[indice].point!.longitude;
+                                        _retorno[indice].long;
                                     return Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -392,16 +400,20 @@ class MapaState extends State<Mapa> {
 
           return Positioned(
             top: 30.0,
-            left: 30.0,
+            right: 20.0,
             child: Container(
               child: Transform.rotate(
                 angle: (direction * (math.pi / 180) * -1),
                 child: Card(
-                  color: Colors.blueGrey[400],
+                  color: Color(0xFF101427),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(90.0)),
                   child: const Padding(
-                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send)),
+                      padding: EdgeInsets.all(15.0),
+                      child: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      )),
                 ),
               ),
             ),
@@ -417,19 +429,19 @@ class MapaState extends State<Mapa> {
     }
   }
 
-  void addMarker(LatLng latlng) {
+  void addMarker(LatLng markerPointAdd) {
     try {
-      currentCenter = latlng;
+      LatLng pointMark = markerPointAdd;
       markers.add(
         Marker(
           width: 150.0,
           height: 150.0,
-          point: currentCenter,
+          point: pointMark,
           builder: (ctx) => GestureDetector(
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return FormularioCadastro(
-                    currentCenter.latitude, currentCenter.longitude);
+                    pointMark.latitude, pointMark.longitude);
               })).then((value) => addMarkerDb());
             },
             child: const Icon(
@@ -477,7 +489,7 @@ class MapaState extends State<Mapa> {
     try {
       banco.clear();
     } catch (e) {
-       mensgemScreen(context, 'Erro ao inserir marcador tracker. Erro: $e');
+      mensgemScreen(context, 'Erro ao inserir marcador tracker. Erro: $e');
     }
   }
 

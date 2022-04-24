@@ -59,19 +59,21 @@ Widget _splash() {
         gradientBackground: const LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
-          colors: [Color(0xffED213A), Color(0xff93291E)],
+          colors: [Color.fromARGB(255, 0, 0, 0), Color.fromARGB(255, 0, 0, 0)],
         ),
-        navigateAfterSeconds:  const Dashboard(0),
-        loaderColor: Colors.amberAccent,
+        navigateAfterSeconds: const Dashboard(0),
+        loaderColor: Colors.deepOrangeAccent,
       ),
       Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/imagem/screenshot/screenPedro.jpg'),
+            image: AssetImage("assets/imagem/screenshot/screenPedro.png"),
             fit: BoxFit.none,
-          ),
+            scale: 2,
+            filterQuality: FilterQuality.high,
           ),
         ),
+      ),
     ],
   );
 }
