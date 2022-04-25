@@ -146,9 +146,9 @@ class MapaState extends State<Mapa> {
               layers: [
                 TileLayerOptions(
 
-                    tileProvider: AssetTileProvider(),
-                    urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
-                        
+                    //tileProvider: AssetTileProvider(),
+                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    //"assets/tiles/{z}/{x}/{y}.png"
                     //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                     updateInterval: 1,
