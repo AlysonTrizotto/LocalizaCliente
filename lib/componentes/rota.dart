@@ -9,6 +9,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:localiza_favoritos/componentes/Calculo_de_rota.dart';
 import 'package:localiza_favoritos/componentes/convert_metros_km.dart';
+import 'package:localiza_favoritos/componentes/mensagem.dart';
 import 'package:localiza_favoritos/database/DAO/categoria_dao.dart';
 import 'package:localiza_favoritos/database/DAO/favoritos_dao.dart';
 import 'package:localiza_favoritos/models/pesquisa_categoria.dart';
@@ -24,19 +25,21 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'package:localiza_favoritos/componentes/search.dart';
 
-
 class Rota extends StatefulWidget {
   LatLng latLng;
 
-  Rota(this.latLng ,{Key? key, }) : super(key: key);
-  
+  Rota(
+    this.latLng, {
+    Key? key,
+  }) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
-    return  RotaState(latLng);
+    return RotaState(latLng);
   }
 }
 
-class RotaState extends State<Rota> {
+class RotaState extends State<Rota> with TickerProviderStateMixin {
   final LatLng latLng;
   RotaState(this.latLng);
   double lat_final = 0.0;
@@ -110,21 +113,15 @@ class RotaState extends State<Rota> {
   @override
   void dispose() {
     if (rastreio.value == true) {
-      _locationSubscription?.onDone(() {});
-      Future.delayed(Duration.zero, () async {
-        await atualyPosition().then((value) => print(rastreio.value));
-      });
+      _locationSubscription?.cancel();
     }
-    print(rastreio.value);
-
-    _locationSubscription?.cancel();
 
     _locationSubscription = null;
 
     super.dispose();
   }
 
-   getCurrentLocation() async {
+  getCurrentLocation() async {
     Location getLocation = new Location();
 
     bool _serviceEnabled;
@@ -222,8 +219,8 @@ class RotaState extends State<Rota> {
                       polylines: [
                         Polyline(
                             points: points,
-                            strokeWidth: 4.0,
-                            color: Colors.purple),
+                            strokeWidth: 8.0,
+                            color: Colors.indigoAccent),
                       ],
                     ),
                     MarkerLayerOptions(markers: [
@@ -301,27 +298,17 @@ class RotaState extends State<Rota> {
                       icon: Icon(Icons.directions_car_filled_outlined),
                       label: const Text('IR'),
                       onPressed: () {
-                        
                         setState(() {
-                         
-                        if (rastreio.value == true) {
-                          {
-                            _locationSubscription?.cancel();
-                            setState(() {
-                              removeMarkerTracker();
-                              _locationSubscription = null;
-                              estadoBtnNavegarTrue();
-                            });
+                          if (rastreio.value != true) {
+                            atualyPosition();
                           }
-                        }
-                        routeHelper();
-                        Navigator.pop(context, 'Fechar');
+                          routeHelper();
                         });
                       }),
                 ),
               ),
               Positioned(
-                top: 130.0,
+                top: 90.0,
                 right: 20.0,
                 child:
                     Column(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -392,6 +379,20 @@ class RotaState extends State<Rota> {
                                   color: Colors.white,
                                   child: TextField(
                                     controller: controladorCampoPesquisa,
+                                    onSubmitted: (value) {
+                                      if (controladorCampoPesquisa
+                                              .text.length >=
+                                          3) {
+                                        setState(() {
+                                          pesquisa =
+                                              controladorCampoPesquisa.text;
+                                          estadoBtnNavegarFalse();
+                                        });
+                                      } else {
+                                        mensgemScreen(context,
+                                            'Para realizar uma pesquisa digite mais que 3 caracteres');
+                                      }
+                                    },
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
                                         Icons.location_on_outlined,
@@ -402,7 +403,7 @@ class RotaState extends State<Rota> {
                                           setState(() {
                                             pesquisa =
                                                 controladorCampoPesquisa.text;
-                                            if (pesquisa.length > 3) {
+                                            if (pesquisa.length >= 3) {
                                               estadoBtnNavegarFalse();
                                             }
                                           });
@@ -602,7 +603,7 @@ class RotaState extends State<Rota> {
   }
 
   Widget compass() {
-     return StreamBuilder<CompassEvent>(
+    return StreamBuilder<CompassEvent>(
         stream: FlutterCompass.events,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -623,21 +624,25 @@ class RotaState extends State<Rota> {
             );
           } else {
             //direcao.value = direction * (math.pi / 180) * -1;
-            direcao_compass.value = direction;
+            direcaoGraus.value = (direction * -1) - 20;
           }
 
           return Positioned(
-            top: 30.0,
-            right: 20.0,
+            top: 90.0,
+            left: 20.0,
             child: Container(
               child: Transform.rotate(
-                angle: (direction * (math.pi / 180) * -1),
+                angle: (direction * -1) - 20,
                 child: Card(
                   color: Color(0xFF101427),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(90.0)),
                   child: const Padding(
-                      padding: EdgeInsets.all(15.0), child: Icon(Icons.send, color: Colors.white,)),
+                      padding: EdgeInsets.all(15.0),
+                      child: Icon(
+                        Icons.send,
+                        color: Colors.white,
+                      )),
                 ),
               ),
             ),
@@ -720,7 +725,7 @@ class RotaState extends State<Rota> {
     containerPesquisa.value = false;
     containerDirecao.value = true;
 
-    atualyPosition();
+    //atualyPosition();
   }
 
   String getStringToTime(int valor) {
@@ -881,8 +886,10 @@ class RotaState extends State<Rota> {
               long = _locationData!.longitude;
               LatLng latlong = LatLng(lat!, long!);
               currentCenter = latlong;
-              mapController.rotate(direcao_compass.value * -1);
-              
+              //mapController.move(currentCenter, 17);
+              _animatedMapMove(currentCenter, 17);
+              //mapController.rotate(direcaoGraus.value);
+              _animatedMapRotate(direcaoGraus.value);
               addMarkerTracker(currentCenter);
               removeMarkerDb();
               addMarkerDbTracker();
@@ -902,6 +909,67 @@ class RotaState extends State<Rota> {
     } catch (e) {
       print(e);
     }
+  }
+
+  void _animatedMapRotate(double rotacao) {
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    var controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      mapController.rotate(rotacao);
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+    final _latTween = Tween<double>(
+        begin: mapController.center.latitude, end: destLocation.latitude);
+    final _lngTween = Tween<double>(
+        begin: mapController.center.longitude, end: destLocation.longitude);
+    final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    var controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      mapController.move(
+          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
+          _zoomTween.evaluate(animation));
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
   }
 
   List<RoadInstruction> direcao() {
@@ -1112,20 +1180,10 @@ class RotaState extends State<Rota> {
                     ),
                     TextButton(
                       onPressed: () {
-                        String xe =
-                            'Latitude: ${banco[i].Lat} , Longitude: ${banco[i].Long}';
                         lat_final = double.parse(banco[i].Lat);
                         lng_final = double.parse(banco[i].Long);
-                        print(xe);
-                        if (rastreio.value == true) {
-                          {
-                            _locationSubscription?.cancel();
-                            setState(() {
-                              removeMarkerTracker();
-                              _locationSubscription = null;
-                              estadoBtnNavegarTrue();
-                            });
-                          }
+                        if (rastreio.value != true) {
+                          atualyPosition();
                         }
                         routeHelper();
                         Navigator.pop(context, 'Fechar');

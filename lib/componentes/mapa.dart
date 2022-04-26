@@ -30,7 +30,7 @@ class Mapa extends StatefulWidget {
   }
 }
 
-class MapaState extends State<Mapa> {
+class MapaState extends State<Mapa> with TickerProviderStateMixin {
   //********************variveis********************
   String title = 'Mapa';
   double long = 106.816666;
@@ -74,6 +74,17 @@ class MapaState extends State<Mapa> {
     addMarkerDb();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (rastreio.value == true) {
+      _locationSubscription?.cancel();
+    }
+
+    _locationSubscription = null;
+
+    super.dispose();
   }
 
   late int quantidade = 0;
@@ -129,8 +140,8 @@ class MapaState extends State<Mapa> {
           FlutterMap(
               mapController: mapController,
               options: MapOptions(
-                maxZoom: 12,
-                minZoom: 12,
+                maxZoom: 18,
+                minZoom: 4,
                 center: currentCenter,
                 zoom: zoomAtual,
                 onTap: (k, markerPointAdd) {
@@ -146,7 +157,8 @@ class MapaState extends State<Mapa> {
               layers: [
                 TileLayerOptions(
                     //tileProvider: AssetTileProvider(),
-                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    urlTemplate:
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     //"assets/tiles/{z}/{x}/{y}.png",
                     //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
@@ -205,7 +217,7 @@ class MapaState extends State<Mapa> {
             ),
           ),
           Positioned(
-            top: 130.0,
+            top: 30.0,
             right: 20.0,
             child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
               FloatingActionButton(
@@ -271,6 +283,18 @@ class MapaState extends State<Mapa> {
                           ),
                           color: Colors.white,
                           child: TextField(
+                           
+                            textInputAction: TextInputAction.go,
+                            onSubmitted: (value) {
+                              if (controladorCampoPesquisa.text.length >= 3) {
+                                setState(() {
+                                  pesquisa = controladorCampoPesquisa.text;
+                                });
+                              } else {
+                                mensgemScreen(context,
+                                    'Para realizar uma pesquisa digite mais que 3 caracteres');
+                              }
+                            },
                             controller: controladorCampoPesquisa,
                             decoration: InputDecoration(
                               prefixIcon: const Icon(
@@ -305,57 +329,48 @@ class MapaState extends State<Mapa> {
                       ),
                       Container(
                         child: FutureBuilder(
-                                    future: Future.delayed(Duration()).then(
-                                        (value) =>
-                                            SugestionAdd(context, pesquisa)),
-                                    builder: (context, AsyncSnapshot snapshot) {
-                                      if (snapshot.hasData &&
-                                          snapshot.data != null) {
-                                        final List _retorno = snapshot.data;
-                                        return ListView.builder(
-                                          shrinkWrap: true,
-                                          physics:
-                                              const NeverScrollableScrollPhysics(),
-                                          itemCount: _retorno.length,
-                                          itemBuilder: (context, indice) {
-                                            final String _endereco =
-                                                _retorno[indice]
-                                                    .address
-                                                    .toString();
-                                            final double lat = _retorno[indice]
-                                                .point!
-                                                .latitude;
-                                            final double long = _retorno[indice]
-                                                .point!
-                                                .longitude;
-                                            return Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        adicionaMarcador(
-                                                            lat, long);
-                                                      });
-                                                    },
-                                                    child: Card(
-                                                      elevation: 50,
-                                                      child: ListTile(
-                                                        leading: const Icon(Icons
-                                                            .location_on_outlined),
-                                                        title: Text(_endereco),
-                                                        subtitle: Text(
-                                                            'Latitude: ' +
-                                                                lat.toString() +
-                                                                '\nLongitude: ' +
-                                                                long.toString()),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ]);
-                                          },
-                                        );
+                            future: Future.delayed(Duration()).then(
+                                (value) => SugestionAdd(context, pesquisa)),
+                            builder: (context, AsyncSnapshot snapshot) {
+                              if (snapshot.hasData && snapshot.data != null) {
+                                final List _retorno = snapshot.data;
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: _retorno.length,
+                                  itemBuilder: (context, indice) {
+                                    final String _endereco =
+                                        _retorno[indice].address.toString();
+                                    final double lat =
+                                        _retorno[indice].point!.latitude;
+                                    final double long =
+                                        _retorno[indice].point!.longitude;
+                                    return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                adicionaMarcador(lat, long);
+                                              });
+                                            },
+                                            child: Card(
+                                              elevation: 50,
+                                              child: ListTile(
+                                                leading: const Icon(
+                                                    Icons.location_on_outlined),
+                                                title: Text(_endereco),
+                                                subtitle: Text('Latitude: ' +
+                                                    lat.toString() +
+                                                    '\nLongitude: ' +
+                                                    long.toString()),
+                                              ),
+                                            ),
+                                          ),
+                                        ]);
+                                  },
+                                );
                               } else {
                                 return Center(
                                   child: Column(
@@ -404,15 +419,16 @@ class MapaState extends State<Mapa> {
             );
           } else {
             //direcao.value = direction * (math.pi / 180) * -1;
-            direcao.value = direction;
+            direcao.value = (direction * -1) - 20;
+            print(direcao.value);
           }
 
           return Positioned(
             top: 30.0,
-            right: 20.0,
+            left: 20.0,
             child: Container(
               child: Transform.rotate(
-                angle: (direction * (math.pi / 180) * -1),
+                angle: (direction * -1) - 20 ,
                 child: Card(
                   color: Color(0xFF101427),
                   shape: RoundedRectangleBorder(
@@ -868,8 +884,8 @@ class MapaState extends State<Mapa> {
       var bounds = mapController.bounds;
       var centerZoom = mapController.center;
       var zoom = mapController.zoom + 0.5;
-      if (zoom < 3) {
-        zoom = 3;
+      if (zoom > 18) {
+        zoom = 18;
       }
       mapController.move(centerZoom, zoom);
     } catch (e) {
@@ -902,8 +918,10 @@ class MapaState extends State<Mapa> {
             long = _locationData!.longitude;
             LatLng latlong = LatLng(lat!, long!);
             currentCenter = latlong;
-            mapController.move(currentCenter, 17);
-            mapController.rotate(direcao.value);
+            //mapController.move(currentCenter, 17);
+            _animatedMapMove(currentCenter, 17);
+            //mapController.rotate(direcao.value);
+            _animatedMapRotate(direcao.value);
             addMarkerTracker(currentCenter);
             removeMarkerDb();
             addMarkerDbTracker();
@@ -923,6 +941,67 @@ class MapaState extends State<Mapa> {
       print(e);
       print("\n************************");
     }
+  }
+
+  void _animatedMapRotate(double rotacao) {
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    var controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      mapController.rotate(rotacao);
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
+  }
+
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
+    // Create some tweens. These serve to split up the transition from one location to another.
+    // In our case, we want to split the transition be<tween> our current map center and the destination.
+    final _latTween = Tween<double>(
+        begin: mapController.center.latitude, end: destLocation.latitude);
+    final _lngTween = Tween<double>(
+        begin: mapController.center.longitude, end: destLocation.longitude);
+    final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
+
+    // Create a animation controller that has a duration and a TickerProvider.
+    var controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
+    // The animation determines what path the animation will take. You can try different Curves values, although I found
+    // fastOutSlowIn to be my favorite.
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+
+    controller.addListener(() {
+      mapController.move(
+          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
+          _zoomTween.evaluate(animation));
+    });
+
+    animation.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+      } else if (status == AnimationStatus.dismissed) {
+        controller.dispose();
+      }
+    });
+
+    controller.forward();
   }
 
   Future<void> adicionaMarcador(double lat, double long) async {

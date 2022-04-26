@@ -55,7 +55,7 @@ Widget _splash() {
   return Stack(
     children: <Widget>[
       SplashScreen(
-        seconds: 5,
+        seconds: 8,
         gradientBackground: const LinearGradient(
           begin: Alignment.topRight,
           end: Alignment.bottomLeft,
