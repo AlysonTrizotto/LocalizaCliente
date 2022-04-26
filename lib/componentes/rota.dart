@@ -301,9 +301,21 @@ class RotaState extends State<Rota> {
                       icon: Icon(Icons.directions_car_filled_outlined),
                       label: const Text('IR'),
                       onPressed: () {
-                        //points.clear();
+                        
                         setState(() {
-                          routeHelper();
+                         
+                        if (rastreio.value == true) {
+                          {
+                            _locationSubscription?.cancel();
+                            setState(() {
+                              removeMarkerTracker();
+                              _locationSubscription = null;
+                              estadoBtnNavegarTrue();
+                            });
+                          }
+                        }
+                        routeHelper();
+                        Navigator.pop(context, 'Fechar');
                         });
                       }),
                 ),

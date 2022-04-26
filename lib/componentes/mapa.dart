@@ -145,8 +145,8 @@ class MapaState extends State<Mapa> {
               ),
               layers: [
                 TileLayerOptions(
-                    tileProvider: AssetTileProvider(),
-                    urlTemplate: "assets/tiles/{z}/{x}/{y}.png",
+                    //tileProvider: AssetTileProvider(),
+                    urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     //"assets/tiles/{z}/{x}/{y}.png",
                     //"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
@@ -305,47 +305,57 @@ class MapaState extends State<Mapa> {
                       ),
                       Container(
                         child: FutureBuilder(
-                            future: Future.delayed(const Duration()).then(
-                                (value) => SugestionAdd(context, pesquisa)),
-                            builder: (context, AsyncSnapshot snapshot) {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                List<ListaGeocoder> _retorno = snapshot.data;
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: _retorno.length,
-                                  itemBuilder: (context, indice) {
-                                    final String _endereco =
-                                        _retorno[indice].rua.toString();
-                                    final double lat = _retorno[indice].lat;
-                                    final double long =
-                                        _retorno[indice].long;
-                                    return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                adicionaMarcador(lat, long);
-                                              });
-                                            },
-                                            child: Card(
-                                              elevation: 50,
-                                              child: ListTile(
-                                                leading: const Icon(
-                                                    Icons.location_on_outlined),
-                                                title: Text(_endereco),
-                                                subtitle: Text('Latitude: ' +
-                                                    lat.toString() +
-                                                    '\nLongitude: ' +
-                                                    long.toString()),
-                                              ),
-                                            ),
-                                          ),
-                                        ]);
-                                  },
-                                );
+                                    future: Future.delayed(Duration()).then(
+                                        (value) =>
+                                            SugestionAdd(context, pesquisa)),
+                                    builder: (context, AsyncSnapshot snapshot) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null) {
+                                        final List _retorno = snapshot.data;
+                                        return ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemCount: _retorno.length,
+                                          itemBuilder: (context, indice) {
+                                            final String _endereco =
+                                                _retorno[indice]
+                                                    .address
+                                                    .toString();
+                                            final double lat = _retorno[indice]
+                                                .point!
+                                                .latitude;
+                                            final double long = _retorno[indice]
+                                                .point!
+                                                .longitude;
+                                            return Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: <Widget>[
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        adicionaMarcador(
+                                                            lat, long);
+                                                      });
+                                                    },
+                                                    child: Card(
+                                                      elevation: 50,
+                                                      child: ListTile(
+                                                        leading: const Icon(Icons
+                                                            .location_on_outlined),
+                                                        title: Text(_endereco),
+                                                        subtitle: Text(
+                                                            'Latitude: ' +
+                                                                lat.toString() +
+                                                                '\nLongitude: ' +
+                                                                long.toString()),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ]);
+                                          },
+                                        );
                               } else {
                                 return Center(
                                   child: Column(
