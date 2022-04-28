@@ -63,6 +63,7 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
   List<registro_categoria> bancoCategoria = [];
   List<RoadInstruction> listaDirecao = [];
   String? _error;
+  int contadorReinicioRota = 0;
   /**************************************************/
 
   /*****************Notifier*************************/
@@ -145,9 +146,9 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
     }
 
     getLocation.changeSettings(
-      accuracy: LocationAccuracy.high,
+      accuracy: LocationAccuracy.navigation,
       interval: 10,
-      distanceFilter: 1,
+      distanceFilter: 0,
     );
 
     _locationData = await getLocation.getLocation();
@@ -526,7 +527,7 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
                             Container(
                               child: FutureBuilder(
                                   future: Future.delayed(Duration())
-                                      .then((value) => direcao()),
+                                      .then((value) => direcao(currentCenter)),
                                   builder: (context, AsyncSnapshot snapshot) {
                                     if (snapshot.hasData &&
                                         snapshot.data != null) {
@@ -620,7 +621,7 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
 
           if (direction == null) {
             return const Center(
-              child: Text("Device does not have sensors !"),
+              child: Text("Dispositivo sem sensor de direção!"),
             );
           } else {
             //direcao.value = direction * (math.pi / 180) * -1;
@@ -893,7 +894,29 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
               addMarkerTracker(currentCenter);
               removeMarkerDb();
               addMarkerDbTracker();
-              direcao();
+              direcao(currentCenter);
+
+              String finalPonto = 'You have reached a waypoint of your trip';
+              for (int i = 0; i < listaDirecao.length; i++) {
+                if (listaDirecao[i].instruction.contains(finalPonto)) {
+                  iconeDirecao.value =
+                      direcaoSeta(listaDirecao[i + 1].instruction);
+                }
+                if (listaDirecao[i].location == currentCenter) {
+                  iconeDirecao.value = direcaoSeta(listaDirecao[i].instruction);
+                }
+
+                if (listaDirecao[i].location != currentCenter) {
+                  latLng.latitude = currentCenter.latitude;
+                  latLng.longitude = currentCenter.longitude;
+                  contadorReinicioRota++;
+                  if (contadorReinicioRota == 50) {
+                    contadorReinicioRota = 0;
+                    routeHelper();
+                  }
+                  //Future.delayed(Duration(seconds: 60));
+                }
+              }
             });
           }
         });
@@ -972,11 +995,25 @@ class RotaState extends State<Rota> with TickerProviderStateMixin {
     controller.forward();
   }
 
-  List<RoadInstruction> direcao() {
+  List<RoadInstruction> direcao(LatLng localizcaoAtual) {
     String finalPonto = 'You have reached a waypoint of your trip';
     for (int i = 0; i < listaDirecao.length; i++) {
       if (listaDirecao[i].instruction.contains(finalPonto)) {
         iconeDirecao.value = direcaoSeta(listaDirecao[i + 1].instruction);
+      }
+      if (listaDirecao[i].location == localizcaoAtual) {
+        iconeDirecao.value = direcaoSeta(listaDirecao[i].instruction);
+      }
+
+      if (listaDirecao[i].location != currentCenter) {
+        latLng.latitude = currentCenter.latitude;
+        latLng.longitude = currentCenter.longitude;
+        contadorReinicioRota++;
+        if (contadorReinicioRota == 50) {
+          contadorReinicioRota = 0;
+          routeHelper();
+        }
+        //Future.delayed(Duration(seconds: 60));
       }
     }
 
